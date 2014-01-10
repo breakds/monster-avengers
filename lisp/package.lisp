@@ -6,5 +6,19 @@
         #:swiss-knife
         #:breakds.html-operation
         #:breakds.struct-wrapper)
-  (:export #:crawl-skill))
+  (:export #:crawl-skill-system
+           #:crawl-skill-systems))
 
+
+;;; ---------- Unit Tests ----------
+
+(defpackage #:breakds.monster-avengers.crawler-test
+  (:nicknames #:mh4-crawler-test)
+  (:use #:cl
+        #:stefil
+        #:swiss-knife
+        #:breakds.html-operation
+        #:breakds.struct-wrapper
+        #:breakds.monster-avengers.crawler)
+  (:export #:test-all))
+        

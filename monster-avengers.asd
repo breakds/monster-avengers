@@ -6,4 +6,5 @@
                  #:basicl
                  #:stefil)
     :components ((:file "lisp/package")
-                 (:file "lisp/crawler")))
+                 (:file "lisp/crawler")
+                 (:file "lisp/unit-test/crawler-test")))
