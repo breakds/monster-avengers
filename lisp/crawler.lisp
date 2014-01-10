@@ -41,7 +41,7 @@
    :skills (make-list-wrapper "tr:>1" #'crawl-skill)))
 
 (def-list-wrapper crawl-skill-systems
-  "body #wrapper #container #contents #data_container #data2 table tbody tr td a"
+    "body #wrapper #container #contents #data_container #data2 table tbody tr td a"
   (lambda (node)
     (format t "crawling ~a ... ~%" (get-trimmed-content node))
     (let ((href (cadr (assoc "href" (get-attributes node)
@@ -50,4 +50,16 @@
                                                  "~a~a"
                                                  *root-domain*
                                                  href))))))
+
+;;; ---------- Jewels Crawler ----------
+
+;; (def-struct-wrapper crawl-jewel
+;;   ("tr:1 td:1 a" :name #'get-trimmed-content)
+;;   ("tr td a
+
+  
+
+;; (def-struct-wrapper crawl-jewels-list 
+;;   ("body #wrapper #container #contents #data_container #data2 table:1 tbody"
+;;    :slot #'crawl-jewel))
 
