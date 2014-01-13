@@ -92,6 +92,7 @@
      (def-list-wrapper ,(symb 'crawl- (string-upcase type) "-" part-name '-list)
 	 "body #wrapper #container #contents #data_container #data2 table tbody tr td a"
        (lambda (node)
+         (format t "Crawling ~a ...~%" (get-trimmed-content node))
 	 (let ((href (cadr (assoc "href" (get-attributes node)
 				  :test #'equal))))
 	   (,(symb 'crawl- (string-upcase type) "-" part-name)
@@ -113,4 +114,20 @@
 (def-armor-wrapper cuisse ("range" 10 11))
 (def-armor-wrapper boot ("range" 11 12))
    
+
+;;; ---------- Exported Utilities ----------
+
+(defun get-jap-file-name (file-name)
+  (merge-pathnames (format nil "dataset/jap/~a" file-name)
+                   (asdf:system-source-directory 'monster-avengers)))
+
+(defun update-jap-dataset ()
+  (with-open-file (out (get-jap-file-name "skills/skills.lisp")
+                       :direction :output
+                       :if-exists :supersede
+                       :if-does-not-exist :create)
+    (print (crawl-skill-systems 
+            (html-from-uri "http://wiki.mh4g.org/data/1446.html"))
+           out)))
+
     

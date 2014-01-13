@@ -7,7 +7,8 @@
         #:breakds.html-operation
         #:breakds.struct-wrapper)
   (:export #:crawl-skill-system
-           #:crawl-skill-systems))
+           #:crawl-skill-systems
+           #:update-jap-dataset))
 
 
 ;;; ---------- Unit Tests ----------
