@@ -53,13 +53,18 @@
 
 ;;; ---------- Jewels Crawler ----------
 
-;; (def-struct-wrapper crawl-jewel
-;;   ("tr:1 td:1 a" :name #'get-trimmed-content)
-;;   ("tr td a
+(def-struct-wrapper crawl-jewel
+  ("tr:1 td:1 a" :name #'get-trimmed-content)
+  ("tr:1 td:1 span" :holes (lambda (node)
+			     (- 3 (count #\-
+					 (get-trimmed-content node)))))
+  ("" :effects (make-list-wrapper
+  		"tr td[~rowspan]"
+  		(make-struct-wrapper
+  		 ("a" :skill-name #'get-trimmed-content)
+  		 ("span" :skill-point #'get-trimmed-content-int)))))
 
-  
-
-;; (def-struct-wrapper crawl-jewels-list 
-;;   ("body #wrapper #container #contents #data_container #data2 table:1 tbody"
-;;    :slot #'crawl-jewel))
+(def-list-wrapper crawl-jewels-list
+    "body #wrapper #container #contents #data_container #data2 table tbody"
+  #'crawl-jewel)
 
