@@ -68,3 +68,37 @@
     "body #wrapper #container #contents #data_container #data2 table tbody"
   #'crawl-jewel)
 
+
+;;; ---------- Armor Crawler ----------
+
+(defmacro def-armor-wrapper (part-name (type first-tr-id second-tr-id))
+  `(def-struct-wrapper ,(symb 'crawl- (string-upcase type) "-" part-name)
+     ("" :type (lambda (node)
+		 (declare (ignorable node))
+		 ,type))
+     (,(mkstr "body #wrapper #container #contents #data_container #data2 table:1 tbody tr:" first-tr-id " td[~rowspan]:2 not(img):2")
+       :name #'string-trim-all)
+     (,(mkstr "body #wrapper #container #contents #data_container #data2 table:1 tbody tr:" first-tr-id " td[~rowspan]:4")
+       :rank #'get-trimmed-content-int)
+     (,(mkstr "body #wrapper #container #contents #data_container #data2 table:1 tbody tr:" first-tr-id " td[~rowspan]:10")
+       :defense #'get-trimmed-content-int)
+     (,(mkstr "body #wrapper #container #contents #data_container #data2 table:2 tbody tr:" second-tr-id " td[~rowspan]:2")
+       :holes #`,(- 3 (count #\- (get-trimmed-content x1))))
+     (,(mkstr "body #wrapper #container #contents #data_container #data2 table:2 tbody tr:" second-tr-id " td:3")
+       :effective-skills (make-list-wrapper "a" #'get-trimmed-content))
+     (,(mkstr "body #wrapper #container #contents #data_container #data2 table:2 tbody tr:" second-tr-id " td:3")
+       :effective-points (make-list-wrapper "span" #'get-trimmed-content-int))))
+
+(def-armor-wrapper helm ("melee" 2 2))
+(def-armor-wrapper cuirass ("melee" 3 3))
+(def-armor-wrapper glove ("melee" 4 4))
+(def-armor-wrapper cuisse ("melee" 5 5))
+(def-armor-wrapper boot ("melee" 6 6))
+
+(def-armor-wrapper helm ("range" 7 8))
+(def-armor-wrapper cuirass ("range" 8 9))
+(def-armor-wrapper glove ("range" 9 10))
+(def-armor-wrapper cuisse ("range" 10 11))
+(def-armor-wrapper boot ("range" 11 12))
+
+   
