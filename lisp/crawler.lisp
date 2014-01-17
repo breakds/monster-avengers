@@ -142,32 +142,32 @@
   (get-jap-file-name "jewels/jewels.lisp"))
 
 (defparameter *helms-file* 
-  (get-jap-file-name "jewels/armors/helms.lisp"))
+  (get-jap-file-name "armors/helms.lisp"))
 
 (defparameter *cuirasses-file* 
-  (get-jap-file-name "jewels/armors/cuirasses.lisp"))
+  (get-jap-file-name "armors/cuirasses.lisp"))
 
 (defparameter *gloves-file* 
-  (get-jap-file-name "jewels/armors/gloves.lisp"))
+  (get-jap-file-name "armors/gloves.lisp"))
 
 (defparameter *cuisses-file* 
-  (get-jap-file-name "jewels/armors/cuisses.lisp"))
+  (get-jap-file-name "armors/cuisses.lisp"))
 
 (defparameter *sabatons-file* 
-  (get-jap-file-name "jewels/armors/sabatons.lisp"))
+  (get-jap-file-name "armors/sabatons.lisp"))
 
 (defun update-jap-dataset (&key (force-refresh nil))
   (labels ((load-or-crawl (crawler file-name uri)
              (if (or force-refresh
                      (not (probe-file file-name)))
                  (let ((result (funcall crawler uri)))
-                   (with-open-file (out *skills-file*
+                   (with-open-file (out file-name
                                         :direction :output
                                         :if-exists :supersede
                                         :if-does-not-exist :create)
                      (print result out))
                    result)
-                 (with-open-file (in *skills-file*
+                 (with-open-file (in file-name
                                      :direction :input)
                    (read in)))))
     (setf *skills* 
@@ -215,26 +215,6 @@
                                    (crawl-range-sabaton-list (html-from-uri uri))))
                          *sabatons-file*
                          "http://wiki.mh4g.org/data/1445.html"))))
-
-
-  
-  ;; (if (or force-refresh
-  ;;         (not (probe-file *helms-file*)))
-  ;;     (progn
-  ;;       (setf *helms* 
-  ;;             (mapcan (lambda (uri)
-  ;;                       (crawl-helm-list (html-from-uri uri)))
-  ;;                     '("http://wiki.mh4g.org/data/1477.html"
-  ;;                       "http://wiki.mh4g.org/data/1478.html"
-  ;;                       "http://wiki.mh4g.org/data/1479.html")))
-  ;;       (with-open-file (out *helms-file*
-  ;;                            :direction :output
-  ;;                            :if-exists :supersede
-  ;;                            :if-does-not-exist :create)
-  ;;         (print *helms* out)))
-  ;;     (with-open-file (in *helms-file*
-  ;;                         :direction :input)
-  ;;       (setf *helms* (read in))))
 
 
   
