@@ -1,591 +1,777 @@
 
-((:SYSTEM-NAME "榴弾追加" :SKILLS
-  ((:DESCRIPTION "LV1徹甲榴弾が使えるようになる" :POINTS 10 :NAME "徹甲榴弾LV1追加" :OBJ T)
-   (:DESCRIPTION "全LVの徹甲榴弾が使えるようになる" :POINTS 15 :NAME "徹甲榴弾全LV追加" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "龍耐性" :SKILLS
-  ((:DESCRIPTION "龍耐性-20、龍属性やられ状態小が大になる" :POINTS -10 :NAME "龍耐性弱化" :OBJ T)
-   (:DESCRIPTION "龍耐性+15、龍属性やられ小を無効" :POINTS 10 :NAME "龍耐性【小】" :OBJ T)
-   (:DESCRIPTION "龍耐性+20、龍属性やられ小と大を無効" :POINTS 15 :NAME "龍耐性【大】" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "龍属性攻撃" :SKILLS
-  ((:DESCRIPTION "龍属性の攻撃が0.75倍になる" :POINTS -10 :NAME "龍属性攻撃弱化" :OBJ T)
-   (:DESCRIPTION "龍属性の攻撃が1.05倍+40になる" :POINTS 10 :NAME "龍属性攻撃強化+1" :OBJ T)
-   (:DESCRIPTION "龍属性の攻撃が1.1倍+60になる" :POINTS 15 :NAME "龍属性攻撃強化+2" :OBJ T)
-   (:DESCRIPTION "龍属性の攻撃が1.15倍+90になる" :POINTS 20 :NAME "龍属性攻撃強化+3" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "無傷" :SKILLS
-  ((:DESCRIPTION "体力ゲージが最大の時に攻撃力が上がる" :POINTS 10 :NAME "フルチャージ" :OBJ T)) :OBJ
+((:EFFECTIVE-POINTS (2 3 -1 2) :EFFECTIVE-SKILLS ("加護" "重撃" "スタミナ" "剣術") :HOLES
+  2 :DEFENSE 26 :RANK 3 :NAME "凛【袴】" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T) (:TYPE "melee" :OBJ T) (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-4 3 2 1) :EFFECTIVE-SKILLS ("気配" "体術" "運気" "属性解放") :HOLES
+  1 :DEFENSE 52 :RANK 7 :NAME "勇者の靴" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 5 3) :EFFECTIVE-SKILLS ("溜め短縮" "底力" "達人" "防御") :HOLES
+  0 :DEFENSE 67 :RANK 7 :NAME "大和【具足】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 3 2 -3) :EFFECTIVE-SKILLS ("貫通弾強化" "無傷" "スタミナ" "装填速度")
+  :HOLES 0 :DEFENSE 13 :RANK 3 :NAME "八千代【袴】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 3 3 -3) :EFFECTIVE-SKILLS ("貫通弾強化" "不動" "速射" "装填速度")
+  :HOLES 0 :DEFENSE 32 :RANK 7 :NAME "八千代・覇【袴】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -2 2 2) :EFFECTIVE-SKILLS ("加護" "底力" "属性耐性" "剣術") :HOLES
+  2 :DEFENSE 68 :RANK 7 :NAME "夜叉【御足】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 4 3 -2) :EFFECTIVE-SKILLS ("貫通弾強化" "防御" "反動" "装填速度")
+  :HOLES 0 :DEFENSE 34 :RANK 7 :NAME "陸奥【具足】" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 5) :EFFECTIVE-SKILLS ("気配" "気力回復" "攻撃") :HOLES 0
+  :DEFENSE 22 :RANK 7 :NAME "坊屋バックル" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -2 2 4) :EFFECTIVE-SKILLS ("耐震" "火耐性" "運気" "反動") :HOLES
+  1 :DEFENSE 41 :RANK 7 :NAME "不動【具足】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 5 3) :EFFECTIVE-SKILLS ("溜め短縮" "底力" "達人" "防御") :HOLES
+  0 :DEFENSE 67 :RANK 7 :NAME "日向【袴】" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2 1) :EFFECTIVE-SKILLS ("スタミナ" "闘魂" "本気" "匠") :HOLES
+  1 :DEFENSE 81 :RANK 7 :NAME "怒天ノ袴" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 2 3 3) :EFFECTIVE-SKILLS ("底力" "達人" "不動" "抜刀会心") :HOLES
+  0 :DEFENSE 64 :RANK 7 :NAME "常磐・覇【具足】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -3 4 3) :EFFECTIVE-SKILLS ("スタミナ" "底力" "達人" "抜刀減気")
+  :HOLES 0 :DEFENSE 26 :RANK 3 :NAME "常磐【具足】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 2) :EFFECTIVE-SKILLS ("加護" "剥ぎ取り" "匠") :HOLES 1
+  :DEFENSE 44 :RANK 7 :NAME "伝説Jブーツ" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (4 -5 3 2) :EFFECTIVE-SKILLS ("加護" "気配" "闘魂" "怒") :HOLES 0
+  :DEFENSE 26 :RANK 7 :NAME "地上最強の胴衣" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2 1) :EFFECTIVE-SKILLS ("スタミナ" "闘魂" "本気" "装填速度")
+  :HOLES 1 :DEFENSE 41 :RANK 7 :NAME "心滅ノ足袋" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 1 3 3) :EFFECTIVE-SKILLS
+  ("気配" "回復量" "根性" "剥ぎ取り" "剣術") :HOLES 1 :DEFENSE 53 :RANK 6 :NAME "城塞遊撃隊【足袋】"
+  :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T) (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2 -2 2) :EFFECTIVE-SKILLS ("加護" "装填数" "底力" "属性耐性")
+  :HOLES 2 :DEFENSE 34 :RANK 7 :NAME "修羅【御足】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2 -2) :EFFECTIVE-SKILLS ("属性攻撃" "回避性能" "防御") :HOLES 2
+  :DEFENSE 81 :RANK 7 :NAME "忍の足袋・天" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 3 3 -3) :EFFECTIVE-SKILLS ("貫通弾強化" "不動" "速射" "装填速度")
+  :HOLES 0 :DEFENSE 32 :RANK 7 :NAME "東雲・覇【袴】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 3 2 -3) :EFFECTIVE-SKILLS ("貫通弾強化" "無傷" "スタミナ" "装填速度")
+  :HOLES 0 :DEFENSE 13 :RANK 3 :NAME "東雲【袴】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 2 3 3) :EFFECTIVE-SKILLS ("底力" "達人" "不動" "抜刀会心") :HOLES
+  0 :DEFENSE 64 :RANK 7 :NAME "残陽・覇【具足】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -3 4 3) :EFFECTIVE-SKILLS ("スタミナ" "底力" "達人" "抜刀減気")
+  :HOLES 0 :DEFENSE 26 :RANK 3 :NAME "残陽【具足】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS NIL :EFFECTIVE-SKILLS NIL :HOLES 3 :DEFENSE 18 :RANK 5
+  :NAME "三眼の足輪" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1 1) :EFFECTIVE-SKILLS ("スタミナ" "闘魂" "本気" "匠") :HOLES
+  1 :DEFENSE 65 :RANK 7 :NAME "金色ノ袴" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -2 4 2) :EFFECTIVE-SKILLS ("耐震" "火耐性" "ガード性能" "運気")
+  :HOLES 1 :DEFENSE 82 :RANK 7 :NAME "金剛【具足】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 2 1 1) :EFFECTIVE-SKILLS ("スタミナ" "闘魂" "本気" "装填速度")
+  :HOLES 1 :DEFENSE 33 :RANK 7 :NAME "黒子ノ足袋" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2 3 -1) :EFFECTIVE-SKILLS ("加護" "装填数" "重撃" "スタミナ")
+  :HOLES 1 :DEFENSE 13 :RANK 3 :NAME "艶【袴】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 4 3 -2) :EFFECTIVE-SKILLS ("貫通弾強化" "防御" "反動" "装填速度")
+  :HOLES 0 :DEFENSE 34 :RANK 7 :NAME "天城【袴】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2 3 -1) :EFFECTIVE-SKILLS ("加護" "装填数" "重撃" "スタミナ")
+  :HOLES 1 :DEFENSE 13 :RANK 3 :NAME "曙丸【具足】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 3 -1 2) :EFFECTIVE-SKILLS ("加護" "重撃" "スタミナ" "剣術") :HOLES
+  2 :DEFENSE 26 :RANK 3 :NAME "暁丸【具足】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -1 2 5 1) :EFFECTIVE-SKILLS
+  ("ハチミツ" "加護" "龍属性攻撃" "聴覚保護" "剣術") :HOLES 2 :DEFENSE 18 :RANK 4 :NAME
+  "ロワーガガンバ" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -2 2) :EFFECTIVE-SKILLS ("食いしん坊" "研ぎ師" "攻撃") :HOLES 2
+  :DEFENSE 22 :RANK 3 :NAME "レックスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2 -2 2) :EFFECTIVE-SKILLS ("食事" "観察眼" "研ぎ師" "聴覚保護")
+  :HOLES 2 :DEFENSE 59 :RANK 6 :NAME "レックスUグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 3 -2 4) :EFFECTIVE-SKILLS ("食いしん坊" "千里眼" "研ぎ師" "攻撃")
+  :HOLES 0 :DEFENSE 55 :RANK 5 :NAME "レックスSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 1) :EFFECTIVE-SKILLS ("気まぐれ" "採取") :HOLES 0 :DEFENSE 1
+  :RANK 1 :NAME "レザーパンツ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -1 3) :EFFECTIVE-SKILLS ("高速収集" "運気" "採取") :HOLES 1
+  :DEFENSE 22 :RANK 4 :NAME "レザーSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 3) :EFFECTIVE-SKILLS ("回復量" "火属性攻撃" "攻撃") :HOLES 1
+  :DEFENSE 23 :RANK 3 :NAME "レウスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 3) :EFFECTIVE-SKILLS ("回復量" "火属性攻撃" "攻撃") :HOLES 1
+  :DEFENSE 57 :RANK 5 :NAME "レウスSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 2) :EFFECTIVE-SKILLS ("回復速度" "火属性攻撃" "体力") :HOLES 2
+  :DEFENSE 19 :RANK 2 :NAME "レイアグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1 5) :EFFECTIVE-SKILLS ("回復速度" "回復量" "火属性攻撃" "体力")
+  :HOLES 1 :DEFENSE 50 :RANK 5 :NAME "レイアSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 2 2 2) :EFFECTIVE-SKILLS ("雷耐性" "耐暑" "水属性攻撃" "スタミナ")
+  :HOLES 1 :DEFENSE 15 :RANK 2 :NAME "ルドロスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1) :EFFECTIVE-SKILLS ("攻撃" "回避術" "怒") :HOLES 1
+  :DEFENSE 69 :RANK 7 :NAME "リベリオングリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 3 3) :EFFECTIVE-SKILLS ("気絶" "耐泥耐雪" "KO") :HOLES 0
+  :DEFENSE 8 :RANK 2 :NAME "リノプログリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -1 3 1) :EFFECTIVE-SKILLS ("耐泥耐雪" "気絶" "KO" "砲術") :HOLES
+  1 :DEFENSE 31 :RANK 4 :NAME "リノプロSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 4 1 2) :EFFECTIVE-SKILLS ("気配" "風圧" "火属性攻撃" "底力")
+  :HOLES 1 :DEFENSE 51 :RANK 6 :NAME "リオハートグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 3 -2 3) :EFFECTIVE-SKILLS ("斬れ味" "聴覚保護" "体力" "達人")
+  :HOLES 1 :DEFENSE 58 :RANK 6 :NAME "リオソウルグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 3) :EFFECTIVE-SKILLS ("気絶" "攻撃") :HOLES 1 :DEFENSE 13
+  :RANK 2 :NAME "ランポスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 38 :RANK
+  4 :NAME "ランポスSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -2 3 3) :EFFECTIVE-SKILLS ("麻痺" "毒" "対防御DOWN" "特殊攻撃")
+  :HOLES 0 :DEFENSE 36 :RANK 4 :NAME "ランゴグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 47 :RANK
+  4 :NAME "ラングログリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 2 3) :EFFECTIVE-SKILLS ("溜め短縮" "特殊攻撃" "痛撃" "属性解放")
+  :HOLES 1 :DEFENSE 60 :RANK 6 :NAME "ラギアグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2) :EFFECTIVE-SKILLS ("気配" "回復速度" "ガード性能") :HOLES 2
+  :DEFENSE 23 :RANK 3 :NAME "ラヴァグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1) :EFFECTIVE-SKILLS ("攻撃" "回避術" "怒") :HOLES 1
+  :DEFENSE 35 :RANK 7 :NAME "ライオットレギンス" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -2 3 2) :EFFECTIVE-SKILLS ("耐寒" "食事" "回避距離" "聴覚保護")
+  :HOLES 2 :DEFENSE 44 :RANK 7 :NAME "ユニクロパンツ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2 1 1) :EFFECTIVE-SKILLS ("加護" "回復量" "研ぎ師" "匠") :HOLES 2
+  :DEFENSE 60 :RANK 6 :NAME "ユクモノハカマ・天" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 52 :RANK
+  6 :NAME "メイドソックス" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 2 -3 2) :EFFECTIVE-SKILLS ("スタミナ" "斬れ味" "防御" "怒") :HOLES
+  1 :DEFENSE 86 :RANK 7 :NAME "ミラバルフット" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 4 3) :EFFECTIVE-SKILLS ("耐暑" "風圧" "聴覚保護") :HOLES 2
+  :DEFENSE 69 :RANK 7 :NAME "ミヅハ【具足】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 1 2 1 3) :EFFECTIVE-SKILLS
+  ("属性解放" "回復速度" "調合数" "調合成功率" "溜め短縮") :HOLES 0 :DEFENSE 19 :RANK 4 :NAME
+  "マギュルライース" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -2 1 3) :EFFECTIVE-SKILLS ("防御" "腹減り" "ガード性能" "攻撃")
+  :HOLES 1 :DEFENSE 18 :RANK 2 :NAME "ボロスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (4 2) :EFFECTIVE-SKILLS ("笛" "KO") :HOLES 1 :DEFENSE 7
+  :RANK 1 :NAME "ボーングリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 4 1 2) :EFFECTIVE-SKILLS ("睡眠" "笛" "観察眼" "KO") :HOLES 0
+  :DEFENSE 27 :RANK 4 :NAME "ボーンSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 2) :EFFECTIVE-SKILLS ("腹減り" "指揮" "狩人") :HOLES 1
+  :DEFENSE 45 :RANK 6 :NAME "ホークブーツ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 2 3) :EFFECTIVE-SKILLS ("運気" "採取" "加護" "砲術") :HOLES 2
+  :DEFENSE 18 :RANK 4 :NAME "ヘルパーソックス" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2 3) :EFFECTIVE-SKILLS ("気力回復" "体術" "氷属性攻撃" "回避性能")
+  :HOLES 1 :DEFENSE 57 :RANK 5 :NAME "ベリオグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2 1) :EFFECTIVE-SKILLS ("加護" "水属性攻撃" "重撃" "聴覚保護")
+  :HOLES 2 :DEFENSE 84 :RANK 7 :NAME "ヘリオスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 3 2 -1) :EFFECTIVE-SKILLS ("笛" "広域" "観察眼" "氷耐性") :HOLES
+  1 :DEFENSE 36 :RANK 4 :NAME "ペッコグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 4) :EFFECTIVE-SKILLS ("体力" "回復速度" "乗り") :HOLES 0
+  :DEFENSE 1 :RANK 1 :NAME "ブレイブパンツ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 4) :EFFECTIVE-SKILLS ("体力" "回復速度" "乗り") :HOLES 0
+  :DEFENSE 1 :RANK 1 :NAME "ブレイブパンツ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (4 1 -1) :EFFECTIVE-SKILLS ("乗り" "回復速度" "体力") :HOLES 0
+  :DEFENSE 18 :RANK 4 :NAME "ブレイブSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 3) :EFFECTIVE-SKILLS ("気絶" "回復量" "雷属性攻撃") :HOLES 1
+  :DEFENSE 19 :RANK 2 :NAME "フルフルグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2) :EFFECTIVE-SKILLS ("回復速度" "広域" "回復量") :HOLES 2
+  :DEFENSE 51 :RANK 6 :NAME "フルフルUグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 3 2 3) :EFFECTIVE-SKILLS ("気絶" "回復速度" "広域" "雷属性攻撃")
+  :HOLES 1 :DEFENSE 50 :RANK 5 :NAME "フルフルSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 4 2) :EFFECTIVE-SKILLS ("采配" "水属性攻撃" "闘魂") :HOLES 2
+  :DEFENSE 26 :RANK 7 :NAME "ブルースターブーツ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 1 -2 2) :EFFECTIVE-SKILLS ("耐泥耐雪" "耐寒" "耐暑" "攻撃") :HOLES
+  2 :DEFENSE 55 :RANK 5 :NAME "ブランゴグリーヴ" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 2) :EFFECTIVE-SKILLS ("爆弾強化" "回避性能" "闘魂") :HOLES 1
+  :DEFENSE 22 :RANK 3 :NAME "ブラキグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 2 2 -2 3) :EFFECTIVE-SKILLS
+  ("回避距離" "爆弾強化" "底力" "回避性能" "闘魂") :HOLES 1 :DEFENSE 57 :RANK 6 :NAME
+  "ブラキSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 2 2 3) :EFFECTIVE-SKILLS ("攻撃" "麻痺" "納刀" "特殊攻撃") :HOLES
+  0 :DEFENSE 10 :RANK 2 :NAME "ブナハブーツ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2 3 -1) :EFFECTIVE-SKILLS ("麻痺" "納刀" "特殊攻撃" "攻撃") :HOLES
+  1 :DEFENSE 33 :RANK 4 :NAME "ブナハSブーツ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -3 3 3) :EFFECTIVE-SKILLS ("狂撃耐性" "火耐性" "本気" "匠") :HOLES
+  2 :DEFENSE 24 :RANK 3 :NAME "フィリアグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 3 1) :EFFECTIVE-SKILLS ("狂撃耐性" "火耐性" "本気" "回避術")
+  :HOLES 2 :DEFENSE 65 :RANK 7 :NAME "フィリアSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -1 2 5 1) :EFFECTIVE-SKILLS
+  ("ハチミツ" "加護" "龍属性攻撃" "聴覚保護" "剣術") :HOLES 2 :DEFENSE 18 :RANK 4 :NAME
+  "ファルメルガンバ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 3) :EFFECTIVE-SKILLS ("毒" "調合成功率" "狩人") :HOLES 0
+  :DEFENSE 6 :RANK 1 :NAME "ハンターグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 3 2 3) :EFFECTIVE-SKILLS ("毒" "狩人" "調合成功率" "千里眼")
+  :HOLES 1 :DEFENSE 26 :RANK 4 :NAME "ハンターSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 1) :EFFECTIVE-SKILLS ("腹減り" "斬れ味" "攻撃") :HOLES 3
+  :DEFENSE 62 :RANK 6 :NAME "バンギスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 3) :EFFECTIVE-SKILLS ("食事" "納刀") :HOLES 0 :DEFENSE 21
+  :RANK 2 :NAME "ハプルグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2 2) :EFFECTIVE-SKILLS ("耐寒" "特殊攻撃" "回避性能" "採取")
+  :HOLES 1 :DEFENSE 43 :RANK 5 :NAME "パピメルガンバ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -1 4) :EFFECTIVE-SKILLS ("研ぎ師" "聴覚保護" "攻撃") :HOLES 1
+  :DEFENSE 14 :RANK 2 :NAME "バトルグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 2 2 3) :EFFECTIVE-SKILLS ("麻痺" "毒" "睡眠" "耐暑") :HOLES 1
+  :DEFENSE 18 :RANK 2 :NAME "バサルグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1 2) :EFFECTIVE-SKILLS ("麻痺" "毒" "耐暑" "ガード性能") :HOLES
+  2 :DEFENSE 53 :RANK 6 :NAME "バサルUグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 2 1) :EFFECTIVE-SKILLS ("耐泥耐雪" "腹減り" "食事" "納刀")
+  :HOLES 2 :DEFENSE 50 :RANK 5 :NAME "バサルSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 4 2) :EFFECTIVE-SKILLS ("スタミナ" "砲術" "体力") :HOLES 1
+  :DEFENSE 14 :RANK 2 :NAME "ハイメタグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 4 2) :EFFECTIVE-SKILLS ("回避距離" "スタミナ" "回避性能" "痛撃")
+  :HOLES 0 :DEFENSE 22 :RANK 3 :NAME "ナルガグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 2) :EFFECTIVE-SKILLS ("斬れ味" "達人" "痛撃") :HOLES 1
+  :DEFENSE 84 :RANK 7 :NAME "ドラゴンフット" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 4 3) :EFFECTIVE-SKILLS ("耐暑" "風圧" "聴覚保護") :HOLES 2
+  :DEFENSE 35 :RANK 7 :NAME "トヨタマ【具足】" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -1 1) :EFFECTIVE-SKILLS ("回復速度" "達人" "攻撃") :HOLES 1
+  :DEFENSE 24 :RANK 3 :NAME "ドボルグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 1 1) :EFFECTIVE-SKILLS ("耐震" "腹減り" "気力回復" "龍属性攻撃")
+  :HOLES 3 :DEFENSE 47 :RANK 6 :NAME "ドーベルグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 1 -2 3) :EFFECTIVE-SKILLS ("耐震" "納刀" "研ぎ師" "剣術") :HOLES
+  3 :DEFENSE 23 :RANK 3 :NAME "ディアブログリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2) :EFFECTIVE-SKILLS ("体力" "腹減り") :HOLES 1 :DEFENSE 1
+  :RANK 1 :NAME "チェーンパンツ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2 2) :EFFECTIVE-SKILLS ("睡眠" "腹減り" "調合成功率" "体力")
+  :HOLES 1 :DEFENSE 23 :RANK 4 :NAME "チェーンSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 2 1) :EFFECTIVE-SKILLS ("乗り" "匠" "剣術") :HOLES 3
+  :DEFENSE 52 :RANK 7 :NAME "ゾディアスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2 1) :EFFECTIVE-SKILLS ("加護" "水属性攻撃" "重撃" "聴覚保護")
+  :HOLES 2 :DEFENSE 84 :RANK 7 :NAME "セレネグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1 3) :EFFECTIVE-SKILLS ("気力回復" "斬れ味" "砲術" "捕獲")
+  :HOLES 1 :DEFENSE 21 :RANK 3 :NAME "セルタスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 2 1 4) :EFFECTIVE-SKILLS ("気力回復" "斬れ味" "砲術" "捕獲")
+  :HOLES 1 :DEFENSE 53 :RANK 5 :NAME "セルタスSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 60 :RANK
+  6 :NAME "セイラーソックス" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 8) :EFFECTIVE-SKILLS ("回復速度" "体力") :HOLES 0 :TYPE
+  "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 8) :EFFECTIVE-SKILLS ("回復速度" "体力") :HOLES 0 :TYPE
+  "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2 4) :EFFECTIVE-SKILLS ("乗り" "闘魂" "護石収集") :HOLES 2
+  :DEFENSE 52 :RANK 7 :NAME "スタールークグリーヴ" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1 2) :EFFECTIVE-SKILLS ("腹減り" "睡眠" "高速設置" "観察眼")
+  :HOLES 2 :DEFENSE 19 :RANK 2 :NAME "スキュラグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -3 2 2) :EFFECTIVE-SKILLS ("毒" "腹減り" "観察眼" "達人") :HOLES
+  2 :DEFENSE 48 :RANK 5 :NAME "スキュラSグリーヴ" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 20 :RANK
+  4 :NAME "スカラーソックス" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 1) :EFFECTIVE-SKILLS ("気配" "雷属性攻撃" "本気") :HOLES 2
+  :DEFENSE 21 :RANK 3 :NAME "ジンオウグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 3 1 3) :EFFECTIVE-SKILLS
+  ("回復量" "龍属性攻撃" "無傷" "溜め短縮" "回避性能") :HOLES 1 :DEFENSE 53 :RANK 6 :NAME
+  "ジンオウUグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 2 4 2) :EFFECTIVE-SKILLS
+  ("気配" "雷属性攻撃" "斬れ味" "本気" "匠") :HOLES 0 :DEFENSE 52 :RANK 5 :NAME "ジンオウSグリーヴ"
+  :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 4 3 3) :EFFECTIVE-SKILLS ("回復量" "火属性攻撃" "斬れ味" "痛撃")
+  :HOLES 0 :DEFENSE 81 :RANK 7 :NAME "シルバーソルグリーヴ" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T) (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 3 2) :EFFECTIVE-SKILLS ("効果持続" "気絶" "研ぎ師") :HOLES 1
+  :DEFENSE 10 :RANK 2 :NAME "ジャギィグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -1 3 1) :EFFECTIVE-SKILLS ("気絶" "効果持続" "研ぎ師" "攻撃")
+  :HOLES 1 :DEFENSE 36 :RANK 4 :NAME "ジャギィSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 1 2) :EFFECTIVE-SKILLS ("体力" "腹減り" "肉食" "氷属性攻撃")
+  :HOLES 1 :DEFENSE 20 :RANK 2 :NAME "ザボアグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2 3) :EFFECTIVE-SKILLS ("腹減り" "肉食" "氷属性攻撃" "重撃")
+  :HOLES 1 :DEFENSE 53 :RANK 5 :NAME "ザボアSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 3) :EFFECTIVE-SKILLS ("雷耐性" "ガード性能" "防御") :HOLES 1
+  :DEFENSE 40 :RANK 4 :NAME "ザザミグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2) :EFFECTIVE-SKILLS ("腹減り" "食いしん坊" "細菌学") :HOLES 1
+  :DEFENSE 14 :RANK 2 :NAME "コンガグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 2 2) :EFFECTIVE-SKILLS ("腹減り" "爆弾強化" "底力") :HOLES 1
+  :DEFENSE 40 :RANK 5 :NAME "コンガUグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2 2) :EFFECTIVE-SKILLS ("腹減り" "食いしん坊" "特殊攻撃" "細菌学")
+  :HOLES 1 :DEFENSE 38 :RANK 4 :NAME "コンガSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (4 -2 2 4) :EFFECTIVE-SKILLS ("加護" "雷耐性" "重撃" "運気") :HOLES
+  1 :DEFENSE 81 :RANK 7 :NAME "ゴールドルナグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 1 3) :EFFECTIVE-SKILLS ("火耐性" "細菌学" "闘魂") :HOLES 2
+  :DEFENSE 21 :RANK 3 :NAME "ゴアグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (4 -2 3 3) :EFFECTIVE-SKILLS ("狂撃耐性" "火耐性" "闘魂" "細菌学")
+  :HOLES 0 :DEFENSE 52 :RANK 6 :NAME "ゴアSグリーヴ" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 3) :EFFECTIVE-SKILLS ("腹減り" "毒" "スタミナ") :HOLES 1
+  :DEFENSE 14 :RANK 2 :NAME "ゲリョスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 3 -1) :EFFECTIVE-SKILLS ("気絶" "風圧" "達人") :HOLES 0
+  :DEFENSE 48 :RANK 6 :NAME "ゲリョスUグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 4 2) :EFFECTIVE-SKILLS ("毒" "腹減り" "スタミナ" "達人") :HOLES
+  1 :DEFENSE 47 :RANK 5 :NAME "ゲリョスSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 2) :EFFECTIVE-SKILLS ("特殊攻撃" "麻痺") :HOLES 1 :DEFENSE 12
+  :RANK 2 :NAME "ゲネポスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 1) :EFFECTIVE-SKILLS ("麻痺" "特殊攻撃") :HOLES 2 :DEFENSE 36
+  :RANK 4 :NAME "ゲネポスSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 4 1) :EFFECTIVE-SKILLS ("運気" "気まぐれ" "水属性攻撃") :HOLES 0
+  :DEFENSE 14 :RANK 2 :NAME "ケチャグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (4 2 1 -1) :EFFECTIVE-SKILLS ("気まぐれ" "体術" "水属性攻撃" "運気")
+  :HOLES 1 :DEFENSE 43 :RANK 4 :NAME "ケチャSグリーヴ" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T) (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :TYPE "melee" :OBJ
   T)
- (:SYSTEM-NAME "水耐性" :SKILLS
-  ((:DESCRIPTION "水耐性-20、水属性やられ状態小が大になる" :POINTS -10 :NAME "水耐性弱化" :OBJ T)
-   (:DESCRIPTION "水耐性+15、水属性やられ小を無効" :POINTS 10 :NAME "水耐性【小】" :OBJ T)
-   (:DESCRIPTION "水耐性+20、水属性やられ小と大を無効" :POINTS 15 :NAME "水耐性【大】" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "水属性攻撃" :SKILLS
-  ((:DESCRIPTION "水属性の攻撃が0.75倍になる" :POINTS -10 :NAME "水属性攻撃弱化" :OBJ T)
-   (:DESCRIPTION "水属性の攻撃が1.05倍+40になる" :POINTS 10 :NAME "水属性攻撃強化+1" :OBJ T)
-   (:DESCRIPTION "水属性の攻撃が1.1倍+60になる" :POINTS 15 :NAME "水属性攻撃強化+2" :OBJ T)
-   (:DESCRIPTION "水属性の攻撃が1.15倍+90になる" :POINTS 20 :NAME "水属性攻撃強化+3" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "麻痺瓶追加" :SKILLS
-  ((:DESCRIPTION "麻痺ビンの装着が可能になる" :POINTS 10 :NAME "麻痺ビン追加" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "麻痺" :SKILLS
-  ((:DESCRIPTION "麻痺状態の時間が2倍になる" :POINTS -10 :NAME "麻痺倍加" :OBJ T)
-   (:DESCRIPTION "麻痺状態にならなくなる" :POINTS 10 :NAME "麻痺無効" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "本気" :SKILLS
-  ((:DESCRIPTION
-    "受けた合計ダメージが180ごとに、または大型モンスターに発見された状態が合計5分間になるたびに発動。1分30秒の間、会心率が30%上がり、スタミナ消費が1/2になる。"
-    :POINTS 10 :NAME "力の解放+1" :OBJ T)
-   (:DESCRIPTION
-    "受けた合計ダメージが180ごとに、または大型モンスターに発見された状態が合計5分間になるたびに発動。1分30秒の間、会心率が50%上がり、スタミナ消費が1/4になる。"
-    :POINTS 15 :NAME "力の解放+2" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "捕獲" :SKILLS
-  ((:DESCRIPTION "モンスター捕獲時の捕獲報酬枠が2～3枠から3枠に増える。" :POINTS 10 :NAME "捕獲達人" :OBJ T)
-   (:DESCRIPTION "モンスター捕獲時の捕獲報酬枠が2～3枠から3～4枠に増える。" :POINTS 15 :NAME "捕獲名人" :OBJ
-    T)
-   (:DESCRIPTION "モンスター捕獲時の捕獲報酬枠が最大に増える。" :POINTS 20 :NAME "捕獲マスター" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "砲術" :SKILLS
-  ((:DESCRIPTION "バリスタ、大砲、ガンランスの砲撃、竜撃砲、徹甲榴弾、チャージアックスの一部の攻撃の威力が少し上がる" :POINTS 10
-    :NAME "砲術師" :OBJ T)
-   (:DESCRIPTION
-    "バリスタ、大砲、ガンランスの砲撃、竜撃砲、徹甲榴弾、チャージアックスの一部の攻撃の威力が上がり、竜撃砲の冷却時間が120秒から90秒になる"
-    :POINTS 15 :NAME "砲術王" :OBJ T)
-   (:DESCRIPTION
-    "バリスタ、大砲、ガンランスの砲撃、竜撃砲、徹甲榴弾、チャージアックスの一部の攻撃の威力がさらに上がり、竜撃砲の冷却時間がさらに短縮される。"
-    :POINTS 20 :NAME "砲術マスター" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "防御" :SKILLS
-  ((:DESCRIPTION "防御力0.9倍-10。ただし1未満にはならない" :POINTS -20 :NAME "防御力DOWN【大】" :OBJ
-    T)
-   (:DESCRIPTION "防御力0.95倍-10。ただし1未満にはならない" :POINTS -15 :NAME "防御力DOWN【中】" :OBJ
-    T)
-   (:DESCRIPTION "防御力-10。ただし1未満にはならない" :POINTS -10 :NAME "防御力DOWN【小】" :OBJ T)
-   (:DESCRIPTION "防御力+15" :POINTS 10 :NAME "防御力UP【小】" :OBJ T)
-   (:DESCRIPTION "防御力1.03倍+20" :POINTS 15 :NAME "防御力UP【中】" :OBJ T)
-   (:DESCRIPTION "防御力1.07倍+25" :POINTS 20 :NAME "防御力UP【大】" :OBJ T)
-   (:DESCRIPTION "防御力がさらに上がる" :POINTS 25 :NAME "防御力UP【超】" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "不動" :SKILLS
-  ((:DESCRIPTION "攻撃を受けた時のリアクションが軽くなる" :POINTS 10 :NAME "金剛体" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "笛" :SKILLS
-  ((:DESCRIPTION "狩猟笛の演奏の効果時間が延びる。さらに笛アイテムが1/2の確率で壊れずに済む" :POINTS 10 :NAME
-    "笛吹き名人" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "風圧" :SKILLS
-  ((:DESCRIPTION "風圧【小】の影響を受けなくなる" :POINTS 10 :NAME "風圧【小】無効" :OBJ T)
-   (:DESCRIPTION "風圧【大】と風圧【小】の影響を受けなくなる" :POINTS 15 :NAME "風圧【大】無効" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "火耐性" :SKILLS
-  ((:DESCRIPTION "火耐性-20、火属性やられ状態小が大になる" :POINTS -10 :NAME "火耐性弱化" :OBJ T)
-   (:DESCRIPTION "火耐性+15、火属性やられ小を無効" :POINTS 10 :NAME "火耐性【小】" :OBJ T)
-   (:DESCRIPTION "火耐性+20、火属性やられ小と大を無効" :POINTS 15 :NAME "火耐性【大】" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "火属性攻撃" :SKILLS
-  ((:DESCRIPTION "火属性の攻撃が0.75倍になる" :POINTS -10 :NAME "火属性攻撃弱化" :OBJ T)
-   (:DESCRIPTION "火属性の攻撃が1.05倍+40になる" :POINTS 10 :NAME "火属性攻撃強化+1" :OBJ T)
-   (:DESCRIPTION "火属性の攻撃が1.1倍+60になる" :POINTS 15 :NAME "火属性攻撃強化+2" :OBJ T)
-   (:DESCRIPTION "火属性の攻撃が1.15倍+90になる" :POINTS 20 :NAME "火属性攻撃強化+3" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "反動" :SKILLS
-  ((:DESCRIPTION "ボウガンの反動がかなり大きくなる" :POINTS -20 :NAME "反動軽減-3" :OBJ T)
-   (:DESCRIPTION "ボウガンの反動が大きくなる" :POINTS -15 :NAME "反動軽減-2" :OBJ T)
-   (:DESCRIPTION "ボウガンの反動がやや大きくなる" :POINTS -10 :NAME "反動軽減-1" :OBJ T)
-   (:DESCRIPTION "ボウガンの反動がやや小さくなる" :POINTS 10 :NAME "反動軽減+1" :OBJ T)
-   (:DESCRIPTION "ボウガンの反動が小さくなる" :POINTS 15 :NAME "反動軽減+2" :OBJ T)
-   (:DESCRIPTION "ボウガンの反動がかなり小さくなる" :POINTS 20 :NAME "反動軽減+3" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "腹減り" :SKILLS
-  ((:DESCRIPTION "腹減りによるスタミナ減少速度がさらに上がる" :POINTS -15 :NAME "腹減り倍加【大】" :OBJ T)
-   (:DESCRIPTION "腹減りによるスタミナ減少速度が上がる" :POINTS -10 :NAME "腹減り倍加【小】" :OBJ T)
-   (:DESCRIPTION "腹減りによるスタミナ減少が1/2になる" :POINTS 10 :NAME "腹減り半減" :OBJ T)
-   (:DESCRIPTION "腹減りによるスタミナ減少がなくなる" :POINTS 15 :NAME "腹減り無効" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "抜刀減気" :SKILLS
-  ((:DESCRIPTION "武器出し攻撃時に切断属性の攻撃でも気絶値とスタミナを奪う効果がつく" :POINTS 10 :NAME "抜刀術【力】"
-    :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "抜刀会心" :SKILLS
-  ((:DESCRIPTION "武器出し攻撃時に会心率が100%増える" :POINTS 10 :NAME "抜刀術【技】" :OBJ T)) :OBJ
-  T)
- (:SYSTEM-NAME "ハチミツ" :SKILLS
-  ((:DESCRIPTION "ハチミツやロイヤルハニーが一度に2個採取できる" :POINTS 10 :NAME "ハニーハンター" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "爆破瓶追加" :SKILLS
-  ((:DESCRIPTION "爆破ビンを装着可能にする" :POINTS 10 :NAME "爆破ビン追加" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "爆破弾追加" :SKILLS
-  ((:DESCRIPTION "爆破弾の装填を可能にする" :POINTS 10 :NAME "爆破弾追加" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "爆弾強化" :SKILLS
-  ((:DESCRIPTION "爆弾と爆破属性の威力が上がり、爆弾調合成功率が100％になる。爆破属性の攻撃での属性値が増える。" :POINTS 10
-    :NAME "ボマー" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "剥ぎ取り" :SKILLS
-  ((:DESCRIPTION "剥ぎ取り中にのけぞらなくなる" :POINTS 10 :NAME "剥ぎ取り鉄人" :OBJ T)
-   (:DESCRIPTION "剥ぎ取り回数が1回増加し、剥ぎ取り中にのけぞらなくなる" :POINTS 15 :NAME "剥ぎ取り達人" :OBJ
-    T))
-  :OBJ T)
- (:SYSTEM-NAME "乗り" :SKILLS
-  ((:DESCRIPTION "モンスターに乗ったときに表示されるゲージが増えにくくなる。" :POINTS -10 :NAME "乗り下手" :OBJ
-    T)
-   (:DESCRIPTION "モンスターに乗ったときに表示されるゲージが増えやすくなる。" :POINTS 10 :NAME "乗り名人" :OBJ
-    T))
-  :OBJ T)
- (:SYSTEM-NAME "納刀" :SKILLS
-  ((:DESCRIPTION "武器を納める速度が上がる" :POINTS 10 :NAME "納刀術" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "燃鱗" :SKILLS
-  ((:DESCRIPTION "たいまつを持っている時と同じ効果" :POINTS 10 :NAME "燃鱗" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "盗み無効" :SKILLS
-  ((:DESCRIPTION "アイテムを盗まれなくなる" :POINTS 10 :NAME "盗み無効" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "肉食" :SKILLS
-  ((:DESCRIPTION "生肉が食べられるようになる。また、生焼け肉やこんがり肉、クーラーミート、ホットミートで1分間強走効果がつく"
-    :POINTS 10 :NAME "お肉大好き" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "毒瓶追加" :SKILLS
-  ((:DESCRIPTION "毒ビンの装着が可能になる" :POINTS 10 :NAME "毒ビン追加" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "特殊攻撃" :SKILLS
-  ((:DESCRIPTION "毒、麻痺、睡眠、捕獲麻酔の属性値が0.9倍になる" :POINTS -10 :NAME "状態異常攻撃弱化" :OBJ
-    T)
-   (:DESCRIPTION "毒、麻痺、睡眠、捕獲麻酔の属性値が1.125倍になる" :POINTS 10 :NAME "状態異常攻撃+1" :OBJ
-    T)
-   (:DESCRIPTION "毒、麻痺、睡眠、捕獲麻酔の属性値が1.225倍になる" :POINTS 15 :NAME "状態異常攻撃+2" :OBJ
-    T))
-  :OBJ T)
- (:SYSTEM-NAME "毒" :SKILLS
-  ((:DESCRIPTION "毒によって受けるダメージが2倍になる" :POINTS -10 :NAME "毒倍加" :OBJ T)
-   (:DESCRIPTION "毒状態にならなくなる" :POINTS 10 :NAME "毒無効" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "研ぎ師" :SKILLS
-  ((:DESCRIPTION "砥石系アイテム研ぎ時間が長くなる。通常の4回から5回になる。" :POINTS -10 :NAME "砥石使用低速化"
-    :OBJ T)
-   (:DESCRIPTION "砥石系アイテム研ぎ時間が短くなる。通常の4回から1回になる。" :POINTS 10 :NAME "砥石使用高速化"
-    :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "刀匠" :SKILLS
-  ((:DESCRIPTION "攻撃力が上がり、斬れ味が一段階伸びる" :POINTS 10 :NAME "真打" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "闘魂" :SKILLS
-  ((:DESCRIPTION "大型モンスターの怒りに反応して能力が上がる。3秒後に攻撃力が10、会心率が10%上がる。" :POINTS 10
-    :NAME "挑戦者+1" :OBJ T)
-   (:DESCRIPTION "大型モンスターの怒りに反応して能力がさらに上がる。3秒後に攻撃力が25、会心率が20%上がる。" :POINTS 15
-    :NAME "挑戦者+2" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "胴系統倍化" :SKILLS
-  ((:DESCRIPTION "胴パーツのスキルポイントが2倍になる" :POINTS 0 :NAME "胴系統倍化" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "通常弾追加" :SKILLS
-  ((:DESCRIPTION "全LVの通常弾が使えるようになる" :POINTS 10 :NAME "通常弾全LV追加" :OBJ T)) :OBJ
-  T)
- (:SYSTEM-NAME "通常弾強化" :SKILLS
-  ((:DESCRIPTION "通常弾、連射矢の威力が1.1倍になる" :POINTS 10 :NAME "通常弾・連射矢UP" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "痛撃" :SKILLS
-  ((:DESCRIPTION "攻撃時に肉質が45以上だと肉質に+5の補正が付いてダメージを与える" :POINTS 10 :NAME "弱点特効"
-    :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "調合成功率" :SKILLS
-  ((:DESCRIPTION "調合の成功率-20%" :POINTS -15 :NAME "調合成功率-20%" :OBJ T)
-   (:DESCRIPTION "調合の成功率-10%" :POINTS -10 :NAME "調合成功率-10%" :OBJ T)
-   (:DESCRIPTION "調合の成功率+20%" :POINTS 10 :NAME "調合成功率+20%" :OBJ T)
-   (:DESCRIPTION "調合の成功率+45%" :POINTS 15 :NAME "調合成功率+45%" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "調合数" :SKILLS
-  ((:DESCRIPTION "調合の生産数が必ず最大になる" :POINTS 10 :NAME "最大数生産" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "聴覚保護" :SKILLS
-  ((:DESCRIPTION "咆哮【小】を無効化" :POINTS 10 :NAME "耳栓" :OBJ T)
-   (:DESCRIPTION "咆哮【小】と咆哮【大】を無効化" :POINTS 15 :NAME "高級耳栓" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "溜め短縮" :SKILLS
-  ((:DESCRIPTION "大剣、ハンマー、弓の溜め時間が1.2倍になり、太刀、双剣、スラッシュアックスのゲージが溜まりが0.8倍になる。"
-    :POINTS -10 :NAME "雑念" :OBJ T)
-   (:DESCRIPTION "大剣、ハンマー、弓の溜め時間が0.8倍になり、太刀、双剣、スラッシュアックスのゲージが溜まりが1.2倍になる。"
-    :POINTS 10 :NAME "集中" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "盾持" :SKILLS
-  ((:DESCRIPTION "ガード不能の攻撃がガードできるようになり、スタミナの回復速度が2倍になる" :POINTS 10 :NAME "盾使い"
-    :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "達人" :SKILLS
-  ((:DESCRIPTION "会心率-15%" :POINTS -20 :NAME "見切り-3" :OBJ T)
-   (:DESCRIPTION "会心率-10%" :POINTS -15 :NAME "見切り-2" :OBJ T)
-   (:DESCRIPTION "会心率-5%" :POINTS -10 :NAME "見切り-1" :OBJ T)
-   (:DESCRIPTION "会心率+10%" :POINTS 10 :NAME "見切り+1" :OBJ T)
-   (:DESCRIPTION "会心率+15%" :POINTS 15 :NAME "見切り+2" :OBJ T)
-   (:DESCRIPTION "会心率+20%" :POINTS 20 :NAME "見切り+3" :OBJ T)
-   (:DESCRIPTION "会心率+30%" :POINTS 30 :NAME "見切りマスター" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "匠" :SKILLS
-  ((:DESCRIPTION "斬れ味ゲージが1段階伸びる" :POINTS 10 :NAME "斬れ味レベル+1" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "体力" :SKILLS
-  ((:DESCRIPTION "体力最大値-30" :POINTS -15 :NAME "体力-30" :OBJ T)
-   (:DESCRIPTION "体力最大値-10" :POINTS -10 :NAME "体力-10" :OBJ T)
-   (:DESCRIPTION "体力最大値+20" :POINTS 10 :NAME "体力+20" :OBJ T)
-   (:DESCRIPTION "体力最大値+50" :POINTS 15 :NAME "体力+50" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "対防御DOWN" :SKILLS
-  ((:DESCRIPTION "防御力DOWN状態を無効化" :POINTS 10 :NAME "鉄面皮" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "耐泥耐雪" :SKILLS
-  ((:DESCRIPTION "雪だるま、泥まみれ状態にならなくなる" :POINTS 10 :NAME "泥＆雪無効" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "耐震" :SKILLS
-  ((:DESCRIPTION "振動によるふらつき状態を無効化" :POINTS 10 :NAME "耐震" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "耐暑" :SKILLS
-  ((:DESCRIPTION "暑さと、溶岩地形によるダメージが倍加する" :POINTS -10 :NAME "暑さ倍加" :OBJ T)
-   (:DESCRIPTION "暑さと、溶岩地形によるダメージを無効化する" :POINTS 10 :NAME "暑さ無効" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "体術" :SKILLS
-  ((:DESCRIPTION "回避とガード時のスタミナ消費がかなり増加する" :POINTS -15 :NAME "体術-2" :OBJ T)
-   (:DESCRIPTION "回避とガード時のスタミナ消費が増加する" :POINTS -10 :NAME "体術-1" :OBJ T)
-   (:DESCRIPTION
-    "回避とガード時のスタミナ消費が2/3になる。大型モンスターに向かって緊急回避ができるようになり、緊急回避の移動距離が伸びる。" :POINTS 10
-    :NAME "体術+1" :OBJ T)
-   (:DESCRIPTION
-    "回避とガード時のスタミナ消費が1/2になる。大型モンスターに向かって緊急回避ができるようになり、緊急回避の移動距離が伸びる。" :POINTS 15
-    :NAME "体術+2" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "耐寒" :SKILLS
-  ((:DESCRIPTION "寒さによるスタミナ減少が倍加する" :POINTS -10 :NAME "寒さ倍加" :OBJ T)
-   (:DESCRIPTION "寒さによるスタミナ減少を無効化する" :POINTS 10 :NAME "寒さ無効" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "底力" :SKILLS
-  ((:DESCRIPTION "体力が40%以下になると防御力が+30から+21に減少。攻撃力0.7倍" :POINTS -10 :NAME "心配性"
-    :OBJ T)
-   (:DESCRIPTION "体力が40%以下になると防御力が+30から+45に増加。" :POINTS 10 :NAME "火事場力+1" :OBJ
-    T)
-   (:DESCRIPTION "体力が40%以下になると防御力が+30から+45に増加。攻撃力1.3倍" :POINTS 15 :NAME
-    "火事場力+2" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "属性耐性" :SKILLS
-  ((:DESCRIPTION "属性やられにならなくなる" :POINTS 10 :NAME "属性やられ無効" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "属性攻撃" :SKILLS
-  ((:DESCRIPTION "火、水、雷、氷、龍の属性値が0.9倍になる" :POINTS -10 :NAME "属性攻撃弱化" :OBJ T)
-   (:DESCRIPTION "火、水、雷、氷、龍の属性値が1.1倍になる。" :POINTS 10 :NAME "属性攻撃強化" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "属性解放" :SKILLS
-  ((:DESCRIPTION "無属性武器の属性を解放するスキル" :POINTS 10 :NAME "覚醒" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "速射" :SKILLS
-  ((:DESCRIPTION "速射時の発射数が+1される" :POINTS 10 :NAME "連発数+1" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "増幅" :SKILLS
-  ((:DESCRIPTION "属性攻撃が強くなる。また、一部のアイテムの効果時間が長くなる。" :POINTS 10 :NAME "属物強化" :OBJ
-    T))
-  :OBJ T)
- (:SYSTEM-NAME "装填速度" :SKILLS
-  ((:DESCRIPTION "ボウガンのリロードと弓のビンの装着速度がかなり遅くなる" :POINTS -20 :NAME "装填速度-3" :OBJ
-    T)
-   (:DESCRIPTION "ボウガンのリロードと弓のビンの装着速度が遅くなる" :POINTS -15 :NAME "装填速度-2" :OBJ T)
-   (:DESCRIPTION "ボウガンのリロードと弓のビンの装着速度がやや遅くなる" :POINTS -10 :NAME "装填速度-1" :OBJ
-    T)
-   (:DESCRIPTION "ボウガンのリロードが速くなる。しゃがみ撃ちには影響なし。弓のビンの切り替えがやや速くなる" :POINTS 10
-    :NAME "装填速度+1" :OBJ T)
-   (:DESCRIPTION "ボウガンのリロードが大幅に速くなる。しゃがみ撃ちには影響なし。弓のビンが切り替えるだけで自動で装着される" :POINTS
-    15 :NAME "装填速度+2" :OBJ T)
-   (:DESCRIPTION "ボウガンのリロードがかなり速くなる。しゃがみ撃ちには影響なし。弓のビンが切り替えるだけで自動で装着される" :POINTS
-    20 :NAME "装填速度+3" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "装填数" :SKILLS
-  ((:DESCRIPTION "ボウガンの撃てる弾の装填数が追加、弓の溜め段階が1つ増加する(最大4段階まで)。ガンランスの砲撃の装填数が追加。"
-    :POINTS 10 :NAME "装填数UP" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "千里眼" :SKILLS
-  ((:DESCRIPTION
-    "ペイント時に中型、大型モンスターの位置と向きと攻撃状態が表示される。また、ペイントしてない時でも一定の確率で同様の効果が得られる" :POINTS
-    10 :NAME "探知" :OBJ T)
-   (:DESCRIPTION "常に中型、大型モンスターの位置と向きと攻撃状態が表示される" :POINTS 15 :NAME "自動マーキング"
-    :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "接撃瓶追加" :SKILLS
-  ((:DESCRIPTION "接撃ビンの装着が可能になる" :POINTS 10 :NAME "接撃ビン追加" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "精密射撃" :SKILLS
-  ((:DESCRIPTION "弾道のブレ幅が大幅に増加する" :POINTS -15 :NAME "ブレ抑制-2" :OBJ T)
-   (:DESCRIPTION "弾道のブレ幅が増加する" :POINTS -10 :NAME "ブレ抑制-1" :OBJ T)
-   (:DESCRIPTION "弾道のブレ幅が減少する" :POINTS 10 :NAME "ブレ抑制+1" :OBJ T)
-   (:DESCRIPTION "弾道のブレ幅がなくなる" :POINTS 15 :NAME "ブレ抑制+2" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "スタミナ" :SKILLS
-  ((:DESCRIPTION "ダッシュ、鬼人状態、突進、溜め時のスタミナ消費量が1.2倍に増える" :POINTS -10 :NAME "鈍足"
-    :OBJ T)
-   (:DESCRIPTION "ダッシュ、鬼人状態、突進、溜め時のスタミナ消費量が半分になる" :POINTS 10 :NAME "ランナー" :OBJ
-    T))
-  :OBJ T)
- (:SYSTEM-NAME "睡眠瓶追加" :SKILLS
-  ((:DESCRIPTION "睡眠ビンの装着が可能になる" :POINTS 10 :NAME "睡眠ビン追加" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "睡眠" :SKILLS
-  ((:DESCRIPTION "睡眠状態の時間が2倍になる" :POINTS -10 :NAME "睡眠倍加" :OBJ T)
-   (:DESCRIPTION "睡眠状態にならなくなる" :POINTS 10 :NAME "睡眠無効" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "食事" :SKILLS
-  ((:DESCRIPTION "肉を食べる速度が遅くなる" :POINTS -10 :NAME "スローライフ" :OBJ T)
-   (:DESCRIPTION "肉を食べる速度が速くなる" :POINTS 10 :NAME "早食い+1" :OBJ T)
-   (:DESCRIPTION "肉とアイテムを食べる速度が速くなる" :POINTS 15 :NAME "早食い+2" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "状態耐性" :SKILLS
-  ((:DESCRIPTION "毒、麻痺、睡眠、気絶が無効になる" :POINTS 10 :NAME "護法" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "重撃" :SKILLS
-  ((:DESCRIPTION
-    "部位を破壊するまではモンスターがひるみやすくなり、部位破壊力が上がる。部位耐久値へのダメージが増えるだけで体力を減らすダメージは増えない。"
-    :POINTS 10 :NAME "破壊王" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "射手" :SKILLS
-  ((:DESCRIPTION
-    "通常弾、貫通弾、連射矢、貫通矢の攻撃力が1.1倍になる。また、ボウガンの散弾の攻撃力が1.2倍、弓の拡散矢の攻撃力が1.3倍になる。"
-    :POINTS 10 :NAME "剛弾" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "自動防御" :SKILLS
-  ((:DESCRIPTION "武器を構えている時、正面からの攻撃を自動的にガードする" :POINTS 10 :NAME "オートガード" :OBJ
-    T))
-  :OBJ T)
- (:SYSTEM-NAME "指揮" :SKILLS
-  ((:DESCRIPTION "クエスト中のオトモの能力が上昇し、さらに号令をかけられるようになる。" :POINTS 10 :NAME "オトモ指揮官"
-    :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "斬裂弾追加" :SKILLS
-  ((:DESCRIPTION "斬裂弾の装着が可能になる" :POINTS 10 :NAME "斬裂弾追加" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "散弾追加" :SKILLS
-  ((:DESCRIPTION "LV1散弾が使えるようになる" :POINTS 10 :NAME "散弾LV1追加" :OBJ T)
-   (:DESCRIPTION "全LVの散弾が使えるようになる" :POINTS 15 :NAME "散弾全LV追加" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "散弾強化" :SKILLS
-  ((:DESCRIPTION "散弾の威力が1.2倍になる。拡散矢の威力が1.3倍になる" :POINTS 10 :NAME "散弾・拡散矢UP"
-    :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "采配" :SKILLS
-  ((:DESCRIPTION "オトモの攻撃力と守備力が上がる。" :POINTS 10 :NAME "オトモへの采配" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "採取" :SKILLS
-  ((:DESCRIPTION "アイテムの採取回数が少なくなりやすい。次回も採取できる確率が通常の27/32から23/32になる。" :POINTS
-    -10 :NAME "採取-1" :OBJ T)
-   (:DESCRIPTION "アイテムの採取回数がやや多くなりやすい。次回も採取できる確率が通常の27/32から29/32になる。" :POINTS
-    10 :NAME "採取+1" :OBJ T)
-   (:DESCRIPTION "アイテムの採取回数が多くなりやすい。次回も採取できる確率が通常の27/32から31/32になる。" :POINTS 15
-    :NAME "採取+2" :OBJ T)
-   (:DESCRIPTION "アイテムの採取回数がさらに多くなりやすい。" :POINTS 20 :NAME "採取マスター" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "細菌学" :SKILLS
-  ((:DESCRIPTION
-    "こやし玉を当てたモンスターが必ずエリア移動する。肥やし玉の調合が必ず成功する。一部アイテム使用不可、爆破やられにならなくなる。" :POINTS
-    10 :NAME "細菌研究家" :OBJ T)
-   (:DESCRIPTION
-    "狂竜症発症時間が短くなる。こやし玉を当てたモンスターが必ずエリア移動する。肥やし玉の調合が必ず成功する。一部アイテム使用不可、爆破やられにならなくなる。"
-    :POINTS 15 :NAME "バイオドクター" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "根性" :SKILLS
-  ((:DESCRIPTION "強力な攻撃を受けた時、力尽きずギリギリで踏みとどまる" :POINTS 10 :NAME "根性" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "護石収集" :SKILLS
-  ((:DESCRIPTION "アイテム採集、お守りの入手がしやすくなる。" :POINTS 10 :NAME "お守りマニア" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "護石王" :SKILLS
-  ((:DESCRIPTION "採集時にお守りが低確率で2つ入手できるようになる" :POINTS 10 :NAME "お守り収集" :OBJ T)
-   (:DESCRIPTION "採集時にお守りが中確率で2つ入手できるようになる" :POINTS 15 :NAME "お守りハンター" :OBJ T)
-   (:DESCRIPTION "採集時にお守りが高確率で2つ入手できるようになる" :POINTS 20 :NAME "お守りマスター" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "氷耐性" :SKILLS
-  ((:DESCRIPTION "氷耐性-20、氷属性やられ状態小が大になる" :POINTS -10 :NAME "氷耐性弱化" :OBJ T)
-   (:DESCRIPTION "氷耐性+15、氷属性やられ小を無効" :POINTS 10 :NAME "氷耐性【小】" :OBJ T)
-   (:DESCRIPTION "氷耐性+20、氷属性やられ小と大を無効" :POINTS 15 :NAME "氷耐性【大】" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "氷属性攻撃" :SKILLS
-  ((:DESCRIPTION "氷属性の攻撃が0.75倍になる" :POINTS -10 :NAME "氷属性攻撃弱化" :OBJ T)
-   (:DESCRIPTION "氷属性の攻撃が1.05倍+40になる" :POINTS 10 :NAME "氷属性攻撃強化+1" :OBJ T)
-   (:DESCRIPTION "氷属性の攻撃が1.1倍+60になる" :POINTS 15 :NAME "氷属性攻撃強化+2" :OBJ T)
-   (:DESCRIPTION "氷属性の攻撃が1.15倍+90になる" :POINTS 20 :NAME "氷属性攻撃強化+3" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "号令" :SKILLS
-  ((:DESCRIPTION
-    "オトモが休息している状態でアクションかけごえを実行すると、オトモの体力が満タンになる。使用後から10分間は再使用できない。背水の陣の印をセットしている時は無効"
-    :POINTS 10 :NAME "オトモへの号令" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "強欲" :SKILLS
-  ((:DESCRIPTION "クエスト報酬、捕獲報酬でもらえるアイテム数が多くなりやすい。" :POINTS 10 :NAME "増収" :OBJ
-    T))
-  :OBJ T)
- (:SYSTEM-NAME "高速設置" :SKILLS
-  ((:DESCRIPTION
-    "罠アイテム、肉アイテム、爆弾(小タル爆弾と打ち上げタル爆弾以外)の設置時間が短くなる。さらに罠アイテムと肉アイテムの調合成功率が100％になる"
-    :POINTS 10 :NAME "罠師" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "高速収集" :SKILLS
-  ((:DESCRIPTION "剥ぎ取り、採取、虫取り、採掘の動作が速くなる" :POINTS 10 :NAME "高速収集" :OBJ T)) :OBJ
-  T)
- (:SYSTEM-NAME "剛撃" :SKILLS
-  ((:DESCRIPTION "弱点に対して、より強力な攻撃を与える" :POINTS 10 :NAME "無慈悲" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "攻撃" :SKILLS
-  ((:DESCRIPTION "攻撃力-20" :POINTS -20 :NAME "攻撃力DOWN【大】" :OBJ T)
-   (:DESCRIPTION "攻撃力-15" :POINTS -15 :NAME "攻撃力DOWN【中】" :OBJ T)
-   (:DESCRIPTION "攻撃力-10" :POINTS -10 :NAME "攻撃力DOWN【小】" :OBJ T)
-   (:DESCRIPTION "攻撃力+10" :POINTS 10 :NAME "攻撃力UP【小】" :OBJ T)
-   (:DESCRIPTION "攻撃力+15" :POINTS 15 :NAME "攻撃力UP【中】" :OBJ T)
-   (:DESCRIPTION "攻撃力+20" :POINTS 20 :NAME "攻撃力UP【大】" :OBJ T)
-   (:DESCRIPTION "攻撃力がさらに上がる" :POINTS 25 :NAME "攻撃力UP【超】" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "効果持続" :SKILLS
-  ((:DESCRIPTION "薬、ドリンク、種、丸薬などのアイテムの効果持続時間が2/3になる" :POINTS -10 :NAME
-    "アイテム使用弱化" :OBJ T)
-   (:DESCRIPTION "薬、ドリンク、種、丸薬などのアイテムの効果持続時間が1.5倍になる" :POINTS 10 :NAME
-    "アイテム使用強化" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "広域" :SKILLS
-  ((:DESCRIPTION
-    "薬草、回復薬、解毒薬、忍耐の種、怪力の種、ウチケシの実の効果が同じエリア内にいる他のハンター、オトモにも効果が発動。ただし回復量や効果は半分になる"
-    :POINTS 10 :NAME "広域化+1" :OBJ T)
-   (:DESCRIPTION "薬草、回復薬、解毒薬、忍耐の種、怪力の種、ウチケシの実の効果が同じエリア内にいる他のハンター、オトモにも効果が発動"
-    :POINTS 15 :NAME "広域化+2" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "剣術" :SKILLS
-  ((:DESCRIPTION "攻撃がはじかれる判定になってもはじかれモーションを取らなくなる" :POINTS 10 :NAME "心眼" :OBJ
-    T))
-  :OBJ T)
- (:SYSTEM-NAME "減気瓶追加" :SKILLS
-  ((:DESCRIPTION "減気ビンの装着が可能になる" :POINTS 10 :NAME "減気ビン追加" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "減気攻撃" :SKILLS
-  ((:DESCRIPTION
-    "打撃属性(抜刀術【力】の斬撃、ボウガンの減気弾、弓の曲射、減気ビンを含む)によるモンスターへのスタミナダメージ値が増加する" :POINTS 10
-    :NAME "スタミナ奪取" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "気配" :SKILLS
-  ((:DESCRIPTION "モンスターに発見されやすくなり、狙われる確率が上がる" :POINTS -10 :NAME "挑発" :OBJ T)
-   (:DESCRIPTION "モンスターに発見されにくくなる" :POINTS 10 :NAME "隠密" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "潔癖" :SKILLS
-  ((:DESCRIPTION "回避時の移動距離が伸びる。また、体力が最大の時に攻撃力がアップする。" :POINTS 10 :NAME "舞踏家"
-    :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "KO" :SKILLS
-  ((:DESCRIPTION "与えられる気絶値が10%増える" :POINTS 10 :NAME "KO術" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "食いしん坊" :SKILLS
-  ((:DESCRIPTION "肉アイテム等のスタミナ回復量が上昇する" :POINTS 10 :NAME "まんぷく" :OBJ T)
-   (:DESCRIPTION "肉アイテム等のスタミナ回復量が上昇し、特定アイテムを食べたときにスタミナが上がることがある" :POINTS 15
-    :NAME "拾い食い" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "斬れ味" :SKILLS
-  ((:DESCRIPTION "斬れ味の消耗が倍になる" :POINTS -10 :NAME "なまくら" :OBJ T)
-   (:DESCRIPTION
-    "攻撃がはじかれた時、ガンランスの砲撃、大剣のガードによる斬れ味低下が半分になる。攻撃がはじかれなかった時は1/2の確率で斬れ味が落ちなくなる"
-    :POINTS 10 :NAME "業物" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "気力回復" :SKILLS
-  ((:DESCRIPTION "スタミナの回復速度が0.75倍に下がる" :POINTS -10 :NAME "スタミナ回復遅延" :OBJ T)
-   (:DESCRIPTION "スタミナの回復速度が2倍になる" :POINTS 10 :NAME "スタミナ急速回復" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "強撃瓶追加" :SKILLS
-  ((:DESCRIPTION "強撃ビンの装着が可能になる" :POINTS 10 :NAME "強撃ビン追加" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "狂撃耐性" :SKILLS
-  ((:DESCRIPTION "狂竜ウイルスを克服しやすくなる。狂撃化した時に通常よりも多く会心率が上がる。" :POINTS 10 :NAME
-    "無我の境地" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "逆境" :SKILLS
-  ((:DESCRIPTION "戦闘不能で攻撃力が増加する。1回力尽きると攻撃力1.1倍。2回力尽きると攻撃力1.2倍" :POINTS 10 :NAME
-    "不屈" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "気まぐれ" :SKILLS
-  ((:DESCRIPTION "ピッケル系、虫あみ系、笛系、ブーメランが1/2の確率で壊れやすくなる" :POINTS -15 :NAME
-    "悪魔の気まぐれ" :OBJ T)
-   (:DESCRIPTION "ピッケル系、虫あみ系、笛系、ブーメランが1/4の確率で壊れやすくなる" :POINTS -10 :NAME
-    "悪霊の気まぐれ" :OBJ T)
-   (:DESCRIPTION "ピッケル系、虫あみ系、笛系、ブーメランが1/4の確率で壊れずに済む" :POINTS 10 :NAME "精霊の気まぐれ"
-    :OBJ T)
-   (:DESCRIPTION "ピッケル系、虫あみ系、笛系、ブーメランが1/2の確率で壊れずに済む" :POINTS 15 :NAME "神の気まぐれ"
-    :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "気絶" :SKILLS
-  ((:DESCRIPTION "気絶回復に有効なアナログパッド、ボタンの入力回数が2倍になる" :POINTS -10 :NAME "気絶倍加" :OBJ
-    T)
-   (:DESCRIPTION "気絶した際に1/2の確率で気絶効果を無効にする" :POINTS 10 :NAME "気絶確率半減" :OBJ T)
-   (:DESCRIPTION "気絶状態にならなくなる" :POINTS 15 :NAME "気絶無効" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "貫通弾追加" :SKILLS
-  ((:DESCRIPTION "LV1貫通弾が使えるようになる" :POINTS 10 :NAME "貫通弾LV1追加" :OBJ T)
-   (:DESCRIPTION "全LVの貫通弾が使えるようになる" :POINTS 15 :NAME "貫通弾全LV追加" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "貫通弾強化" :SKILLS
-  ((:DESCRIPTION "貫通弾、貫通矢の威力が1.1倍になる" :POINTS 10 :NAME "貫通弾・貫通矢UP" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "観察眼" :SKILLS
-  ((:DESCRIPTION "ペイントした時に捕獲できるタイミングでアイコンが白く点滅する" :POINTS 10 :NAME "捕獲の見極め"
-    :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "頑強" :SKILLS
-  ((:DESCRIPTION "防御力がアップし、防御力DOWN状態にならなくなる" :POINTS 10 :NAME "鉄壁" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "狩人" :SKILLS
-  ((:DESCRIPTION
-    "こんがり肉を焼きやすくなる。地図が無くてもマップが表示される。釣りで魚が最初の引きで食いつくようになる。釣り餌アイテムの調合が必ず成功する。"
-    :POINTS 10 :NAME "ハンター生活" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "雷耐性" :SKILLS
-  ((:DESCRIPTION "雷耐性-20、雷属性やられ状態小が大になる" :POINTS -10 :NAME "雷耐性弱化" :OBJ T)
-   (:DESCRIPTION "雷耐性+15、雷属性やられ小を無効" :POINTS 10 :NAME "雷耐性【小】" :OBJ T)
-   (:DESCRIPTION "雷耐性+20、雷属性やられ小と大を無効" :POINTS 15 :NAME "雷耐性【大】" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "雷属性攻撃" :SKILLS
-  ((:DESCRIPTION "雷属性の攻撃が0.75倍になる" :POINTS -10 :NAME "雷属性攻撃弱化" :OBJ T)
-   (:DESCRIPTION "雷属性の攻撃が1.05倍+40になる" :POINTS 10 :NAME "雷属性攻撃強化+1" :OBJ T)
-   (:DESCRIPTION "雷属性の攻撃が1.1倍+60になる" :POINTS 15 :NAME "雷属性攻撃強化+2" :OBJ T)
-   (:DESCRIPTION "雷属性の攻撃が1.15倍+90になる" :POINTS 20 :NAME "雷属性攻撃強化+3" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "加護" :SKILLS
-  ((:DESCRIPTION "25%の確率で受けるダメージが30%増加する" :POINTS -10 :NAME "悪霊の加護" :OBJ T)
-   (:DESCRIPTION "25%の確率で受けるダメージが30%減少する" :POINTS 10 :NAME "精霊の加護" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "拡散弾追加" :SKILLS
-  ((:DESCRIPTION "LV1拡散弾が使えるようになる" :POINTS 10 :NAME "拡散弾LV1追加" :OBJ T)
-   (:DESCRIPTION "全LVの拡散弾が使えるようになる" :POINTS 15 :NAME "拡散弾全LV追加" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "回復量" :SKILLS
-  ((:DESCRIPTION "体力回復アイテムの回復量が0.75倍に減る" :POINTS -10 :NAME "体力回復量DOWN" :OBJ T)
-   (:DESCRIPTION "体力回復アイテムの回復量が1.25倍に増える" :POINTS 10 :NAME "体力回復量UP" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "回復速度" :SKILLS
-  ((:DESCRIPTION "回復速度が1/4になる" :POINTS -15 :NAME "回復速度-2" :OBJ T)
-   (:DESCRIPTION "回復速度が1/2になる" :POINTS -10 :NAME "回復速度-1" :OBJ T)
-   (:DESCRIPTION "回復速度が2倍になる" :POINTS 10 :NAME "回復速度+1" :OBJ T)
-   (:DESCRIPTION "回復速度が4倍になる" :POINTS 15 :NAME "回復速度+2" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "回避性能" :SKILLS
-  ((:DESCRIPTION "回転回避やステップの無敵時間が半分になる" :POINTS -10 :NAME "回避性能DOWN" :OBJ T)
-   (:DESCRIPTION "回転回避やステップの無敵時間が通常の0.2秒から0.33秒に延長される" :POINTS 10 :NAME
-    "回避性能+1" :OBJ T)
-   (:DESCRIPTION "回転回避やステップの無敵時間が通常の0.2秒から0.4秒に延長される" :POINTS 15 :NAME "回避性能+2"
-    :OBJ T)
-   (:DESCRIPTION "回転回避やステップの無敵時間がさらに延長される。" :POINTS 20 :NAME "回避性能+3" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "回避術" :SKILLS
-  ((:DESCRIPTION "回避のサポート強化系スキル" :POINTS 10 :NAME "軽業師" :OBJ T)) :OBJ T)
- (:SYSTEM-NAME "回避距離" :SKILLS
-  ((:DESCRIPTION "回転回避やステップの移動距離が1.5倍に伸びる" :POINTS 10 :NAME "回避距離UP" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "ガード性能" :SKILLS
-  ((:DESCRIPTION "ガードした時に後退しやすくなり、ガード時に受けるダメージが10増える" :POINTS -10 :NAME
-    "ガード性能-1" :OBJ T)
-   (:DESCRIPTION "ガードした時の後退を抑え、ガード時に受けるダメージを10軽減" :POINTS 10 :NAME "ガード性能+1"
-    :OBJ T)
-   (:DESCRIPTION "ガードした時の後退を抑え、ガード時に受けるダメージを20軽減" :POINTS 15 :NAME "ガード性能+2"
-    :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "ガード強化" :SKILLS
-  ((:DESCRIPTION "ガード不能の攻撃がガードできるようになる" :POINTS 10 :NAME "ガード強化" :OBJ T)) :OBJ
-  T)
- (:SYSTEM-NAME "運搬" :SKILLS
-  ((:DESCRIPTION "運搬時の移動速度が上昇。高いところから飛び降りても運搬物を落としにくくなる" :POINTS 10 :NAME
-    "運搬の達人" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "運気" :SKILLS
-  ((:DESCRIPTION "クエストクリア報酬の抽選で報酬を入手できる確率がさらに減少。通常の22/32から8/32になる。" :POINTS -15
-    :NAME "災難" :OBJ T)
-   (:DESCRIPTION "クエストクリア報酬の抽選で報酬を入手できる確率が減少。通常の22/32から16/32になる。" :POINTS -10
-    :NAME "不運" :OBJ T)
-   (:DESCRIPTION "クエストクリア報酬の抽選で報酬を入手できる確率が上昇。通常の22/32から26/32になる。" :POINTS 10
-    :NAME "幸運" :OBJ T)
-   (:DESCRIPTION "クエストクリア報酬の抽選で報酬を入手できる確率がさらに上昇。" :POINTS 15 :NAME "強運" :OBJ T)
-   (:DESCRIPTION "クエストクリア報酬の抽選で報酬を入手できる確率が極めて上昇。通常の22/32から29/32になる。" :POINTS 20
-    :NAME "激運" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "一心" :SKILLS
-  ((:DESCRIPTION "スラッシュアックス、太刀、盾斧、双剣のゲージ、大剣、ハンマー、弓の溜め攻撃の溜まる速度を増減。生肉なども食事可能にする。"
-    :POINTS 10 :NAME "精神力" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "怒" :SKILLS
-  ((:DESCRIPTION
-    "体力が40%以下になると、攻撃力が1.3倍、防御力が45上がる。また、1回のみ体力が64以上残っている場合、それを超えるダメージを食らっても力尽きない。"
-    :POINTS 10 :NAME "逆鱗" :OBJ T))
-  :OBJ T)
- (:SYSTEM-NAME "居合" :SKILLS
-  ((:DESCRIPTION "抜刀術【力】 と 納刀術 の効果" :POINTS 10 :NAME "居合術【力】" :OBJ T)) :OBJ T)) 
+ (:EFFECTIVE-POINTS (-2 2 2) :EFFECTIVE-SKILLS ("腹減り" "狩人" "匠") :HOLES 2
+  :DEFENSE 55 :RANK 6 :NAME "クロオビグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 1 2) :EFFECTIVE-SKILLS ("腹減り" "食事" "攻撃" "強欲") :HOLES
+  3 :DEFENSE 64 :RANK 7 :NAME "グリードグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 3) :EFFECTIVE-SKILLS ("スタミナ" "ガード性能" "防御") :HOLES 1
+  :DEFENSE 23 :RANK 3 :NAME "グラビドグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 2 2) :EFFECTIVE-SKILLS ("スタミナ" "ガード強化" "防御") :HOLES 2
+  :DEFENSE 58 :RANK 6 :NAME "グラビドUグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 4) :EFFECTIVE-SKILLS ("スタミナ" "ガード性能" "防御") :HOLES 2
+  :DEFENSE 57 :RANK 5 :NAME "グラビドSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 2) :EFFECTIVE-SKILLS ("聴覚保護" "スタミナ" "攻撃") :HOLES 2
+  :DEFENSE 16 :RANK 2 :NAME "クックグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2) :EFFECTIVE-SKILLS ("水耐性" "火属性攻撃" "達人") :HOLES 2
+  :DEFENSE 47 :RANK 5 :NAME "クックUグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2 -2 4) :EFFECTIVE-SKILLS ("火耐性" "スタミナ" "聴覚保護" "攻撃")
+  :HOLES 1 :DEFENSE 43 :RANK 4 :NAME "クックSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2 1) :EFFECTIVE-SKILLS ("毒" "耐暑" "溜め短縮" "属性解放")
+  :HOLES 2 :DEFENSE 68 :RANK 7 :NAME "クシャナペイル" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 4 1) :EFFECTIVE-SKILLS ("火耐性" "回避距離" "回避性能") :HOLES 1
+  :DEFENSE 16 :RANK 4 :NAME "K・ロブスタグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 20 :RANK
+  4 :NAME "ギルドバードブーツ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 52 :RANK
+  6 :NAME "ギルドナイトブーツ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 1) :EFFECTIVE-SKILLS ("属性攻撃" "運気" "属性耐性") :HOLES 2
+  :DEFENSE 26 :RANK 3 :NAME "キリンレガース" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 3 -2 3) :EFFECTIVE-SKILLS ("属性攻撃" "氷属性攻撃" "運気" "属性耐性")
+  :HOLES 1 :DEFENSE 65 :RANK 7 :NAME "キリンUレガース" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 2 2) :EFFECTIVE-SKILLS ("属性攻撃" "運気" "属性耐性" "属性解放")
+  :HOLES 1 :DEFENSE 60 :RANK 6 :NAME "キリンSレガース" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 2 3) :EFFECTIVE-SKILLS ("加護" "捕獲" "運気" "剥ぎ取り") :HOLES
+  0 :DEFENSE 26 :RANK 7 :NAME "キャプテンJブーツ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 4) :EFFECTIVE-SKILLS ("研ぎ師" "斬れ味") :HOLES 2 :DEFENSE 21
+  :RANK 2 :NAME "ギザミグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 24 :RANK
+  3 :NAME "ガンキングリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 1 5) :EFFECTIVE-SKILLS ("気絶" "腹減り" "耐暑" "防御") :HOLES
+  0 :DEFENSE 40 :RANK 4 :NAME "ガレオスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 4) :EFFECTIVE-SKILLS ("聴覚保護" "達人") :HOLES 2 :DEFENSE 24
+  :RANK 3 :NAME "ガルルガグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 1 3) :EFFECTIVE-SKILLS ("斬れ味" "聴覚保護" "達人") :HOLES 2
+  :DEFENSE 60 :RANK 5 :NAME "ガルルガSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1 3) :EFFECTIVE-SKILLS ("気まぐれ" "麻痺" "聴覚保護" "捕獲")
+  :HOLES 1 :DEFENSE 20 :RANK 2 :NAME "ガララグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -3 2 5) :EFFECTIVE-SKILLS ("麻痺" "気まぐれ" "聴覚保護" "捕獲")
+  :HOLES 0 :DEFENSE 55 :RANK 5 :NAME "ガララSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 1) :EFFECTIVE-SKILLS ("回復速度" "食事" "達人") :HOLES 3
+  :DEFENSE 52 :RANK 5 :NAME "ガブルグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 1) :EFFECTIVE-SKILLS ("毒" "属性耐性" "属性解放") :HOLES 3
+  :DEFENSE 15 :RANK 2 :NAME "ガブラスーツフット" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 1) :EFFECTIVE-SKILLS ("減気攻撃" "属性耐性" "属性解放") :HOLES 3
+  :DEFENSE 40 :RANK 4 :NAME "ガブラスーツSフット" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 16 :RANK
+  2 :NAME "カブラグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 48 :RANK
+  5 :NAME "カブラSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (10 10 10 10) :EFFECTIVE-SKILLS ("高速設置" "耐暑" "スタミナ" "捕獲")
+  :HOLES 3 :DEFENSE 10 :RANK 4 :NAME "ガノスキャップ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 2 1 5) :EFFECTIVE-SKILLS ("耐寒" "匠" "剣術" "細菌学") :HOLES 0
+  :DEFENSE 68 :RANK 7 :NAME "カイザーグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 2 3) :EFFECTIVE-SKILLS ("運気" "採取" "加護" "砲術") :HOLES 2
+  :DEFENSE 18 :RANK 4 :NAME "ガーディアンブーツ" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2 2) :EFFECTIVE-SKILLS ("耐寒" "特殊攻撃" "回避性能" "採取")
+  :HOLES 1 :DEFENSE 43 :RANK 5 :NAME "オウビートガンバ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 3 2 1) :EFFECTIVE-SKILLS ("耐寒" "ガード性能" "達人" "属性解放")
+  :HOLES 2 :DEFENSE 68 :RANK 7 :NAME "エンプレスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 1 3 3 2) :EFFECTIVE-SKILLS
+  ("気絶" "属性攻撃" "回避距離" "属性耐性" "本気") :HOLES 0 :DEFENSE 68 :RANK 7 :NAME
+  "エスカドラスケル" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 2) :EFFECTIVE-SKILLS ("腹減り" "指揮" "狩人") :HOLES 1
+  :DEFENSE 45 :RANK 6 :NAME "エコールブーツ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 5) :EFFECTIVE-SKILLS ("食事" "研ぎ師" "攻撃") :HOLES 2
+  :DEFENSE 81 :RANK 7 :NAME "エクスゼログリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 1 2) :EFFECTIVE-SKILLS ("耐暑" "耐寒" "回避距離") :HOLES 2
+  :DEFENSE 15 :RANK 2 :NAME "ウルクグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 1 2) :EFFECTIVE-SKILLS ("耐寒" "耐暑" "効果持続" "回避距離")
+  :HOLES 1 :DEFENSE 45 :RANK 4 :NAME "ウルクSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (4 2 -2 1) :EFFECTIVE-SKILLS ("耐泥耐雪" "底力" "達人" "刀匠") :HOLES
+  1 :DEFENSE 67 :RANK 7 :NAME "ウカムルケマル" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1 3) :EFFECTIVE-SKILLS ("気まぐれ" "雷属性攻撃" "納刀" "ガード強化")
+  :HOLES 1 :DEFENSE 18 :RANK 3 :NAME "インゴットグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-8 10 12) :EFFECTIVE-SKILLS ("気絶" "運気" "毒") :HOLES 3
+  :DEFENSE 21 :RANK 5 :NAME "イーオスフェイス" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 15 :RANK
+  2 :NAME "イーオスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1) :EFFECTIVE-SKILLS ("気絶" "毒" "特殊攻撃") :HOLES 3
+  :DEFENSE 44 :RANK 4 :NAME "イーオスSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 8 :RANK 1
+  :NAME "アロイグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 28 :RANK
+  4 :NAME "アロイSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 13 :RANK
+  2 :NAME "アシラグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 4 -2 2) :EFFECTIVE-SKILLS ("燃鱗" "火属性攻撃" "底力" "ガード性能")
+  :HOLES 1 :DEFENSE 59 :RANK 6 :NAME "アグナグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 1 3 3) :EFFECTIVE-SKILLS ("斬れ味" "聴覚保護" "達人" "匠") :HOLES
+  0 :DEFENSE 65 :RANK 7 :NAME "アカムトケマル" :TYPE "melee" :OBJ T)
+ (:TYPE "melee" :OBJ T) (:TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (5 1 -3) :EFFECTIVE-SKILLS ("精密射撃" "反動" "装填速度") :HOLES 1
+  :DEFENSE 10 :RANK 3 :NAME "アーティアガード" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 2 5) :EFFECTIVE-SKILLS ("ガード強化" "匠" "属性解放") :HOLES 1
+  :DEFENSE 51 :RANK 5 :NAME "アーティアSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -3 3 3) :EFFECTIVE-SKILLS ("狂撃耐性" "火耐性" "本気" "匠") :HOLES
+  2 :DEFENSE 24 :RANK 3 :NAME "アークグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 3 1) :EFFECTIVE-SKILLS ("狂撃耐性" "火耐性" "本気" "回避術")
+  :HOLES 2 :DEFENSE 65 :RANK 7 :NAME "アークSグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 3 2) :EFFECTIVE-SKILLS ("千里眼" "研ぎ師" "聴覚保護" "一心")
+  :HOLES 1 :DEFENSE 82 :RANK 7 :NAME "EXレックスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -2 3 2 1) :EFFECTIVE-SKILLS ("狩人" "気力回復" "底力" "匠" "剛撃")
+  :HOLES 1 :DEFENSE 57 :RANK 7 :NAME "EXレウスグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1 1) :EFFECTIVE-SKILLS ("気力回復" "回復量" "匠" "頑強") :HOLES
+  3 :DEFENSE 50 :RANK 7 :NAME "EXレイアグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -4 2 2) :EFFECTIVE-SKILLS ("狂撃耐性" "攻撃" "強欲" "怒") :HOLES
+  2 :DEFENSE 81 :RANK 7 :NAME "EXリベリオングリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -4 2 2) :EFFECTIVE-SKILLS ("狂撃耐性" "攻撃" "強欲" "怒") :HOLES
+  2 :DEFENSE 41 :RANK 7 :NAME "EXライオットレギンス" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 1 1) :EFFECTIVE-SKILLS ("火耐性" "闘魂" "回避術" "細菌学")
+  :HOLES 2 :DEFENSE 58 :RANK 7 :NAME "EXゴアスリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2 2) :EFFECTIVE-SKILLS ("毒" "耐暑" "溜め短縮" "匠") :HOLES 1
+  :DEFENSE 82 :RANK 7 :NAME "EXクシャナペイル" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 3 2) :EFFECTIVE-SKILLS ("属性攻撃" "運気" "属性耐性" "状態耐性")
+  :HOLES 1 :DEFENSE 1 :RANK 7 :NAME "EXキリンUレガース" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2 3) :EFFECTIVE-SKILLS ("耐寒" "達人" "剣術" "属性解放") :HOLES
+  0 :DEFENSE 82 :RANK 7 :NAME "EXカイザーグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 2 1 4) :EFFECTIVE-SKILLS ("気まぐれ" "納刀" "ガード強化" "砲術")
+  :HOLES 1 :DEFENSE 41 :RANK 7 :NAME "EXインゴットグリーヴ" :TYPE "melee" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 3 2) :EFFECTIVE-SKILLS ("気力回復" "研ぎ師" "抜刀会心" "匠")
+  :HOLES 1 :DEFENSE 52 :RANK 7 :NAME "EXアーティアグリーブ" :TYPE "melee" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 2 1) :EFFECTIVE-SKILLS ("体術" "運気" "属性解放") :HOLES 1
+  :DEFENSE 26 :RANK 7 :NAME "勇者の具足" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 2 3) :EFFECTIVE-SKILLS ("加護" "装填数" "剥ぎ取り") :HOLES 1
+  :DEFENSE 22 :RANK 7 :NAME "伝説Jパンツ" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 2 1 3 3) :EFFECTIVE-SKILLS
+  ("気配" "回復量" "根性" "剥ぎ取り" "痛撃") :HOLES 1 :DEFENSE 27 :RANK 6 :NAME "城塞弓撃隊【足袋】"
+  :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2 -2) :EFFECTIVE-SKILLS ("属性攻撃" "回避性能" "防御") :HOLES 2
+  :DEFENSE 41 :RANK 7 :NAME "忍の足袋・地" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -1 2 5 1) :EFFECTIVE-SKILLS
+  ("ハチミツ" "加護" "龍属性攻撃" "聴覚保護" "速射") :HOLES 2 :DEFENSE 9 :RANK 4 :NAME
+  "ロワーガフェムル" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2 -2) :EFFECTIVE-SKILLS ("食いしん坊" "攻撃" "反動") :HOLES 2
+  :DEFENSE 11 :RANK 3 :NAME "レックスレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2 2 -2) :EFFECTIVE-SKILLS ("食事" "観察眼" "聴覚保護" "反動")
+  :HOLES 2 :DEFENSE 29 :RANK 6 :NAME "レックスUレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 3 4 -2) :EFFECTIVE-SKILLS ("食いしん坊" "千里眼" "攻撃" "反動")
+  :HOLES 0 :DEFENSE 28 :RANK 5 :NAME "レックスSレギンス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -1 1) :EFFECTIVE-SKILLS ("高速収集" "運気" "採取") :HOLES 1
+  :DEFENSE 11 :RANK 4 :NAME "レザーSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 3) :EFFECTIVE-SKILLS ("回復量" "火属性攻撃" "攻撃") :HOLES 1
+  :DEFENSE 12 :RANK 3 :NAME "レウスレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 3) :EFFECTIVE-SKILLS ("回復量" "火属性攻撃" "攻撃") :HOLES 1
+  :DEFENSE 28 :RANK 5 :NAME "レウスSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 2) :EFFECTIVE-SKILLS ("回復速度" "火属性攻撃" "体力") :HOLES 2
+  :DEFENSE 10 :RANK 2 :NAME "レイアレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1 5) :EFFECTIVE-SKILLS ("回復速度" "回復量" "火属性攻撃" "体力")
+  :HOLES 1 :DEFENSE 25 :RANK 5 :NAME "レイアSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 2 2 2) :EFFECTIVE-SKILLS ("雷耐性" "耐暑" "水属性攻撃" "スタミナ")
+  :HOLES 1 :DEFENSE 7 :RANK 2 :NAME "ルドロスレギンス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 3 2) :EFFECTIVE-SKILLS ("気絶" "耐泥耐雪" "KO") :HOLES 0
+  :DEFENSE 4 :RANK 2 :NAME "リノプロレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -1 3 1) :EFFECTIVE-SKILLS ("耐泥耐雪" "気絶" "KO" "砲術") :HOLES
+  1 :DEFENSE 15 :RANK 4 :NAME "リノプロSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 4 1 3) :EFFECTIVE-SKILLS ("気配" "風圧" "火属性攻撃" "底力")
+  :HOLES 1 :DEFENSE 26 :RANK 6 :NAME "リオハートレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 3 -2 3) :EFFECTIVE-SKILLS ("通常弾強化" "聴覚保護" "体力" "達人")
+  :HOLES 0 :DEFENSE 29 :RANK 6 :NAME "リオソウルレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 3) :EFFECTIVE-SKILLS ("気絶" "攻撃") :HOLES 1 :DEFENSE 7
+  :RANK 2 :NAME "ランポスレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 19 :RANK
+  4 :NAME "ランポスSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -2 3 3) :EFFECTIVE-SKILLS ("麻痺" "毒" "対防御DOWN" "特殊攻撃")
+  :HOLES 0 :DEFENSE 18 :RANK 4 :NAME "ランゴレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 24 :RANK
+  4 :NAME "ラングロレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 2 2) :EFFECTIVE-SKILLS ("溜め短縮" "特殊攻撃" "痛撃" "属性解放")
+  :HOLES 2 :DEFENSE 30 :RANK 6 :NAME "ラギアレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2) :EFFECTIVE-SKILLS ("気配" "回復速度" "反動") :HOLES 2
+  :DEFENSE 12 :RANK 3 :NAME "ラヴァレギンス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -2 3 2) :EFFECTIVE-SKILLS ("耐寒" "食事" "回避距離" "聴覚保護")
+  :HOLES 2 :DEFENSE 22 :RANK 7 :NAME "ユニクロタイツ" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2 1 1) :EFFECTIVE-SKILLS ("加護" "回復量" "装填数" "装填速度")
+  :HOLES 2 :DEFENSE 30 :RANK 6 :NAME "ユクモノハカマ・地" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 26 :RANK
+  6 :NAME "メイドタイツ" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 3 -3 2) :EFFECTIVE-SKILLS ("通常弾強化" "スタミナ" "防御") :HOLES 1
+  :DEFENSE 43 :RANK 7 :NAME "ミラバルレグス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 1 2 1 3) :EFFECTIVE-SKILLS
+  ("属性解放" "回復速度" "調合数" "調合成功率" "溜め短縮") :HOLES 0 :DEFENSE 9 :RANK 4 :NAME
+  "マギュルヴルツェル" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -2 1 3) :EFFECTIVE-SKILLS ("防御" "腹減り" "精密射撃" "攻撃")
+  :HOLES 1 :DEFENSE 8 :RANK 2 :NAME "ボロスレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (4 2) :EFFECTIVE-SKILLS ("笛" "KO") :HOLES 1 :DEFENSE 4
+  :RANK 1 :NAME "ボーンレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 4 1 2) :EFFECTIVE-SKILLS ("睡眠" "笛" "観察眼" "KO") :HOLES 0
+  :DEFENSE 13 :RANK 4 :NAME "ボーンSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 2) :EFFECTIVE-SKILLS ("腹減り" "指揮" "狩人") :HOLES 1
+  :DEFENSE 23 :RANK 6 :NAME "ホークフット" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 2 2) :EFFECTIVE-SKILLS ("運気" "採取" "加護" "広域") :HOLES 2
+  :DEFENSE 9 :RANK 4 :NAME "ヘルパータイツ" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2 3) :EFFECTIVE-SKILLS ("気力回復" "体術" "氷属性攻撃" "回避性能")
+  :HOLES 1 :DEFENSE 29 :RANK 5 :NAME "ベリオレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2 1) :EFFECTIVE-SKILLS ("加護" "水属性攻撃" "重撃" "聴覚保護")
+  :HOLES 2 :DEFENSE 42 :RANK 7 :NAME "ヘリオスレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 3 2 -1) :EFFECTIVE-SKILLS ("笛" "広域" "観察眼" "氷耐性") :HOLES
+  1 :DEFENSE 18 :RANK 4 :NAME "ペッコレギンス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 1 -1) :EFFECTIVE-SKILLS ("乗り" "回復速度" "体力") :HOLES 1
+  :DEFENSE 9 :RANK 4 :NAME "ブレイブSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 3) :EFFECTIVE-SKILLS ("気絶" "回復量" "雷属性攻撃") :HOLES 1
+  :DEFENSE 10 :RANK 2 :NAME "フルフルレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2) :EFFECTIVE-SKILLS ("回復速度" "広域" "回復量") :HOLES 2
+  :DEFENSE 26 :RANK 6 :NAME "フルフルUレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 3 2 3) :EFFECTIVE-SKILLS ("気絶" "回復速度" "広域" "雷属性攻撃")
+  :HOLES 1 :DEFENSE 25 :RANK 5 :NAME "フルフルSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 4 2) :EFFECTIVE-SKILLS ("采配" "水属性攻撃" "闘魂") :HOLES 2
+  :DEFENSE 13 :RANK 7 :NAME "ブルースターフット" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 1 -2 2) :EFFECTIVE-SKILLS ("耐泥耐雪" "耐寒" "耐暑" "攻撃") :HOLES
+  2 :DEFENSE 28 :RANK 5 :NAME "ブランゴレギンス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -2 1) :EFFECTIVE-SKILLS ("爆弾強化" "回避性能" "闘魂") :HOLES 1
+  :DEFENSE 11 :RANK 3 :NAME "ブラキレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 2 2 -2 3) :EFFECTIVE-SKILLS
+  ("回避距離" "爆弾強化" "底力" "回避性能" "闘魂") :HOLES 1 :DEFENSE 28 :RANK 6 :NAME
+  "ブラキSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 2 1 3) :EFFECTIVE-SKILLS ("攻撃" "麻痺" "納刀" "特殊攻撃") :HOLES
+  0 :DEFENSE 5 :RANK 2 :NAME "ブナハフット" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 1 3 -1) :EFFECTIVE-SKILLS ("麻痺" "納刀" "特殊攻撃" "攻撃") :HOLES
+  1 :DEFENSE 16 :RANK 4 :NAME "ブナハSフット" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -3 3 3) :EFFECTIVE-SKILLS ("狂撃耐性" "火耐性" "装填数" "本気")
+  :HOLES 2 :DEFENSE 12 :RANK 3 :NAME "フィリアレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 3 1) :EFFECTIVE-SKILLS ("狂撃耐性" "火耐性" "本気" "回避術")
+  :HOLES 2 :DEFENSE 33 :RANK 7 :NAME "フィリアSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -1 2 5 1) :EFFECTIVE-SKILLS
+  ("ハチミツ" "加護" "龍属性攻撃" "聴覚保護" "速射") :HOLES 2 :DEFENSE 9 :RANK 4 :NAME
+  "ファルメルフェムル" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 3) :EFFECTIVE-SKILLS ("毒" "調合成功率" "狩人") :HOLES 0
+  :DEFENSE 3 :RANK 1 :NAME "ハンターレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 3 3 3) :EFFECTIVE-SKILLS ("毒" "狩人" "調合成功率" "千里眼")
+  :HOLES 1 :DEFENSE 13 :RANK 4 :NAME "ハンターSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 1 2) :EFFECTIVE-SKILLS ("腹減り" "食事" "攻撃" "反動") :HOLES
+  3 :DEFENSE 31 :RANK 6 :NAME "バンギスレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 3) :EFFECTIVE-SKILLS ("食事" "納刀") :HOLES 0 :DEFENSE 10
+  :RANK 2 :NAME "ハプルレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2 2) :EFFECTIVE-SKILLS ("耐寒" "特殊攻撃" "回避性能" "採取")
+  :HOLES 1 :DEFENSE 21 :RANK 5 :NAME "パピメルフェムル" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 4 2) :EFFECTIVE-SKILLS ("聴覚保護" "攻撃" "装填速度") :HOLES 1
+  :DEFENSE 7 :RANK 2 :NAME "バトルレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 2 2 3) :EFFECTIVE-SKILLS ("麻痺" "毒" "睡眠" "耐暑") :HOLES 1
+  :DEFENSE 9 :RANK 2 :NAME "バサルレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1 1) :EFFECTIVE-SKILLS ("麻痺" "毒" "耐暑" "通常弾強化") :HOLES
+  2 :DEFENSE 27 :RANK 6 :NAME "バサルUレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -2 2 1) :EFFECTIVE-SKILLS ("耐泥耐雪" "腹減り" "食事" "納刀")
+  :HOLES 2 :DEFENSE 25 :RANK 5 :NAME "バサルSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 4 2) :EFFECTIVE-SKILLS ("スタミナ" "砲術" "体力") :HOLES 1
+  :DEFENSE 7 :RANK 2 :NAME "ハイメタレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 4 2) :EFFECTIVE-SKILLS ("回避距離" "スタミナ" "回避性能" "痛撃")
+  :HOLES 0 :DEFENSE 11 :RANK 3 :NAME "ナルガレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 2) :EFFECTIVE-SKILLS ("貫通弾強化" "達人" "痛撃") :HOLES 1
+  :DEFENSE 42 :RANK 7 :NAME "ドラゴンレグス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -1 1) :EFFECTIVE-SKILLS ("回復速度" "達人" "攻撃") :HOLES 1
+  :DEFENSE 12 :RANK 3 :NAME "ドボルレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 1 1) :EFFECTIVE-SKILLS ("腹減り" "気力回復" "龍属性攻撃" "装填速度")
+  :HOLES 3 :DEFENSE 24 :RANK 6 :NAME "ドーベルレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 3 1) :EFFECTIVE-SKILLS ("精密射撃" "貫通弾強化" "根性" "納刀")
+  :HOLES 3 :DEFENSE 12 :RANK 3 :NAME "ディアブロレギンス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2 2) :EFFECTIVE-SKILLS ("睡眠" "腹減り" "調合成功率" "体力")
+  :HOLES 1 :DEFENSE 11 :RANK 4 :NAME "チェーンSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 4 1) :EFFECTIVE-SKILLS ("乗り" "精密射撃" "装填数") :HOLES 2
+  :DEFENSE 26 :RANK 7 :NAME "ゾディアスレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2 1) :EFFECTIVE-SKILLS ("加護" "水属性攻撃" "重撃" "聴覚保護")
+  :HOLES 2 :DEFENSE 42 :RANK 7 :NAME "セレネレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 3 1) :EFFECTIVE-SKILLS ("気力回復" "榴弾追加" "装填数" "砲術")
+  :HOLES 1 :DEFENSE 10 :RANK 3 :NAME "セルタスレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 2 3 1) :EFFECTIVE-SKILLS ("気力回復" "榴弾追加" "装填数" "砲術")
+  :HOLES 1 :DEFENSE 27 :RANK 5 :NAME "セルタスSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 30 :RANK
+  6 :NAME "セイラーサンダル" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2 4) :EFFECTIVE-SKILLS ("乗り" "闘魂" "護石収集") :HOLES 2
+  :DEFENSE 26 :RANK 7 :NAME "スタールークレギンス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1 2) :EFFECTIVE-SKILLS ("腹減り" "睡眠" "高速設置" "観察眼")
+  :HOLES 2 :DEFENSE 9 :RANK 2 :NAME "スキュラレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -3 2 2) :EFFECTIVE-SKILLS ("毒" "腹減り" "観察眼" "達人") :HOLES
+  2 :DEFENSE 24 :RANK 5 :NAME "スキュラSレギンス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 10 :RANK
+  4 :NAME "スカラーサンダル" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 1) :EFFECTIVE-SKILLS ("気配" "雷属性攻撃" "本気") :HOLES 0
+  :DEFENSE 10 :RANK 3 :NAME "ジンオウレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 1 2 2) :EFFECTIVE-SKILLS
+  ("回復量" "龍属性攻撃" "装填数" "無傷" "回避性能") :HOLES 1 :DEFENSE 27 :RANK 6 :NAME
+  "ジンオウUレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 1 4 3) :EFFECTIVE-SKILLS
+  ("気配" "雷属性攻撃" "無傷" "本気" "装填速度") :HOLES 0 :DEFENSE 26 :RANK 5 :NAME
+  "ジンオウSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 5 3 2) :EFFECTIVE-SKILLS ("回復量" "火属性攻撃" "貫通弾強化" "痛撃")
+  :HOLES 0 :DEFENSE 41 :RANK 7 :NAME "シルバーソルレギンス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 3 2) :EFFECTIVE-SKILLS ("効果持続" "気絶" "装填速度") :HOLES 1
+  :DEFENSE 5 :RANK 2 :NAME "ジャギィレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -1 1 3) :EFFECTIVE-SKILLS ("気絶" "効果持続" "攻撃" "装填速度")
+  :HOLES 1 :DEFENSE 18 :RANK 4 :NAME "ジャギィSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 1 2) :EFFECTIVE-SKILLS ("体力" "腹減り" "肉食" "氷属性攻撃")
+  :HOLES 1 :DEFENSE 10 :RANK 2 :NAME "ザボアレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 1 2) :EFFECTIVE-SKILLS ("腹減り" "肉食" "氷属性攻撃" "重撃")
+  :HOLES 1 :DEFENSE 27 :RANK 5 :NAME "ザボアSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 3) :EFFECTIVE-SKILLS ("雷耐性" "精密射撃" "防御") :HOLES 1
+  :DEFENSE 20 :RANK 4 :NAME "ザザミレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2) :EFFECTIVE-SKILLS ("腹減り" "食いしん坊" "細菌学") :HOLES 1
+  :DEFENSE 7 :RANK 2 :NAME "コンガレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 2 2) :EFFECTIVE-SKILLS ("腹減り" "爆弾強化" "底力") :HOLES 1
+  :DEFENSE 20 :RANK 5 :NAME "コンガUレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2 2) :EFFECTIVE-SKILLS ("腹減り" "食いしん坊" "特殊攻撃" "細菌学")
+  :HOLES 1 :DEFENSE 19 :RANK 4 :NAME "コンガSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (4 -2 2 4) :EFFECTIVE-SKILLS ("加護" "雷耐性" "重撃" "運気") :HOLES
+  1 :DEFENSE 41 :RANK 7 :NAME "ゴールドルナレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 1 3) :EFFECTIVE-SKILLS ("火耐性" "細菌学" "闘魂") :HOLES 2
+  :DEFENSE 11 :RANK 3 :NAME "ゴアレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (4 -2 3 3) :EFFECTIVE-SKILLS ("狂撃耐性" "火耐性" "闘魂" "細菌学")
+  :HOLES 0 :DEFENSE 26 :RANK 6 :NAME "ゴアSレギンス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2) :EFFECTIVE-SKILLS ("腹減り" "毒" "スタミナ") :HOLES 1
+  :DEFENSE 7 :RANK 2 :NAME "ゲリョスレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 3 -1) :EFFECTIVE-SKILLS ("気絶" "風圧" "達人") :HOLES 0
+  :DEFENSE 24 :RANK 6 :NAME "ゲリョスUレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 4 2) :EFFECTIVE-SKILLS ("毒" "腹減り" "スタミナ" "達人") :HOLES
+  1 :DEFENSE 23 :RANK 5 :NAME "ゲリョスSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 2) :EFFECTIVE-SKILLS ("特殊攻撃" "麻痺") :HOLES 1 :DEFENSE 6
+  :RANK 2 :NAME "ゲネポスレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 1) :EFFECTIVE-SKILLS ("麻痺" "特殊攻撃") :HOLES 2 :DEFENSE 18
+  :RANK 4 :NAME "ゲネポスSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 4 1) :EFFECTIVE-SKILLS ("運気" "気まぐれ" "水属性攻撃") :HOLES 0
+  :DEFENSE 7 :RANK 2 :NAME "ケチャレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (4 2 1 -1) :EFFECTIVE-SKILLS ("気まぐれ" "体術" "水属性攻撃" "運気")
+  :HOLES 1 :DEFENSE 21 :RANK 4 :NAME "ケチャSレギンス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2) :EFFECTIVE-SKILLS ("腹減り" "狩人" "装填数") :HOLES 2
+  :DEFENSE 28 :RANK 6 :NAME "クロオビレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 2 2) :EFFECTIVE-SKILLS ("腹減り" "食事" "攻撃" "強欲") :HOLES
+  3 :DEFENSE 32 :RANK 7 :NAME "グリードレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2) :EFFECTIVE-SKILLS ("スタミナ" "防御" "反動") :HOLES 1
+  :DEFENSE 12 :RANK 3 :NAME "グラビドレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 2 2) :EFFECTIVE-SKILLS ("スタミナ" "ガード強化" "防御") :HOLES 2
+  :DEFENSE 29 :RANK 6 :NAME "グラビドUレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 4 2) :EFFECTIVE-SKILLS ("スタミナ" "防御" "反動") :HOLES 2
+  :DEFENSE 29 :RANK 5 :NAME "グラビドSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 2) :EFFECTIVE-SKILLS ("聴覚保護" "スタミナ" "攻撃") :HOLES 2
+  :DEFENSE 8 :RANK 2 :NAME "クックレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2) :EFFECTIVE-SKILLS ("水耐性" "火属性攻撃" "達人") :HOLES 2
+  :DEFENSE 23 :RANK 5 :NAME "クックUレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 2 -2 4) :EFFECTIVE-SKILLS ("火耐性" "スタミナ" "聴覚保護" "攻撃")
+  :HOLES 1 :DEFENSE 21 :RANK 4 :NAME "クックSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2 1) :EFFECTIVE-SKILLS ("毒" "耐暑" "溜め短縮" "属性解放")
+  :HOLES 2 :DEFENSE 34 :RANK 7 :NAME "クシャナハディ" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 4 1) :EFFECTIVE-SKILLS ("火耐性" "回避距離" "回避性能") :HOLES 1
+  :DEFENSE 8 :RANK 4 :NAME "K・ロブスタレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 10 :RANK
+  4 :NAME "ギルドバードフット" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 26 :RANK
+  6 :NAME "ギルドナイトタイツ" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 1) :EFFECTIVE-SKILLS ("属性攻撃" "運気" "属性耐性") :HOLES 2
+  :DEFENSE 13 :RANK 3 :NAME "キリンブーツ" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 3 -2 3) :EFFECTIVE-SKILLS ("属性攻撃" "氷属性攻撃" "運気" "属性耐性")
+  :HOLES 1 :DEFENSE 33 :RANK 7 :NAME "キリンUブーツ" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -2 2 2) :EFFECTIVE-SKILLS ("属性攻撃" "運気" "属性耐性" "属性解放")
+  :HOLES 1 :DEFENSE 30 :RANK 6 :NAME "キリンSブーツ" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 2 3) :EFFECTIVE-SKILLS ("加護" "捕獲" "運気" "剥ぎ取り") :HOLES
+  0 :DEFENSE 13 :RANK 7 :NAME "キャプテンJパンツ" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 1 2 -1) :EFFECTIVE-SKILLS ("精密射撃" "貫通弾追加" "貫通弾強化" "防御")
+  :HOLES 1 :DEFENSE 10 :RANK 2 :NAME "ギザミレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 12 :RANK
+  3 :NAME "ガンキンレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 1 5) :EFFECTIVE-SKILLS ("気絶" "腹減り" "耐暑" "防御") :HOLES
+  0 :DEFENSE 20 :RANK 4 :NAME "ガレオスレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 4) :EFFECTIVE-SKILLS ("聴覚保護" "達人") :HOLES 2 :DEFENSE 12
+  :RANK 3 :NAME "ガルルガレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 1 3) :EFFECTIVE-SKILLS ("貫通弾強化" "聴覚保護" "達人") :HOLES 2
+  :DEFENSE 30 :RANK 5 :NAME "ガルルガSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1 3) :EFFECTIVE-SKILLS ("気まぐれ" "麻痺" "聴覚保護" "捕獲")
+  :HOLES 1 :DEFENSE 10 :RANK 2 :NAME "ガララレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -3 2 5) :EFFECTIVE-SKILLS ("麻痺" "気まぐれ" "聴覚保護" "捕獲")
+  :HOLES 0 :DEFENSE 28 :RANK 5 :NAME "ガララSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 1) :EFFECTIVE-SKILLS ("回復速度" "食事" "達人") :HOLES 3
+  :DEFENSE 26 :RANK 5 :NAME "ガブルレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 1) :EFFECTIVE-SKILLS ("毒" "属性耐性" "属性解放") :HOLES 3
+  :DEFENSE 8 :RANK 2 :NAME "ガブラスーツタイツ" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 1) :EFFECTIVE-SKILLS ("減気攻撃" "属性耐性" "属性解放") :HOLES 3
+  :DEFENSE 20 :RANK 4 :NAME "ガブラスーツSタイツ" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 8 :RANK 2
+  :NAME "カブラレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 24 :RANK
+  5 :NAME "カブラSレギンス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 1 2 5) :EFFECTIVE-SKILLS ("耐寒" "装填数" "装填速度" "細菌学")
+  :HOLES 0 :DEFENSE 34 :RANK 7 :NAME "カイザーレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 2 2) :EFFECTIVE-SKILLS ("運気" "採取" "加護" "広域") :HOLES 2
+  :DEFENSE 9 :RANK 4 :NAME "ガーディアンフット" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 2 2) :EFFECTIVE-SKILLS ("耐寒" "特殊攻撃" "回避性能" "採取")
+  :HOLES 1 :DEFENSE 21 :RANK 5 :NAME "オウビートフェルム" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 3 2 1) :EFFECTIVE-SKILLS ("耐寒" "ガード強化" "達人" "属性解放")
+  :HOLES 2 :DEFENSE 34 :RANK 7 :NAME "エンプレスレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 1 3 3 2) :EFFECTIVE-SKILLS
+  ("気絶" "属性攻撃" "回避距離" "属性耐性" "本気") :HOLES 0 :DEFENSE 43 :RANK 7 :NAME
+  "エスカドラスクレ" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 2) :EFFECTIVE-SKILLS ("腹減り" "指揮" "狩人") :HOLES 1
+  :DEFENSE 23 :RANK 6 :NAME "エコールフット" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 5 -2) :EFFECTIVE-SKILLS ("食事" "攻撃" "反動") :HOLES 2
+  :DEFENSE 41 :RANK 7 :NAME "エクスゼロレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-1 1 2) :EFFECTIVE-SKILLS ("耐暑" "耐寒" "回避距離") :HOLES 2
+  :DEFENSE 8 :RANK 2 :NAME "ウルクレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 1 2) :EFFECTIVE-SKILLS ("耐寒" "耐暑" "効果持続" "回避距離")
+  :HOLES 1 :DEFENSE 22 :RANK 4 :NAME "ウルクSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (4 2 -2 1) :EFFECTIVE-SKILLS ("耐泥耐雪" "底力" "達人" "射手") :HOLES
+  1 :DEFENSE 34 :RANK 7 :NAME "ウカムルチキル" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 3 1) :EFFECTIVE-SKILLS ("気まぐれ" "雷属性攻撃" "散弾強化" "反動")
+  :HOLES 1 :DEFENSE 8 :RANK 3 :NAME "インゴットレギンス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 8 :RANK 2
+  :NAME "イーオスレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1) :EFFECTIVE-SKILLS ("気絶" "毒" "特殊攻撃") :HOLES 3
+  :DEFENSE 22 :RANK 4 :NAME "イーオスSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 4 :RANK 1
+  :NAME "アロイレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 14 :RANK
+  4 :NAME "アロイSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 7 :RANK 2
+  :NAME "アシラレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 1 3 2 -2) :EFFECTIVE-SKILLS
+  ("燃鱗" "火属性攻撃" "精密射撃" "通常弾強化" "底力") :HOLES 1 :DEFENSE 30 :RANK 6 :NAME
+  "アグナレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 1 3 -3) :EFFECTIVE-SKILLS ("装填数" "聴覚保護" "達人" "装填速度")
+  :HOLES 0 :DEFENSE 33 :RANK 7 :NAME "アカムトチキル" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (4 3 3) :EFFECTIVE-SKILLS ("速射" "反動" "属性解放") :HOLES 1
+  :DEFENSE 26 :RANK 5 :NAME "アーティアSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -3 3 3) :EFFECTIVE-SKILLS ("狂撃耐性" "火耐性" "装填数" "本気")
+  :HOLES 2 :DEFENSE 12 :RANK 3 :NAME "アークレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (1 -2 3 1) :EFFECTIVE-SKILLS ("狂撃耐性" "火耐性" "本気" "回避術")
+  :HOLES 2 :DEFENSE 33 :RANK 7 :NAME "アークSレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 3 -2 2) :EFFECTIVE-SKILLS ("千里眼" "聴覚保護" "反動" "一心")
+  :HOLES 1 :DEFENSE 41 :RANK 7 :NAME "EXレックスレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (2 -2 2 3 1) :EFFECTIVE-SKILLS
+  ("狩人" "気力回復" "装填数" "底力" "剛撃") :HOLES 1 :DEFENSE 28 :RANK 7 :NAME "EXレウスレギンス"
+  :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 2 1 1) :EFFECTIVE-SKILLS ("気力回復" "回復量" "装填数" "頑強")
+  :HOLES 3 :DEFENSE 25 :RANK 7 :NAME "EXレイアレギンス" :TYPE "range" :OBJ T)
+ (:TYPE "range" :OBJ T) (:TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 1 1) :EFFECTIVE-SKILLS ("火耐性" "闘魂" "回避術" "細菌学")
+  :HOLES 2 :DEFENSE 29 :RANK 7 :NAME "EXゴアレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2 2) :EFFECTIVE-SKILLS ("毒" "耐暑" "装填数" "溜め短縮") :HOLES
+  1 :DEFENSE 41 :RANK 7 :NAME "EXクシャナハディ" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 -2 3 2) :EFFECTIVE-SKILLS ("属性攻撃" "運気" "属性耐性" "状態耐性")
+  :HOLES 1 :DEFENSE 1 :RANK 7 :NAME "EXキリンUブーツ" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-2 3 2 3) :EFFECTIVE-SKILLS ("耐寒" "達人" "装填速度" "属性解放")
+  :HOLES 0 :DEFENSE 41 :RANK 7 :NAME "EXカイザーレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (-3 3 3 3) :EFFECTIVE-SKILLS ("気まぐれ" "散弾強化" "砲術" "反動")
+  :HOLES 1 :DEFENSE 21 :RANK 7 :NAME "EXインゴットレギンス" :TYPE "range" :OBJ T)
+ (:EFFECTIVE-POINTS (3 3 2 -2) :EFFECTIVE-SKILLS ("精密射撃" "装填数" "痛撃" "装填速度")
+  :HOLES 1 :DEFENSE 26 :RANK 7 :NAME "EXアーティアレギンス" :TYPE "range" :OBJ T)) 

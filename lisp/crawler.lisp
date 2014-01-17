@@ -5,6 +5,15 @@
 
 (defparameter *root-domain* "http://wiki.mh4g.org/")
 
+;;; ---------- Globals ----------
+
+(defparameter *skills* nil)
+(defparameter *helms* nil)
+(defparameter *cuirasses* nil)
+(defparameter *gloves* nil)
+(defparameter *cuisses* nil)
+(defparameter *sabatons* nil)
+(defparameter *jewels* nil)
 
 ;;; ---------- Skill Crawler ----------
 (declaim (inline string-trim-all))
@@ -32,7 +41,8 @@
            (2 (setf (getf result :points) (get-trimmed-content-int child)))
            (3 (setf (getf result :description) (get-trimmed-content child)))))
     result))
-         
+
+
 (def-struct-wrapper crawl-skill-system
   ("body #wrapper #container #contents #data_container #data2 table:1 tbody tr:2 td:1" 
    :system-name (lambda (node) 
@@ -54,7 +64,10 @@
 ;;; ---------- Jewels Crawler ----------
 
 (def-struct-wrapper crawl-jewel
-  ("tr:1 td:1 a" :name #'get-trimmed-content)
+  ("tr:1 td:1 a" :name (lambda (node)
+                         (let ((name (get-trimmed-content node)))
+                           (format t "crawling ~a ...~%" name)
+                           name)))
   ("tr:1 td:1 span" :holes (lambda (node)
 			     (- 3 (count #\-
 					 (get-trimmed-content node)))))
@@ -102,17 +115,18 @@
 				    href))))))))
 
 	 
+
 (def-armor-wrapper helm ("melee" 2 2))
 (def-armor-wrapper cuirass ("melee" 3 3))
 (def-armor-wrapper glove ("melee" 4 4))
-(def-armor-wrapper cuisse ("melee" 5 5))
-(def-armor-wrapper boot ("melee" 6 6))
+(def-armor-wrapper cuisses ("melee" 5 5))
+(def-armor-wrapper sabaton ("melee" 6 6))
 
 (def-armor-wrapper helm ("range" 7 8))
 (def-armor-wrapper cuirass ("range" 8 9))
 (def-armor-wrapper glove ("range" 9 10))
-(def-armor-wrapper cuisse ("range" 10 11))
-(def-armor-wrapper boot ("range" 11 12))
+(def-armor-wrapper cuisses ("range" 10 11))
+(def-armor-wrapper sabaton ("range" 11 12))
    
 
 ;;; ---------- Exported Utilities ----------
@@ -121,13 +135,117 @@
   (merge-pathnames (format nil "dataset/jap/~a" file-name)
                    (asdf:system-source-directory 'monster-avengers)))
 
-(defun update-jap-dataset ()
-  (with-open-file (out (get-jap-file-name "skills/skills.lisp")
-                       :direction :output
-                       :if-exists :supersede
-                       :if-does-not-exist :create)
-    (print (crawl-skill-systems 
-            (html-from-uri "http://wiki.mh4g.org/data/1446.html"))
-           out)))
+(defparameter *skills-file* 
+  (get-jap-file-name "skills/skills.lisp"))
+
+(defparameter *jewels-file* 
+  (get-jap-file-name "jewels/jewels.lisp"))
+
+(defparameter *helms-file* 
+  (get-jap-file-name "jewels/armors/helms.lisp"))
+
+(defparameter *cuirasses-file* 
+  (get-jap-file-name "jewels/armors/cuirasses.lisp"))
+
+(defparameter *gloves-file* 
+  (get-jap-file-name "jewels/armors/gloves.lisp"))
+
+(defparameter *cuisses-file* 
+  (get-jap-file-name "jewels/armors/cuisses.lisp"))
+
+(defparameter *sabatons-file* 
+  (get-jap-file-name "jewels/armors/sabatons.lisp"))
+
+(defun update-jap-dataset (&key (force-refresh nil))
+  (labels ((load-or-crawl (crawler file-name uri)
+             (if (or force-refresh
+                     (not (probe-file file-name)))
+                 (let ((result (funcall crawler uri)))
+                   (with-open-file (out *skills-file*
+                                        :direction :output
+                                        :if-exists :supersede
+                                        :if-does-not-exist :create)
+                     (print result out))
+                   result)
+                 (with-open-file (in *skills-file*
+                                     :direction :input)
+                   (read in)))))
+    (setf *skills* 
+          (load-or-crawl (lambda (uri)
+                           (crawl-skill-systems
+                            (html-from-uri uri)))
+                         *skills-file*
+                         "http://wiki.mh4g.org/data/1446.html"))
+    (setf *jewels* 
+          (load-or-crawl (lambda (uris)
+                           (mapcan (lambda (uri)
+                                     (crawl-jewels-list (html-from-uri uri)))
+                                   uris))
+                         *jewels-file*
+                         '("http://wiki.mh4g.org/data/1477.html"
+                           "http://wiki.mh4g.org/data/1478.html"
+                           "http://wiki.mh4g.org/data/1479.html")))
+    (setf *helms* 
+          (load-or-crawl (lambda (uri)
+                           (append (crawl-melee-helm-list (html-from-uri uri))
+                                   (crawl-range-helm-list (html-from-uri uri))))
+                         *helms-file*
+                         "http://wiki.mh4g.org/data/1445.html"))
+    (setf *cuirasses* 
+          (load-or-crawl (lambda (uri)
+                           (append (crawl-melee-cuirass-list (html-from-uri uri))
+                                   (crawl-range-cuirass-list (html-from-uri uri))))
+                         *cuirasses-file*
+                         "http://wiki.mh4g.org/data/1445.html"))
+    (setf *gloves* 
+          (load-or-crawl (lambda (uri)
+                           (append (crawl-melee-glove-list (html-from-uri uri))
+                                   (crawl-range-glove-list (html-from-uri uri))))
+                         *gloves-file*
+                         "http://wiki.mh4g.org/data/1445.html"))
+    (setf *cuisses* 
+          (load-or-crawl (lambda (uri)
+                           (append (crawl-melee-cuisses-list (html-from-uri uri))
+                                   (crawl-range-cuisses-list (html-from-uri uri))))
+                         *cuisses-file*
+                         "http://wiki.mh4g.org/data/1445.html"))
+    (setf *sabatons* 
+          (load-or-crawl (lambda (uri)
+                           (append (crawl-melee-sabaton-list (html-from-uri uri))
+                                   (crawl-range-sabaton-list (html-from-uri uri))))
+                         *sabatons-file*
+                         "http://wiki.mh4g.org/data/1445.html"))))
+
+
+  
+  ;; (if (or force-refresh
+  ;;         (not (probe-file *helms-file*)))
+  ;;     (progn
+  ;;       (setf *helms* 
+  ;;             (mapcan (lambda (uri)
+  ;;                       (crawl-helm-list (html-from-uri uri)))
+  ;;                     '("http://wiki.mh4g.org/data/1477.html"
+  ;;                       "http://wiki.mh4g.org/data/1478.html"
+  ;;                       "http://wiki.mh4g.org/data/1479.html")))
+  ;;       (with-open-file (out *helms-file*
+  ;;                            :direction :output
+  ;;                            :if-exists :supersede
+  ;;                            :if-does-not-exist :create)
+  ;;         (print *helms* out)))
+  ;;     (with-open-file (in *helms-file*
+  ;;                         :direction :input)
+  ;;       (setf *helms* (read in))))
+
+
+  
+  
+
+
+
+      
+
+
+
+
 
     
