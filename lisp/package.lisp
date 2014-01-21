@@ -10,6 +10,12 @@
            #:crawl-skill-systems
            #:update-jap-dataset))
 
+(defpackage #:breakds.monster-avengers.armor-up
+  (:nicknames #:armor-up)
+  (:use #:cl
+	#:swiss-knife
+	#:struct-wrapper)
+  (:export #:init))
 
 ;;; ---------- Unit Tests ----------
 
