@@ -7,4 +7,5 @@
                  #:stefil)
     :components ((:file "lisp/package")
                  (:file "lisp/crawler")
+                 (:file "lisp/armor-up")
                  (:file "lisp/unit-test/crawler-test")))
