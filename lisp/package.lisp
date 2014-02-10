@@ -15,7 +15,15 @@
   (:use #:cl
 	#:swiss-knife
 	#:struct-wrapper)
-  (:export #:init))
+  (:export #:init
+           ;; encoding system
+           #:encode-hole-sig
+           #:decode-hole-sig
+           #:encode-skill-sig
+           #:decode-skill-sig-full
+           #:encode-sig
+           #:decode-sig
+           #:decode-sig-full))
 
 ;;; ---------- Unit Tests ----------
 
@@ -27,5 +35,14 @@
         #:breakds.html-operation
         #:breakds.struct-wrapper
         #:breakds.monster-avengers.crawler)
+  (:export #:test-all))
+
+(defpackage #:breakds.monster-avengers.armor-up-test
+  (:nicknames #:armor-up-test)
+  (:use #:cl
+        #:stefil
+        #:swiss-knife
+        #:breakds.struct-wrapper
+        #:breakds.monster-avengers.armor-up)
   (:export #:test-all))
         
