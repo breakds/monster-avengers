@@ -254,6 +254,17 @@
   (values (decode-hole-sig key)
           (decode-skill-sig-full key n)))
 
+(declaim (inline encode-armor))
+(defun encode-armor (armor-piece required-effects)
+  (let ((hole-sig (make-list 3 :initial-element 0))
+        (skill-sig (loop for (id points) in required-effects
+                      collect (aif (assoc id (armor-effects armor-piece))
+                                   (cadr it)
+                                   0))))
+    (when (> (armor-holes armor-piece) 0)
+      (incf (nth (1- (armor-holes armor-piece)) hole-sig)))
+    (encode-sig hole-sig skill-sig)))
+
 
 ;;; ---------- Search ----------
 
@@ -267,15 +278,25 @@
   (make-hash-table :test #'eq))
 
 
-;; (defun rqeuired-skill-filter (required-skills armor-list)
-;;   (let ((result-map (make-map)))
-;;     (loop for item in armor-list
-;;        do (let (
-  
+(defun cluster-armors (armor-list required-effects)
+  (let ((result (make-map)))
+    (loop for piece across armor-list
+       do (let ((key (encode-armor piece required-effects)))
+            (declare (type (unsigned-byte 64) key))
+            (push piece (gethash key result nil))))
+    result))
 
-
-;; (defun search-core (required-effects)
-;;   (let ((
+(defun search-core (required-effects)
+  (let ((clustered-list 
+         (loop for pieces in (list *helms*
+                                   *cuirasses*
+                                   *gloves*
+                                   *cuisses*
+                                   *sabatons*)
+            collect (cluster-armors pieces 
+                                    required-effects))))
+    (loop for item in clustered-list
+       collect (hash-table-count item))))
   
   
 
