@@ -161,6 +161,7 @@
                             :holes (getf entry :holes)
                             :effects (loop for pair in 
                                           (getf entry :effects)
+                                        when (not (empty-struct-p pair))
                                         collect (list (skill-system-id-from-name
                                                        (getf pair :skill-name))
                                                       (getf pair :skill-point)))))))
@@ -265,18 +266,106 @@
       (incf (nth (1- (armor-holes armor-piece)) hole-sig)))
     (encode-sig hole-sig skill-sig)))
 
+;; (declaim (inline jewel-skill-sig))
+(defun jewel-skill-sig (jewel-piece required-skill-ids)
+  (mapcar #`,(aif (cadr (assoc x1 (jewel-effects jewel-piece)))
+                  it
+                  0)
+          required-skill-ids))
 
-;;; ---------- Search ----------
+(declaim (inline encode-jewel-if-satisfy))
+(defun encode-jewel-if-satisfy (jewel-piece required-skill-ids)
+  "Return the encoded key of a jewel if it has a positive points for
+  at least one of the required skills. Return nill otherwise."
+  (let ((skill-sig (jewel-skill-sig jewel-piece required-skill-ids)))
+    (when (> (count-if #`,(> x1 0) skill-sig) 0)
+      (encode-sig (case (jewel-holes jewel-piece)
+                    (1 '(1 0 0))
+                    (2 '(0 1 0))
+                    (3 '(0 0 1)))
+                  skill-sig))))
 
-(defstruct armor-tree
-  (left nil)
-  (right nil))
+(declaim (inline encoded-+))
+(defun encoded-+ (key-a key-b)
+  (declare (type (unsigned-byte 64) key-a))
+  (declare (type (unsigned-byte 64) key-b))
+  (let ((result (the (unsigned-byte 64)
+                     (+ (ldb (byte 12 0) key-a)
+                        (ldb (byte 12 0) key-b)))))
+    (declare (type (unsigned-byte 64) result))
+    (loop 
+       for offset from 12 to 57 by 6
+       do (setf (ldb (byte 6 offset) result)
+                (+ (ldb (byte 6 offset) key-a)
+                   (ldb (byte 6 offset) key-b))))
+    result))
+
+
+;;; ---------- Utilities ----------
 
 (declaim (inline make-map))
 (defun make-map ()
   "Create a hash table with unsigned 64 keys."
   (make-hash-table :test #'eq))
 
+
+;;; ---------- Jewel Combos ----------
+
+(defstruct jewel-combo
+  (key 0 :type (unsigned-byte 64))
+  (jewels nil))
+
+(declaim (inline merge-jewel-combo))
+(defun try-merge-jewel-combo (combo-a combo-b)
+  (make-jewel-combo :key (encoded-+ (jewel-combo-key combo-a)
+                                    (jewel-combo-key combo-b))
+                    :jewels (append (jewel-combo-jewels combo-a)
+                                    (jewel-combo-jewels combo-b))))
+
+(defun create-jewel-combos (required-effects)
+  (let ((candidates (mapcar #`,(make-jewel-combo :key (encode-hole-sig x1)
+                                                 :jewels nil)
+                            '((0 0 1) (0 1 0) (1 0 0))))
+        (required-skill-ids (mapcar #`,(car x1)
+                                    required-effects)))
+    (loop for piece across *jewels*
+       do (awhen (encode-jewel-if-satisfy piece required-skill-ids)
+            (push (make-jewel-combo :key (the (unsigned-byte 64) it)
+                                    :jewels (list (jewel-id piece)))
+                  candidates)))
+    (let ((full-map (make-map)))
+      (labels ((expand (base)
+                 (let ((expanded nil))
+                   (loop for item in base
+                      do (loop for cand in candidates
+                            do (when (>= (aif (car (jewel-combo-jewels cand))
+                                              it
+                                              -1)
+                                         (aif (car (jewel-combo-jewels item))
+                                              it
+                                              -1))
+                                 
+                                 (push (merge-jewel-combo cand
+                                                          item)
+                                       expanded))))
+                   expanded))
+               (flood-fill (iteration base)
+                 (loop for combo in base
+                    do (push combo 
+                             (gethash (jewel-combo-key combo)
+                                      full-map nil)))
+                 (when (< iteration 7)
+                   (flood-fill (1+ iteration)
+                               (expand base)))))
+        (flood-fill 1 candidates))
+      full-map)))
+
+;;; ---------- Search ----------
+
+
+(defstruct armor-tree
+  (left nil)
+  (right nil))
 
 (defun cluster-armors (armor-list required-effects)
   (let ((result (make-map)))
@@ -287,16 +376,32 @@
     result))
 
 (defun search-core (required-effects)
-  (let ((clustered-list 
-         (loop for pieces in (list *helms*
-                                   *cuirasses*
-                                   *gloves*
-                                   *cuisses*
-                                   *sabatons*)
-            collect (cluster-armors pieces 
-                                    required-effects))))
-    (loop for item in clustered-list
-       collect (hash-table-count item))))
+  (let* ((arsenal (list *helms* *cuirasses*
+                        *gloves* *cuisses*
+                        *sabatons*))
+         (clustered-arsenal (mapcar #`,(cluster-armors x1
+                                                       required-effects)
+                                    arsenal)))
+    (reduce (lambda (merged current-part)
+              (let ((new-merged (make-map)))
+                (loop 
+                   for current-key being the hash-keys of current-part
+                   for current-item being the hash-values of current-part
+                   do (loop 
+                         for merged-key being the hash-keys of merged
+                         for merged-item being the hash-values of merged
+                         do (let ((new-key (encoded-+ current-key
+                                                      merged-key)))
+                              (declare (type (unsigned-byte 64) new-key))
+                              (push (make-armor-tree :left current-item
+                                                     :right merged-item)
+                                    (gethash new-key new-merged nil)))))
+                new-merged))
+            clustered-arsenal)))
+
+
+                                  
+              
   
   
 

@@ -16,6 +16,8 @@
 	#:swiss-knife
 	#:struct-wrapper)
   (:export #:init
+           ;; struct exposure
+           #:make-jewel
            ;; encoding system
            #:encode-hole-sig
            #:decode-hole-sig
@@ -23,7 +25,10 @@
            #:decode-skill-sig-full
            #:encode-sig
            #:decode-sig
-           #:decode-sig-full))
+           #:decode-sig-full
+           #:encoded-+
+           #:encode-jewel-if-satisfy))
+
 
 ;;; ---------- Unit Tests ----------
 
