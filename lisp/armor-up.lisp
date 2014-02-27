@@ -316,7 +316,7 @@
   (jewels nil))
 
 (declaim (inline merge-jewel-combo))
-(defun try-merge-jewel-combo (combo-a combo-b)
+(defun merge-jewel-combo (combo-a combo-b)
   (make-jewel-combo :key (encoded-+ (jewel-combo-key combo-a)
                                     (jewel-combo-key combo-b))
                     :jewels (append (jewel-combo-jewels combo-a)
