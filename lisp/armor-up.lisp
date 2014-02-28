@@ -255,6 +255,11 @@
   (values (decode-hole-sig key)
           (decode-skill-sig-full key n)))
 
+(declaim (inline hole-part))
+(defun hole-part (key)
+  (declare (type (unsigned-byte 64) key))
+  (the (unsigned-byte 64) (ldb (byte 12 0) key)))
+
 (declaim (inline encode-armor))
 (defun encode-armor (armor-piece required-effects)
   (let ((hole-sig (make-list 3 :initial-element 0))
@@ -333,7 +338,11 @@
             (push (make-jewel-combo :key (the (unsigned-byte 64) it)
                                     :jewels (list (jewel-id piece)))
                   candidates)))
-    (let ((full-map (make-map)))
+    (let ((full-map (make-map))
+          (hole-map (make-map)))
+      ;; full-map is a mapping from encoded key to list of combos
+      ;; hole-map is a mapping from the encoded hole key to list of
+      ;; combos
       (labels ((expand (base)
                  (let ((expanded nil))
                    (loop for item in base
@@ -358,7 +367,20 @@
                    (flood-fill (1+ iteration)
                                (expand base)))))
         (flood-fill 1 candidates))
-      full-map)))
+      (loop
+         for key being the hash-keys of full-map
+         for combos being the hash-values of full-map
+         do (push combos (gethash (hole-part key)
+                                  hole-map nil)))
+      hole-map)))
+      ;; (loop 
+      ;;    for hole-key being the hash-keys of hole-map
+      ;;    for values being the hash-values of hole-map
+      ;;    do (format t "~a: ~a~%" 
+      ;;               (decode-hole-sig hole-key)
+      ;;               (length values))))))
+
+
 
 ;;; ---------- Search ----------
 
