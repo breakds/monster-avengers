@@ -113,26 +113,26 @@
 
 (defun load-cuirasses (&key (lang "jap"))
   (setf *cuirasses* (load-armor-list "armors/cuirasses.lisp"
-                                 1
-                                 :lang lang))
+                                     1
+                                     :lang lang))
   (format t "[ok] Cuirasses loaded.~%"))
 
 (defun load-gloves (&key (lang "jap"))
   (setf *gloves* (load-armor-list "armors/gloves.lisp"
-                                 2
-                                 :lang lang))
+                                  2
+                                  :lang lang))
   (format t "[ok] Gloves loaded.~%"))
 
 (defun load-cuisses (&key (lang "jap"))
   (setf *cuisses* (load-armor-list "armors/cuisses.lisp"
-                                 3
-                                 :lang lang))
+                                   3
+                                   :lang lang))
   (format t "[ok] Cuisses loaded.~%"))
 
 (defun load-sabatons (&key (lang "jap"))
   (setf *sabatons* (load-armor-list "armors/sabatons.lisp"
-                                 4
-                                 :lang lang))
+                                    4
+                                    :lang lang))
   (format t "[ok] Sabatons loaded.~%"))
 
 
@@ -171,8 +171,8 @@
                         :initial-contents elements))
       (format t "[ok] Jewels loaded.~%")
       nil)))
-         
-  
+
+
 
 ;;; ---------- Initialization ----------
 
@@ -373,13 +373,6 @@
          do (push combos (gethash (hole-part key)
                                   hole-map nil)))
       hole-map)))
-      ;; (loop 
-      ;;    for hole-key being the hash-keys of hole-map
-      ;;    for values being the hash-values of hole-map
-      ;;    do (format t "~a: ~a~%" 
-      ;;               (decode-hole-sig hole-key)
-      ;;               (length values))))))
-
 
 
 ;;; ---------- Search ----------
@@ -389,6 +382,10 @@
   (left nil)
   (right nil))
 
+(defstruct armor-preliminary
+  (tree nil)
+  (jewel-sets nil))
+
 (defun cluster-armors (armor-list required-effects)
   (let ((result (make-map)))
     (loop for piece across armor-list
@@ -397,51 +394,87 @@
             (push piece (gethash key result nil))))
     result))
 
+(declaim (inline satisfy-req))
+(defun satisfy-req (req-sig final-sig)
+  (not (loop 
+          for req-point in req-sig
+          for final-point in final-sig
+          when (< final-point req-point)
+          return t)))
+
+(defun filter-arsenal-with-jewels (required-effects preliminary-arsenal)
+  (let ((jewel-combos (create-jewel-combos required-effects))
+        (result nil)
+        (req-sig (mapcar #`,(cadr x1) required-effects))
+        (req-size (length required-effects)))
+    (format t "filtering started ...~%")
+    (format t "preliminary: ~a~%" (hash-table-count preliminary-arsenal))
+    (loop 
+       for armor-key being the hash-keys of preliminary-arsenal
+       for tree being the hash-values of preliminary-arsenal
+       do (awhen (loop for item in 
+                      (gethash (the (signed-byte 64) (hole-part armor-key))
+                               jewel-combos)
+                    when (satisfy-req req-sig 
+                                      (decode-skill-sig-full
+                                       (encoded-+ armor-key
+                                                  (jewel-combo-key (car item)))
+                                       req-size))
+                    collect item)
+            (push (make-armor-preliminary :tree tree
+                                          :jewel-sets it)
+                  result)))
+    result))
+
 (defun search-core (required-effects)
   (let* ((arsenal (list *helms* *cuirasses*
                         *gloves* *cuisses*
                         *sabatons*))
          (clustered-arsenal (mapcar #`,(cluster-armors x1
                                                        required-effects)
-                                    arsenal)))
-    (reduce (lambda (merged current-part)
-              (let ((new-merged (make-map)))
-                (loop 
-                   for current-key being the hash-keys of current-part
-                   for current-item being the hash-values of current-part
-                   do (loop 
-                         for merged-key being the hash-keys of merged
-                         for merged-item being the hash-values of merged
-                         do (let ((new-key (encoded-+ current-key
-                                                      merged-key)))
-                              (declare (type (unsigned-byte 64) new-key))
-                              (push (make-armor-tree :left current-item
-                                                     :right merged-item)
-                                    (gethash new-key new-merged nil)))))
-                new-merged))
-            clustered-arsenal)))
+                                    arsenal))
+         ;; Construct the armor tree (without jewels)
+         (preliminary-arsenal
+          (reduce (lambda (merged current-part)
+                    (let ((new-merged (make-map)))
+                      (loop 
+                         for current-key being the hash-keys of current-part
+                         for current-item being the hash-values of current-part
+                         do (loop 
+                               for merged-key being the hash-keys of merged
+                               for merged-item being the hash-values of merged
+                               do (let ((new-key (encoded-+ current-key
+                                                            merged-key)))
+                                    (declare (type (unsigned-byte 64) new-key))
+                                    (push (make-armor-tree :left current-item
+                                                           :right merged-item)
+                                          (gethash new-key new-merged nil)))))
+                      new-merged))
+                  clustered-arsenal)))
+    ;; Filter out the buckets that cannot meet requirement with jewels
+    (filter-arsenal-with-jewels required-effects preliminary-arsenal)))
 
 
-                                  
-              
-  
-  
-
-
-
-
+;;; ---------- Debug Utility ----------
 
 
 
-  
 
-  
-                                                  
-                                
-                   
-  
-  
-  
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
