@@ -33,6 +33,30 @@
       (is (equal hole-sig-reuslt hole-sig-+))
       (is (equal skill-sig-result skill-sig-+)))))
 
+(deftest (encoded-skill-+-test
+          :cases (('(1 1 0) '(10 -10 20) '(0 1 1) '(-5 3 -2) '(0 0 0) '(5 -7 18))
+                  ('(5 1 1) '(-12 -14) '(3 0 0) '(2 -5) '(0 0 0) '(-10 -19))))
+    (hole-sig-a skill-sig-a hole-sig-b skill-sig-b hole-sig-+ skill-sig-+)
+  (is (= (length skill-sig-a) 
+         (length skill-sig-b)
+         (length skill-sig-+)))
+  (let ((n (length skill-sig-a)))
+    (multiple-value-bind (hole-sig-reuslt skill-sig-result)
+        (decode-sig-full (encoded-skill-+ (encode-sig hole-sig-a skill-sig-a)
+                                    (encode-sig hole-sig-b skill-sig-b))
+                         n)
+      (is (equal hole-sig-reuslt hole-sig-+))
+      (is (equal skill-sig-result skill-sig-+)))))
+
+(deftest (is-satisfied-skill-key-test
+          :cases (('(1 2 1) t)
+                  ('(0 0 0 0) t)
+                  ('(-1 2 12) nil)
+                  ('(0 0 0 -5) nil)))
+    (skill-sig expected)
+  (is (eq (is-satisfied-skill-key(encode-skill-sig skill-sig))
+          expected)))
+
 (deftest encode-jewel-if-satisfy-test ()
   (let ((piece (make-jewel :id 0
                            :name "test jewel"

@@ -305,6 +305,18 @@
                    (ldb (byte 6 offset) key-b))))
     result))
 
+(declaim (inline encoded-skill-+))
+(defun encoded-skill-+ (key-a key-b)
+  (declare (type (unsigned-byte 64) key-a))
+  (declare (type (unsigned-byte 64) key-b))
+  (let ((result (the (unsigned-byte 64) 0)))
+    (declare (type (unsigned-byte 64) result))
+    (loop 
+       for offset from 12 to 57 by 6
+       do (setf (ldb (byte 6 offset) result)
+                (+ (ldb (byte 6 offset) key-a)
+                   (ldb (byte 6 offset) key-b))))
+    result))
 
 ;;; ---------- Utilities ----------
 
@@ -394,19 +406,26 @@
             (push piece (gethash key result nil))))
     result))
 
-(declaim (inline satisfy-req))
-(defun satisfy-req (req-sig final-sig)
-  (not (loop 
-          for req-point in req-sig
-          for final-point in final-sig
-          when (< final-point req-point)
-          return t)))
+
+(defparameter *satisfy-test-binary* 
+  (the (unsigned-byte 64)
+       (let ((result (the (unsigned-byte 64) 0)))
+         (declare (type (unsigned-byte 64) result))
+         (loop for offset from 17 to 62 by 6
+            do (setf (ldb (byte 1 offset) result) 1))
+         result)))
+  
+(declaim (inline is-satisfied-skill-key))
+(defun is-satisfied-skill-key (key)
+  #f3
+  (zerop (logand *satisfy-test-binary* key)))
+  
 
 (defun filter-arsenal-with-jewels (required-effects preliminary-arsenal)
+  #f3
   (let ((jewel-combos (create-jewel-combos required-effects))
         (result nil)
-        (req-sig (mapcar #`,(cadr x1) required-effects))
-        (req-size (length required-effects)))
+        (inv-req-key (encode-skill-sig (mapcar #`,(- (cadr x1)) required-effects))))
     (format t "filtering started ...~%")
     (format t "preliminary: ~a~%" (hash-table-count preliminary-arsenal))
     (loop 
@@ -415,11 +434,10 @@
        do (awhen (loop for item in 
                       (gethash (the (signed-byte 64) (hole-part armor-key))
                                jewel-combos)
-                    when (satisfy-req req-sig 
-                                      (decode-skill-sig-full
-                                       (encoded-+ armor-key
-                                                  (jewel-combo-key (car item)))
-                                       req-size))
+                    when (is-satisfied-skill-key
+                          (encoded-skill-+ inv-req-key
+                                           (encoded-skill-+ armor-key
+                                                            (jewel-combo-key (car item)))))
                     collect item)
             (push (make-armor-preliminary :tree tree
                                           :jewel-sets it)
@@ -451,8 +469,10 @@
                                           (gethash new-key new-merged nil)))))
                       new-merged))
                   clustered-arsenal)))
+    preliminary-arsenal))
+
     ;; Filter out the buckets that cannot meet requirement with jewels
-    (filter-arsenal-with-jewels required-effects preliminary-arsenal)))
+    ;; (filter-arsenal-with-jewels required-effects preliminary-arsenal)))
 
 
 ;;; ---------- Debug Utility ----------

@@ -27,6 +27,8 @@
            #:decode-sig
            #:decode-sig-full
            #:encoded-+
+           #:encoded-skill-+
+           #:is-satisfied-skill-key
            #:encode-jewel-if-satisfy))
 
 
