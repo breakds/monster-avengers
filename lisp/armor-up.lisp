@@ -415,12 +415,12 @@
          (loop for offset from 17 to 62 by 6
             do (setf (ldb (byte 1 offset) result) 1))
          result)))
-  
+
 (declaim (inline is-satisfied-skill-key))
 (defun is-satisfied-skill-key (key)
   #f3
   (zerop (logand *satisfy-test-binary* key)))
-  
+
 
 (defun filter-arsenal-with-jewels (required-effects preliminary-arsenal)
   #f3
@@ -470,7 +470,10 @@
                                           (gethash new-key new-merged nil)))))
                       new-merged))
                   clustered-arsenal)))
-    preliminary-arsenal))
+    preliminary-arsenal
+    nil))
+         
+
 
 
 

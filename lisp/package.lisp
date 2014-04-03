@@ -22,7 +22,8 @@
   (:nicknames #:armor-up)
   (:use #:cl
 	#:swiss-knife
-	#:struct-wrapper)
+	#:struct-wrapper
+        #:eva-list)
   (:export #:init
            ;; struct exposure
            #:make-jewel
