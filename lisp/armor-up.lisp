@@ -309,6 +309,7 @@
 (defun encoded-skill-+ (key-a key-b)
   (declare (type (unsigned-byte 64) key-a))
   (declare (type (unsigned-byte 64) key-b))
+  #f3
   (let ((result (the (unsigned-byte 64) 0)))
     (declare (type (unsigned-byte 64) result))
     (loop 
@@ -471,8 +472,8 @@
                   clustered-arsenal)))
     preliminary-arsenal))
 
-    ;; Filter out the buckets that cannot meet requirement with jewels
-    ;; (filter-arsenal-with-jewels required-effects preliminary-arsenal)))
+
+
 
 
 ;;; ---------- Debug Utility ----------

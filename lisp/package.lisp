@@ -10,6 +10,14 @@
            #:crawl-skill-systems
            #:update-jap-dataset))
 
+;; Eventually Available List
+(defpackage #:breakds.monster-avengers.eva-list
+  (:nicknames #:eva-list)
+  (:use #:cl
+        #:swiss-knife
+        #:katana)
+  (:export make-eva-list))
+
 (defpackage #:breakds.monster-avengers.armor-up
   (:nicknames #:armor-up)
   (:use #:cl

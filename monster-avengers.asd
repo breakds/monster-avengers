@@ -4,9 +4,11 @@
     :serial t
     :depends-on (#:struct-wrapper
                  #:basicl
+                 #:bordeaux-threads
                  #:stefil)
     :components ((:file "lisp/package")
                  (:file "lisp/crawler")
+                 (:file "lisp/eva-list")
                  (:file "lisp/armor-up")
                  (:file "lisp/unit-test/crawler-test")
                  (:file "lisp/unit-test/armor-up-test")))
