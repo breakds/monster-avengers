@@ -33,6 +33,12 @@
       (setf (eva-list-current eva-list-obj) 
             (cdr$ current))
       (car$ current))))
+
+
+
+  
+  
+
     
     
                                     

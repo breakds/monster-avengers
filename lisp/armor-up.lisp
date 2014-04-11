@@ -7,6 +7,11 @@
   (merge-pathnames (format nil "dataset/~a/~a" lang file-name)
                    (asdf:system-source-directory 'monster-avengers)))
 
+;;; ---------- Constants ----------
+(defparameter *foundation-search-cut-off* 2
+  "When the number of required-effects <= this cut off value, use
+  foundation search only.")
+
 
 ;;; ---------- Skills ----------
 
@@ -326,6 +331,13 @@
   "Create a hash table with unsigned 64 keys."
   (make-hash-table :test #'eq))
 
+(declaim (inline heads-of))
+(defun heads-of (input-list n)
+  (loop 
+     for head in input-list
+     for i from 0
+     until (>= i n)
+     collect head))
 
 ;;; ---------- Jewel Combos ----------
 
@@ -392,12 +404,15 @@
 
 
 (defstruct armor-tree
+  ;; An armor tree is extremely unbalanced, and every left child
+  ;; always has a height of 1.
   (left nil)
   (right nil))
 
-(defstruct armor-preliminary
-  (tree nil)
-  (jewel-sets nil))
+(defstruct armor-sets-preliminary
+  (forest nil)
+  (jewel-sets nil)
+  (key 0 :type (unsigned-byte 64)))
 
 (defun cluster-armors (armor-list required-effects)
   (let ((result (make-map)))
@@ -431,7 +446,7 @@
     (format t "preliminary: ~a~%" (hash-table-count preliminary-arsenal))
     (loop 
        for armor-key being the hash-keys of preliminary-arsenal
-       for tree being the hash-values of preliminary-arsenal
+       for forest being the hash-values of preliminary-arsenal
        do (awhen (loop for item in 
                       (gethash (the (signed-byte 64) (hole-part armor-key))
                                jewel-combos)
@@ -440,10 +455,67 @@
                                            (encoded-skill-+ armor-key
                                                             (jewel-combo-key (car item)))))
                     collect item)
-            (push (make-armor-preliminary :tree tree
+            (push (make-armor-preliminary :forest forest
                                           :jewel-sets it)
                   result)))
     result))
+
+(defun search-foundation (required-effects)
+  (let* ((arsenal (list *helms* *cuirasses*
+                        *gloves* *cuisses*
+                        *sabatons*))
+         (clustered-arsenal (mapcar #`,(cluster-armors x1
+                                                       required-effects)
+                                    arsenal))
+         ;; Construct the armor tree (without jewels)
+         (preliminary-arsenal
+          (reduce (lambda (merged current-part)
+                    (let ((new-merged (make-map)))
+                      (loop 
+                         for current-key being the hash-keys of current-part
+                         for current-item being the hash-values of current-part
+                         do (loop 
+                               for merged-key being the hash-keys of merged
+                               for merged-item being the hash-values of merged
+                               do (let ((new-key (encoded-+ current-key
+                                                            merged-key)))
+                                    (declare (type (unsigned-byte 64) new-key))
+                                    (push (make-armor-tree :left current-item
+                                                           :right merged-item)
+                                          (gethash new-key new-merged nil)))))
+                      new-merged))
+                  clustered-arsenal)))
+    (loop 
+       for key being the hash-keys of preliminary-arsenal
+       for forest being the hash-values of preliminary-arsenal
+       collect (make-armor-sets-preliminary :tree forest
+                                            :key key))))
+
+;; (defun targeted-forest-split (forest target-id target-points)
+;;   (loop for tree in forest
+;;      ;; TODO: precalculate the skill points for each armor.
+;;      ;; 
+;;      ;; Find the maximum of the left (1-level) sub-tree for the skill
+;;      ;; with target id. 
+;;      do (let ((new-target-points (- target-points
+;;                                     (loop for piece in (armor-tree-left tree)
+;;                                        maximize (aif (assoc target-id (armor-effects piece))
+;;                                                      (cadr it)
+;;                                                      0)))))
+          
+
+;; (defun jewel-filter-and-split (required-effects n)
+;;   (let ((done-effects (heads-of required-effects n))
+;;         (target-effect (car (nthcdr n required-effects))))
+;;     (loop for prelim in jew
+
+(defun make-jewel-split-stream (input-stream required-effects n)
+  (let* ((done-effects (heads-of required-effects n))
+         (target-effect (car (nthcdr n required-effects))))
+    (funcall (alambda (input-stream target-id target-points)
+               
+
+  
 
 (defun search-core (required-effects)
   (let* ((arsenal (list *helms* *cuirasses*
