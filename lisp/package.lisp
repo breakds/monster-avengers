@@ -32,11 +32,17 @@
            #:decode-hole-sig
            #:encode-skill-sig
            #:decode-skill-sig-full
+	   #:decode-skill-sig-at
            #:encode-sig
            #:decode-sig
            #:decode-sig-full
            #:encoded-+
            #:encoded-skill-+
+	   #:classify-to-map
+	   #:merge-maps
+	   #:individual
+	   #:individual-key
+	   #:new-key
            #:is-satisfied-skill-key
            #:encode-jewel-if-satisfy))
 
