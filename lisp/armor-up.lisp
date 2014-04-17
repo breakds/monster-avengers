@@ -396,28 +396,54 @@
 
 ;;; ---------- Jewel Combos ----------
 
-(defstruct jewel-combo
+(defstruct keyed-jewels
   (key 0 :type (unsigned-byte 64))
-  (jewels nil))
+  (sets nil))
+
+
+(defun jewel-query-portal (required-effects)
+  (let ((required-skill-ids (mapcar #`,(car x1) required-effects)))
+    (lambda (
+
 
 (declaim (inline merge-jewel-combo))
-(defun merge-jewel-combo (combo-a combo-b)
-  (make-jewel-combo :key (encoded-+ (jewel-combo-key combo-a)
-                                    (jewel-combo-key combo-b))
-                    :jewels (append (jewel-combo-jewels combo-a)
-                                    (jewel-combo-jewels combo-b))))
+(defun merge-jewel-combo (cand-combo base-combo)
+  (make-keyed-jewels :key (encoded-+ (the (unsigned-byte 64)
+                                          (keyed-jewels-key))
+                                     (the (unsgined-byte 64)
+                                          (keyed-jewels-key)))
+                     :sets (if (keyed-jewels-sets single)
+                               (cons (car (keyed-jewels-sets single))
+                                     (keyed-jewels-sets 
+                                   
 
-(defun create-jewel-combos (required-effects)
-  (let ((candidates (mapcar #`,(make-jewel-combo :key (encode-hole-sig x1)
-                                                 :jewels nil)
+(defun create-jewel-hole-map (required-effects)
+  (let ((candidates (mapcar #`,(list (encode-hole-sig x1))
                             '((0 0 1) (0 1 0) (1 0 0))))
-        (required-skill-ids (mapcar #`,(car x1)
-                                    required-effects)))
-    (loop for piece across *jewels*
-       do (awhen (encode-jewel-if-satisfy piece required-skill-ids)
-            (push (make-jewel-combo :key (the (unsigned-byte 64) it)
-                                    :jewels (list (jewel-id piece)))
-                  candidates)))
+        (required-skill-ids (mapcar #`,(car x1) required-effects)))
+    ;; Use list (key jewel-id-0 jewel-id-1 ...) to represent a jewel
+    ;; combo. CANDIDATES is a list of jewel combos that has 0 or 1
+    ;; jewels in it.
+    (loop for jewel-item across *jewels*
+       do (awhen (encode-jewel-if-satisfy piece required-effects)
+            (push (list it (jewel-id jewel-item)) candidates)))
+    (labels ((flood-fill (base)
+               (loop for cand-combo in candidates
+                  do (loop for base-combo in base
+                        when (>= (aif (cdr cand-combo) it -1)
+                                 (aif (cdr base-combo) it -1))
+                        collect (list (encoded-+ (the (unsigned-byte 64)
+                                                      (car cand-combo))
+                                                 (the (unsigned-byte 64)
+                                                      (car base-combo))))))))
+      (reduce (lambda (base 
+                                      
+                                 
+
+                                                  
+                        
+
+         
     (let ((full-map (make-map))
           (hole-map (make-map)))
       ;; full-map is a mapping from encoded key to list of combos
@@ -425,18 +451,17 @@
       ;; combos
       (labels ((expand (base)
                  (let ((expanded nil))
-                   (loop for item in base
-                      do (loop for cand in candidates
-                            do (when (>= (aif (car (jewel-combo-jewels cand))
-                                              it
-                                              -1)
-                                         (aif (car (jewel-combo-jewels item))
-                                              it
-                                              -1))
-                                 
-                                 (push (merge-jewel-combo cand
-                                                          item)
-                                       expanded))))
+                   (loop for base-item in base
+                      do (loop 
+                            for cand-item in candidates
+                            when (>= (aif (car (jewel-combo-sets cand-item))
+                                          it
+                                          -1)
+                                     (aif (car (jewel-combo-sets base-item))
+                                          it
+                                          -1))
+                            do(push (merge-jewel-combo cand item)
+                                    expanded))))
                    expanded))
                (flood-fill (iteration base)
                  (loop for combo in base
@@ -550,59 +575,59 @@
        (cadr it) 
        0))
 
-(defun extra-skill-split (preliminary target-id target-points hole-map)
-  (labels ((split-iter (forest minimum-points)
-	     ;; The parameter FOREST is a little bit misleading, as it
-	     ;; can be a list of armor-trees, or a list of armors (the
-	     ;; last level). For each armor-tree in FOREST, the left
-	     ;; child is always a list of armors, and the right child
-	     ;; can be a list of armors or a forest.
-	     (if (armor-p (car forest))
-		 ;; case 1: last level
-		 (classify-to-map :in forest
-				  :key (points-of-skill individual
-							target-id)
-				  :when (>= individual-key minimum-points))
-		 ;; case 2: middle levels
-		 (let ((result (make-map)))
-		   (loop 
-		      for tree in forest
-		      for left = (classify-to-map :in (armor-tree-left tree)
-						  :key (points-of-skill 
-							individual))
-		      for right-minimum = (- minimum-points 
-					     (max-map-key left))
-		      for right = (spliter-iter (armor-tree-rigt tree)
-						right-minimum)
-		      do (merge-maps (left right)
-				     :to result
-				     :new-key (+ left-key right-key)
-				     :when (>= new-key minimum-points)
-				     :new-obj (make-armor-tree
-					       :left left-val
-					       :right right-val)))
-		   result))
-    (let ((prelim-key (the (unsigned-byte 64)
-			   (armor-sets-preliminary-key preliminary)))
-	  (pos (length inv-req-key)))
-      (awhen (gethash (the (unsigned-byte 64) 
-			   (hole-part prelim-key))
-		      hole-map)
-	(let* ((valid-jewel-map 
-		(classify-if it 
-			     #`,(let ((test-key (encoded-skill-+ 
-						 inv-req-key
-						 (encoded-skill-+ 
-						  prelim-key 
-						  (jewel-combo-key (car x1))))))
-				     (when (is-satisfied-skill-key test-key)
-				       (decode-skill-sig-at test-key pos)))))
-	       (forest-minimum (- target-points
-				  (loop for key being 
-				     the hash-keys of valid-jewel-map
-				     maximize key)))
-	       (splitted (split-iter (armor-sets-preliminary-forest preliminary)
-				     forest-minimum)))
+;; (defun extra-skill-split (preliminary target-id target-points hole-map)
+;;   (labels ((split-iter (forest minimum-points)
+;; 	     ;; The parameter FOREST is a little bit misleading, as it
+;; 	     ;; can be a list of armor-trees, or a list of armors (the
+;; 	     ;; last level). For each armor-tree in FOREST, the left
+;; 	     ;; child is always a list of armors, and the right child
+;; 	     ;; can be a list of armors or a forest.
+;; 	     (if (armor-p (car forest))
+;; 		 ;; case 1: last level
+;; 		 (classify-to-map :in forest
+;; 				  :key (points-of-skill individual
+;; 							target-id)
+;; 				  :when (>= individual-key minimum-points))
+;; 		 ;; case 2: middle levels
+;; 		 (let ((result (make-map)))
+;; 		   (loop 
+;; 		      for tree in forest
+;; 		      for left = (classify-to-map :in (armor-tree-left tree)
+;; 						  :key (points-of-skill 
+;; 							individual))
+;; 		      for right-minimum = (- minimum-points 
+;; 					     (max-map-key left))
+;; 		      for right = (spliter-iter (armor-tree-rigt tree)
+;; 						right-minimum)
+;; 		      do (merge-maps (left right)
+;; 				     :to result
+;; 				     :new-key (+ left-key right-key)
+;; 				     :when (>= new-key minimum-points)
+;; 				     :new-obj (make-armor-tree
+;; 					       :left left-val
+;; 					       :right right-val)))
+;; 		   result))
+;;     (let ((prelim-key (the (unsigned-byte 64)
+;; 			   (armor-sets-preliminary-key preliminary)))
+;; 	  (pos (length inv-req-key)))
+;;       (awhen (gethash (the (unsigned-byte 64) 
+;; 			   (hole-part prelim-key))
+;; 		      hole-map)
+;; 	(let* ((valid-jewel-map 
+;; 		(classify-if it 
+;; 			     #`,(let ((test-key (encoded-skill-+ 
+;; 						 inv-req-key
+;; 						 (encoded-skill-+ 
+;; 						  prelim-key 
+;; 						  (jewel-combo-key (car x1))))))
+;; 				     (when (is-satisfied-skill-key test-key)
+;; 				       (decode-skill-sig-at test-key pos)))))
+;; 	       (forest-minimum (- target-points
+;; 				  (loop for key being 
+;; 				     the hash-keys of valid-jewel-map
+;; 				     maximize key)))
+;; 	       (splitted (split-iter (armor-sets-preliminary-forest preliminary)
+;; 				     forest-minimum)))
 	  
 	  
 

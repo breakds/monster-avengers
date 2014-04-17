@@ -1,0 +1,216 @@
+\documentclass[a4paper,12pt]{article}
+\title{Jewel Query Problem}
+\date{\today}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{multicol}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{lazylist}
+\usepackage{synttree}
+\usepackage{algorithm}
+
+\newcommand{\TR}[1]{#1^{\rm T}}
+\newcommand{\lproof}{$\blacktriangleleft$}
+\newcommand{\rproof}{$\blacktriangleright$}
+\newcommand{\norm}[1]{\left|\left|#1\right|\right|}
+\newcommand{\diag}{\mathop{\mathrm{diag}}} 
+\newcommand{\mat}[2][ccccccccccccccccccccccccc]{\left[
+    \begin{array}{#1}
+      #2\\
+    \end{array}
+  \right]}
+\newcommand{\Eq}[1]{Eq. (\ref{eq:#1})}
+\newcommand{\Fact}[1]{(\ref{fact:#1})}
+\newcommand{\Fig}[1]{Figure \ref{fig:#1}}
+\newcommand{\Empty}{\text{Empty}}
+\newcommand{\nil}{\text{nil}}
+\newcommand{\fun}[1]{\emph{\textcolor{blue}{#1}}}
+\newcommand{\E}[1]{\textbf{E}[[#1]]}
+\newcommand{\C}[1]{\textbf{C}[[#1]]}
+\newcommand{\B}[1]{\textbf{B}[[#1]]}
+\newcommand{\Prog}[1]{\textbf{Prog}[[#1]]}
+\newcommand{\update}{\textcolor{blue}{\text{update}}}
+\newcommand{\access}{\textcolor{blue}{\text{access}}}
+\newcommand{\plus}{\textcolor{blue}{\text{plus}}}
+\newcommand{\result}{\text{result}}
+\newcommand{\letin}[2]{\textcolor{blue}{\text{let}}\,#1 = #2\,\textcolor{blue}{\text{in}}}
+\newcommand{\If}{\textcolor{blue}{\text{if}}}
+\newcommand{\Then}{\textcolor{blue}{\text{then}}}
+\newcommand{\Else}{\textcolor{blue}{\text{else}}}
+\newcommand{\equals}{\textcolor{blue}{\text{equals}}}
+\newcommand{\minus}{\textcolor{blue}{\text{minus}}}
+
+
+
+
+\mathchardef\mhyphen="2D
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+
+\newcommand*{\Comment}[1]{\hfill\makebox[3.0cm][l]{#1}}%
+% Copied from http://en.wikibooks.org/wiki/LaTeX/Packages/Listings
+\lstset{ %
+  language=C++,                % the language of the code
+  basicstyle=\small,           % the size of the fonts that are used for the code
+  columns=fullflexible,
+  numbers=left,                   % where to put the line-numbers
+  numberstyle=\tiny\color{black},  % the style that is used for the line-numbers
+  stepnumber=1,                   % the step between two line-numbers. If it's 1, each line 
+                                  % will be numbered
+  numbersep=10pt,                  % how far the line-numbers are from the code
+  backgroundcolor=\color{white},      % choose the background color. You must add \usepackage{color}
+  showspaces=false,               % show spaces adding particular underscores
+  showstringspaces=false,         % underline spaces within strings
+  showtabs=false,                 % show tabs within strings adding particular underscores
+  frame=trBL,                   % adds a frame around the code
+  frameround = fttt,
+  % rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+  tabsize=2,                      % sets default tabsize to 2 spaces
+  captionpos=b,                   % sets the caption-position to bottom
+  breaklines=true,                % sets automatic line breaking
+  breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+  title=\lstname,                   % show the filename of files included with \lstinputlisting;
+                                  % also try caption instead of title
+  keywordstyle=\color{blue},          % keyword style
+  commentstyle=\color{dkgreen},       % comment style
+  stringstyle=\color{mauve},         % string literal style
+  escapeinside={\%*}{*)},            % if you want to add a comment within your code
+  morekeywords={*,cases,onError}               % if you want to add more keywords to the set
+}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+\item \textbf{Problem} For a given set of slots (each slot can be of 1
+  hole, 2 holes or 3 holes), and a given set of jewels (each jewel
+  occupies 1 hole, 2 holes or 3 holes, and are called size-1 jewel,
+  size-2 jewel and size-3 jewel respectively), find the set of
+  combination of jewels that fit into the set of slots. Each Jewels
+  can be used multiple times.
+\item \textbf{Model} Assign each jewel an unique id, and ensure that
+  all size-3 jewel ids > all size-2 jewel ids > all size-1 jewel ids
+  >= the dummy size-1 jewel (represent an empty embedding) ids.
+  \begin{itemize}
+  \item Define $C_1$ as the set of all the 1-hole jewels. Define
+    $C_2$, $C_3$ analogical to $C_1$.
+  \item Represent each jewel combination as an ordered collection of
+    their ids. For example, $(1, 3, 3, 4)$ is a jewel combination of 4
+    jewels, and $\{(1, 1), (1, 2), (5)\}$ is a set of jewel
+    combinations.
+  \item Define the operator $+$ over the \textbf{set of} set of jewel
+    combinations: $A + B = A \cup B$, and $+$ is valid if and only if
+    $A \cap B = \emptyset$.
+  \item Define the operator $\times$ over the \textbf{set of} set of
+    jewel combinations:
+    \[
+    A \times B = \left\{ (a_1, \cdots, a_m, b_1, \cdots, b_n) \mid  (a_1, \cdots, a_m) \in A \text{ and } (b_1, \cdots, b_n) \in B
+      \text{ and } a_m \leq b_1 \right\}
+    \]
+    where $a_1, \cdots$ are all jewel ids.
+  \item Define $f(i, j, k)$ to be the set of all the jewel
+    combinations that fits into $i$ 1-hole, $j$ 2-hole and $k$ 3-hole
+    slots. Define $f(i, \overline{j}, k)$ to be similar to $f(i, j,
+    k)$, but the $j$ 2-hole slots can only hold jewels that occupy
+    exactly 2 holes (size-2 jewels). The same goes for $i$, $k$ when
+    there is a bar over each one of them.
+
+    Example:
+    \begin{itemize}
+    \item[(1)] $f(i,j,\overline{k}) = $ the set of all jewel combinations
+      that fits into $i$ 1-hole, $j$ 2-hole and $k$ 3-hole slots,
+      where the $k$ 3-hole slots can only be occupied by size-3
+      jewels.
+    \item[(2)] $f(i,\overline{j},\overline{k}) = $ the set of all
+      jewel combinations that fits into $i$ 1-hole, $j$ 2-hole and $k$
+      3-hole slots, where the $k$ 3-hole slots can only be occupied by
+      size-3 jewels and the $j$ 2-hole slots can only be occupied by
+      size-2 jewels.
+    \end{itemize}
+  \end{itemize}
+
+
+\item \textbf{Analysis}
+  Let us start from the simplest case. 
+  \begin{itemize}
+  \item $f(i, 0, 0)$. 
+
+
+    It is easy to find that 
+    \begin{equation}
+      \label{eq:f100}
+      f(1, 0, 0) = C_1
+    \end{equation}
+    and also, force 1-hole slot to take size-1 jewel does not make a
+    difference:
+    \begin{equation}
+      f(\overline{i}, 0, 0) = f(i, 0, 0)
+    \end{equation}
+    Besides, to iteratively generate $f(i, 0, 0)$, we have
+    \begin{equation}
+      f(i, 0, 0) = f(i-1, 0, 0) \times C_1 \quad (i > 1)
+    \end{equation}
+
+
+  \item $f(i, j, 0)$.
+    
+    Now we introduce 2-hole slots. For $f(i, j, 0)$, it's easy to find
+    out that there are only two cases:
+    \begin{itemize}
+    \item[(1)] All the $j$ 2-hole slots take size-2 jewels. This is
+      exactly $f(i, \overline{j}, 0)$.
+    \item[(2)] At least one of the $j$ 2-hole slots is taking size-1
+      jewels. This is exactly $f(i + 2, j-1, 0)$.
+    \end{itemize}
+
+    Note that the above two cases are disjoint. Which makes it easy to
+    find the iterative formula for $f(i, j, 0)$. Basically, when $j >
+    0$,
+    
+    \begin{align}
+      f(i, j, 0) &= f(i, \overline{j}, 0) + f(i + 2, j -1 , 0) \\
+      &= f(i, 0, 0) \times f(0, \overline{j}, 0) + f(i + 2, j - 1, 0) 
+    \end{align}
+    
+    This shows that we also need to maintain the state of $f(0,
+    \overline{j}, 0)$ in the implementation, namely
+    \begin{equation}
+      \label{eq:f0j0}
+      f(0, \overline{j}, 0) = f(0, \overline{j - 1}, 0) \times C_2
+    \end{equation}
+
+  \item $(i, j, k)$.
+
+    This is the most complicated cases, at least it seems to
+    be. Though it can still be divided into two cases:
+    \begin{itemize}
+    \item[(1)] All the $k$ 3-hole slots take size-3 jewels. This is
+      exactly $f(i, j, \overline{k})$.
+    \item[(2)] At least one of the $k$ 3-hole slots is taking size-1
+      or size-2 jewels. This is actually $f(i + 1, j + 1, k -
+      1)$. \textbf{Note that} we do not need to count $f(i + 3, j, k
+      -1)$ since $f(i + 3, j, k - 1) \in f(i + 1, j + 1, k -1)$!
+    \end{itemize}
+
+    The bottom line is that when $k > 0$,
+    \begin{align}
+      f(i, j, k) &= f(i, j, \overline{k}) + f(i + 1, j + 1, k - 1) \\
+      &= f(i, j, 0) \times f(0, 0, \overline{k}) + f(i + 1, j + 1, k - 1)
+    \end{align}
+
+    This requires maintaining states for $f(0, 0, \overline{k})$ via
+
+    \begin{equation}
+      \label{eq:f00k}
+      f(0, 0, \overline{k}) = f(0, 0, \overline{k-1}) \times C_3
+    \end{equation}
+  \end{itemize}
+
+  With all the equations, we are now finally able to calculate each
+  $f(i, j, k)$ in a mnemonic lazy-way.
+\end{enumerate}
+
+
+\end{document}
