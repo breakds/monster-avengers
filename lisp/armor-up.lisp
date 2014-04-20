@@ -400,43 +400,60 @@
   (key 0 :type (unsigned-byte 64))
   (sets nil))
 
-
-(defun jewel-query-portal (required-effects)
-  (let ((required-skill-ids (mapcar #`,(car x1) required-effects)))
-    (lambda (
+(declaimss
 
 
-(declaim (inline merge-jewel-combo))
-(defun merge-jewel-combo (cand-combo base-combo)
-  (make-keyed-jewels :key (encoded-+ (the (unsigned-byte 64)
-                                          (keyed-jewels-key))
-                                     (the (unsgined-byte 64)
-                                          (keyed-jewels-key)))
-                     :sets (if (keyed-jewels-sets single)
-                               (cons (car (keyed-jewels-sets single))
-                                     (keyed-jewels-sets 
+(defun jewel-query-client (required-effects)
+  (let ((required-skill-ids (mapcar #`,(car x1) required-effects))
+        (calculated (make-map))
+        (fixed (make-array '(4 50) :initial-element nil)))
+    (labels ((calculate (i j k hole-key) 
+               ;; i j k is the decoding of hole-key
+               (declare (type (unsigned-byte 64) hole-key))
+               (cond (> k 0) 
+                   
+               
+               
+               
+    (lambda (hole-key)
+      (aif (gethash hole-key calculated nil)
+           it
+           (calculate hole-key)))))
+        
+      
+
+
+;; (declaim (inline merge-jewel-combo))
+;; (defun merge-jewel-combo (cand-combo base-combo)
+;;   (make-keyed-jewels :key (encoded-+ (the (unsigned-byte 64)
+;;                                           (keyed-jewels-key))
+;;                                      (the (unsgined-byte 64)
+;;                                           (keyed-jewels-key)))
+;;                      :sets (if (keyed-jewels-sets single)
+;;                                (cons (car (keyed-jewels-sets single))
+;;                                      (keyed-jewels-sets 
                                    
 
-(defun create-jewel-hole-map (required-effects)
-  (let ((candidates (mapcar #`,(list (encode-hole-sig x1))
-                            '((0 0 1) (0 1 0) (1 0 0))))
-        (required-skill-ids (mapcar #`,(car x1) required-effects)))
-    ;; Use list (key jewel-id-0 jewel-id-1 ...) to represent a jewel
-    ;; combo. CANDIDATES is a list of jewel combos that has 0 or 1
-    ;; jewels in it.
-    (loop for jewel-item across *jewels*
-       do (awhen (encode-jewel-if-satisfy piece required-effects)
-            (push (list it (jewel-id jewel-item)) candidates)))
-    (labels ((flood-fill (base)
-               (loop for cand-combo in candidates
-                  do (loop for base-combo in base
-                        when (>= (aif (cdr cand-combo) it -1)
-                                 (aif (cdr base-combo) it -1))
-                        collect (list (encoded-+ (the (unsigned-byte 64)
-                                                      (car cand-combo))
-                                                 (the (unsigned-byte 64)
-                                                      (car base-combo))))))))
-      (reduce (lambda (base 
+;; (defun create-jewel-hole-map (required-effects)
+;;   (let ((candidates (mapcar #`,(list (encode-hole-sig x1))
+;;                             '((0 0 1) (0 1 0) (1 0 0))))
+;;         (required-skill-ids (mapcar #`,(car x1) required-effects)))
+;;     ;; Use list (key jewel-id-0 jewel-id-1 ...) to represent a jewel
+;;     ;; combo. CANDIDATES is a list of jewel combos that has 0 or 1
+;;     ;; jewels in it.
+;;     (loop for jewel-item across *jewels*
+;;        do (awhen (encode-jewel-if-satisfy piece required-effects)
+;;             (push (list it (jewel-id jewel-item)) candidates)))
+;;     (labels ((flood-fill (base)
+;;                (loop for cand-combo in candidates
+;;                   do (loop for base-combo in base
+;;                         when (>= (aif (cdr cand-combo) it -1)
+;;                                  (aif (cdr base-combo) it -1))
+;;                         collect (list (encoded-+ (the (unsigned-byte 64)
+;;                                                       (car cand-combo))
+;;                                                  (the (unsigned-byte 64)
+;;                                                       (car base-combo))))))))
+;;       (reduce (lambda (base 
                                       
                                  
 
@@ -444,40 +461,40 @@
                         
 
          
-    (let ((full-map (make-map))
-          (hole-map (make-map)))
-      ;; full-map is a mapping from encoded key to list of combos
-      ;; hole-map is a mapping from the encoded hole key to list of
-      ;; combos
-      (labels ((expand (base)
-                 (let ((expanded nil))
-                   (loop for base-item in base
-                      do (loop 
-                            for cand-item in candidates
-                            when (>= (aif (car (jewel-combo-sets cand-item))
-                                          it
-                                          -1)
-                                     (aif (car (jewel-combo-sets base-item))
-                                          it
-                                          -1))
-                            do(push (merge-jewel-combo cand item)
-                                    expanded))))
-                   expanded))
-               (flood-fill (iteration base)
-                 (loop for combo in base
-                    do (push combo 
-                             (gethash (jewel-combo-key combo)
-                                      full-map nil)))
-                 (when (< iteration 7)
-                   (flood-fill (1+ iteration)
-                               (expand base)))))
-        (flood-fill 1 candidates))
-      (loop
-         for key being the hash-keys of full-map
-         for combos being the hash-values of full-map
-         do (push combos (gethash (hole-part key)
-                                  hole-map nil)))
-      hole-map)))
+;;     (let ((full-map (make-map))
+;;           (hole-map (make-map)))
+;;       ;; full-map is a mapping from encoded key to list of combos
+;;       ;; hole-map is a mapping from the encoded hole key to list of
+;;       ;; combos
+;;       (labels ((expand (base)
+;;                  (let ((expanded nil))
+;;                    (loop for base-item in base
+;;                       do (loop 
+;;                             for cand-item in candidates
+;;                             when (>= (aif (car (jewel-combo-sets cand-item))
+;;                                           it
+;;                                           -1)
+;;                                      (aif (car (jewel-combo-sets base-item))
+;;                                           it
+;;                                           -1))
+;;                             do(push (merge-jewel-combo cand item)
+;;                                     expanded))))
+;;                    expanded))
+;;                (flood-fill (iteration base)
+;;                  (loop for combo in base
+;;                     do (push combo 
+;;                              (gethash (jewel-combo-key combo)
+;;                                       full-map nil)))
+;;                  (when (< iteration 7)
+;;                    (flood-fill (1+ iteration)
+;;                                (expand base)))))
+;;         (flood-fill 1 candidates))
+;;       (loop
+;;          for key being the hash-keys of full-map
+;;          for combos being the hash-values of full-map
+;;          do (push combos (gethash (hole-part key)
+;;                                   hole-map nil)))
+;;       hole-map)))
 
 
 ;;; ---------- Search ----------
