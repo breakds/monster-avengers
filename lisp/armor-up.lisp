@@ -171,7 +171,7 @@
                                                        (getf pair :skill-name))
                                                       (getf pair :skill-point)))))))
       (setf *jewels*
-            (sort (make-array (length elements)
+            (essort (make-array (length elements)
 			      :element-type 'jewel
 			      :initial-contents elements)
 		  (lambda (x y)
@@ -409,7 +409,15 @@
 (defun base-jewels-sets (required-effects holes)
   (let ((result (make-array 4 :initial-element)))
     (loop for i from 1 to 3
-	 (push (
+       do (push (make-jewels-set :key 0
+                                 :list '(()))
+                (aref result i)))
+    (loop for item across *jewels*
+       do (awhen (encode-jewel-if-satisfy item required-effects)
+            (push (make-jewels-set :key it
+                                   :list (list (list (jewel-id item))))
+                  (aref result (jewel-holes item)))))))
+	 
 
 ;; (defun jewel-query-client (required-effects)
 ;;   (let ((required-skill-ids (mapcar #`,(car x1) required-effects))
