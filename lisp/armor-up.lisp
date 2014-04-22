@@ -171,9 +171,15 @@
                                                        (getf pair :skill-name))
                                                       (getf pair :skill-point)))))))
       (setf *jewels*
-            (make-array (length elements)
-                        :element-type 'jewel
-                        :initial-contents elements))
+            (sort (make-array (length elements)
+			      :element-type 'jewel
+			      :initial-contents elements)
+		  (lambda (x y)
+		    (< (jewel-holes x) (jewel-holes y)))))
+      (loop 
+	 for item across *jewels* 
+	 for i from 0
+	 do (setf (jewel-id item) i))
       (format t "[ok] Jewels loaded.~%")
       nil)))
 
@@ -396,29 +402,29 @@
 
 ;;; ---------- Jewel Combos ----------
 
-(defstruct keyed-jewels
+(defstruct jewels-set
   (key 0 :type (unsigned-byte 64))
-  (sets nil))
+  (list nil))
 
-(declaimss
+(defun base-jewels-sets (required-effects holes)
+  (let ((result (make-array 4 :initial-element)))
+    (loop for i from 1 to 3
+	 (push (
+
+;; (defun jewel-query-client (required-effects)
+;;   (let ((required-skill-ids (mapcar #`,(car x1) required-effects))
+;;         (calculated (make-map))
+;;         (fixed (make-array '(4 50) :initial-element nil)))
+;;     (labels ((calculate (i j k hole-key) 
+;;                ;; i j k is the decoding of hole-key
+;;                (declare (type (unsigned-byte 64) hole-key))
+;;                (cond ((> k 0) 
 
 
-(defun jewel-query-client (required-effects)
-  (let ((required-skill-ids (mapcar #`,(car x1) required-effects))
-        (calculated (make-map))
-        (fixed (make-array '(4 50) :initial-element nil)))
-    (labels ((calculate (i j k hole-key) 
-               ;; i j k is the decoding of hole-key
-               (declare (type (unsigned-byte 64) hole-key))
-               (cond (> k 0) 
-                   
-               
-               
-               
-    (lambda (hole-key)
-      (aif (gethash hole-key calculated nil)
-           it
-           (calculate hole-key)))))
+;;     (lambda (hole-key)
+;;       (aif (gethash hole-key calculated nil)
+;;            it
+;;            (calculate hole-key)))))
         
       
 
