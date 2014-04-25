@@ -150,6 +150,22 @@
 			      (11 ((5 4 5 6) (0 1 8)))
     			      (13 ((5 8)))))))))
 
+(deftest (jewel-set-product-test
+          :cases (((list '(2) '(3) nil) 
+                   (list '(2) '(3) nil)
+                   (list '(2) '(3) nil '(2 3) '(2 2) '(3 3)))
+                  ((list '(:prod (4) (5)))
+                   (list '(2) '(3) nil)
+                   (list '(:prod (:prod (4) (5)) (2))
+                         '(:prod (:prod (4) (5)) (3))
+                         '(:prod (4) (5))))))
+    (set-a set-b expected)
+  (is (set-equal (jewel-set-product set-a set-b)
+                 expected)))
+
+  
+  
+
 
 
 

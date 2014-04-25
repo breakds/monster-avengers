@@ -44,7 +44,8 @@
 	   #:individual-key
 	   #:new-key
            #:is-satisfied-skill-key
-           #:encode-jewel-if-satisfy))
+           #:encode-jewel-if-satisfy
+           #:jewel-set-product))
 
 
 ;;; ---------- Unit Tests ----------

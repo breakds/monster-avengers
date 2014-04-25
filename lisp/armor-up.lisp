@@ -12,6 +12,10 @@
   "When the number of required-effects <= this cut off value, use
   foundation search only.")
 
+(defparameter *jewel-product-calculation-cut-off* 50
+  "When the length of generated jewel-product >= this cut off,
+  generate 'lazy' product instead.")
+
 
 ;;; ---------- Skills ----------
 
@@ -171,7 +175,7 @@
                                                        (getf pair :skill-name))
                                                       (getf pair :skill-point)))))))
       (setf *jewels*
-            (essort (make-array (length elements)
+            (sort (make-array (length elements)
 			      :element-type 'jewel
 			      :initial-contents elements)
 		  (lambda (x y)
@@ -402,21 +406,68 @@
 
 ;;; ---------- Jewel Combos ----------
 
-(defstruct jewels-set
-  (key 0 :type (unsigned-byte 64))
-  (list nil))
+;;; We need some terminologies here to help document the logic here.
+;;;
+;;; 1. A jewel-list is a list of jewel-ids, e.g. '(1 2) '() '(3
+;;; 3 4). A valid jewel-list must have all its element ORDERED. That
+;;; says, '(2 1) is not a valid jewel-list.
+;;;
+;;; 2. A jewel-set is a set of jewel-list that shares the same
+;;; signatures. An element in a jewel-set can be a jewel-list, or a
+;;; :prod object that represents the product of two jewel-sets.
+;;;
+;;; 3. A keyed-jewel-set is a pair of key and jewel-set.
 
-(defun base-jewels-sets (required-effects holes)
-  (let ((result (make-array 4 :initial-element)))
+(defstruct keyed-jewel-set
+  (key 0 :type (unsigned-byte 64))
+  (set nil))
+
+(defun base-jewels-sets (required-effects)
+  (let ((result (make-array 4 :initial-element nil))
+        (required-skill-ids (mapcar #'car required-effects)))
     (loop for i from 1 to 3
-       do (push (make-jewels-set :key 0
-                                 :list '(()))
+       do (push (make-keyed-jewel-set :key 0
+                                      :set '(()))
                 (aref result i)))
     (loop for item across *jewels*
-       do (awhen (encode-jewel-if-satisfy item required-effects)
-            (push (make-jewels-set :key it
-                                   :list (list (list (jewel-id item))))
-                  (aref result (jewel-holes item)))))))
+       do (awhen (encode-jewel-if-satisfy item required-skill-ids)
+            (push (make-keyed-jewel-set :key it
+                                        :set (list (list (jewel-id item))))
+                  (aref result (jewel-holes item)))))
+    result))
+
+(declaim (inline is-prod))
+(defun is-prod (element)
+  (eq (car element) :prod))
+
+(defun jewel-set-product (jewel-set-a jewel-set-b)
+  (if (> (* (length jewel-set-a)
+            (length jewel-set-b))
+         *jewel-product-calculation-cut-off*)
+      (list (list :prod jewel-set-a jewel-set-b))
+      (let (result)
+        (loop for element-a in jewel-set-a
+           do (loop for element-b in jewel-set-b
+                 do (cond ((null element-a) (push element-b result))
+                          ((null element-b) (when (is-prod element-a)
+                                              (push element-a result)))
+                          ((or (is-prod element-a) (is-prod element-b))
+                           (push (list :prod element-a element-b)
+                                 result))
+                                       
+                          (t (when (<= (car (last element-a))
+                                       (car element-b))
+                               (push (append element-a
+                                             element-b)
+                                     result))))))
+        result)))
+
+
+;; (defun jewels-sets-product (jewels-set-list-a jewels-set-list-b)
+;;   (let (result)
+;;     (loop for set-a in jewels-set-list-a
+;;        do (loop for set-b in jewel-set-list-b
+;;              do (push (make-jewels-set :key 
 	 
 
 ;; (defun jewel-query-client (required-effects)
