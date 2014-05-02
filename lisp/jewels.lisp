@@ -152,6 +152,8 @@
     (compact-super-jewel-set result)))
 
 (defmacro exec-super-jewel-set-expr (expr)
+  "EXPR is an expression with compound + or * (both operator are
+  described in /doc/jewel-query/jewel-query.pdf"
   (labels ((expand (expr)
 	     (aif (cond ((not (consp expr)) nil)
 			 ((eq (car expr) '+) `(append ,(expand (cadr expr))
@@ -165,6 +167,8 @@
     `(compact-super-jewel-set ,(expand expr))))
 
 (defmacro mnemonic-alambda (aug-args &body body)
+  "This is an alambda which caches all the output whose input has been
+  executed at least once."
   (let ((args (mapcar #'car aug-args))
 	(rngs (mapcar #'cadr aug-args)))
     (with-gensyms (cache)
@@ -177,8 +181,11 @@
 			       ,@body)))))
 	 #'self)))))
   
-			
 (defun jewel-query-client (required-effects)
+  "The algorithm for generating the jewel combinations for a given
+  hole-alignment is described at docs/jewel-query/jewel-query.pdf. The
+  only difference here is that we are generating super jewel set
+  instead of jewel combinations to include the key."
   (let* ((required-skill-ids (mapcar #`,(car x1) required-effects))
 	 (calc-fixed (mnemonic-alambda ((holes 4) (num 50))
 		       (if (= num 1)
@@ -213,6 +220,9 @@
       (apply calc (decode-hole-sig hole-key)))))
 
 (defun dfs-jewel-query (required-skill-ids hole-alignment)
+  "This is a naive alternative to the previous algorithm. It was
+  orignally implemented for checking the correctness of the previous
+  algorithm, but can be used in practice as well."
   (let (result)
     (labels ((align-+ (alignment-a alignment-b)
 	       (loop 
