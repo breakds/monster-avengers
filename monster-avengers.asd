@@ -9,6 +9,7 @@
     :components ((:file "lisp/package")
                  (:file "lisp/crawler")
                  (:file "lisp/eva-list")
+		 (:file "lisp/data-struct")
 		 (:file "lisp/encoding")
 		 (:file "lisp/jewels")
                  (:file "lisp/armor-up")

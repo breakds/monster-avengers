@@ -25,11 +25,22 @@
 	#:struct-wrapper
         #:eva-list)
   (:export #:*jewel-product-calculation-cut-off*
-	   #:*jewels*
-	   #:init
-           ;; struct exposure
-           #:make-jewel
-           ;; encoding system
+           #:is-satisfied-skill-key
+	   ;; Utilities
+	   #:classify-to-map
+	   #:merge-maps
+	   #:individual
+	   #:individual-key
+	   #:new-key
+	   ;; Jewels 
+	   #:make-keyed-jewel-set
+	   #:keyed-jewel-set-key
+	   #:keyed-jewel-set-set
+           #:jewel-set-*
+	   #:jewel-query-client
+	   #:dfs-jewel-query
+	   #:exec-super-jewel-set-expr
+	   ;; Encoding
            #:encode-hole-sig
            #:decode-hole-sig
            #:encode-skill-sig
@@ -40,20 +51,11 @@
            #:decode-sig-full
            #:encoded-+
            #:encoded-skill-+
-	   #:classify-to-map
-	   #:merge-maps
-	   #:individual
-	   #:individual-key
-	   #:new-key
-           #:is-satisfied-skill-key
            #:encode-jewel-if-satisfy
-	   #:make-keyed-jewel-set
-	   #:keyed-jewel-set-key
-	   #:keyed-jewel-set-set
-           #:jewel-set-*
-	   #:jewel-query-client
-	   #:dfs-jewel-query
-	   #:exec-super-jewel-set-expr))
+	   ;; Data
+           #:make-jewel
+	   #:*jewels*
+	   #:init))
 
 ;;; ---------- Unit Tests ----------
 

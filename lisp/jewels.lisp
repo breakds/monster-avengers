@@ -9,45 +9,6 @@
   "When the length of generated jewel-product >= this cut off,
   generate 'lazy' product instead.")
 
-(defstruct jewel
-  (id 0 :type (unsigned-byte 32))
-  (name "" :type string)
-  (holes 0 :type (unsigned-byte 32))
-  (effects nil))
-
-(defvar *jewels* nil "array of all the jewels")
-
-(defun load-jewels (&key (lang "jap"))
-  (with-open-file (in (get-file-name lang "jewels/jewels.lisp")
-                      :direction :input
-                      :if-does-not-exist :error)
-    (let ((elements 
-           (loop 
-              for entry in (read in)
-              for id from 0
-              collect 
-                (make-jewel :id id
-                            :name (getf entry :name)
-                            :holes (getf entry :holes)
-                            :effects (loop for pair in 
-                                          (getf entry :effects)
-                                        when (not (empty-struct-p pair))
-                                        collect (list (skill-system-id-from-name
-                                                       (getf pair :skill-name))
-                                                      (getf pair :skill-point)))))))
-      (setf *jewels*
-            (sort (make-array (length elements)
-			      :element-type 'jewel
-			      :initial-contents elements)
-		  (lambda (x y)
-		    (< (jewel-holes x) (jewel-holes y)))))
-      (loop 
-	 for item across *jewels* 
-	 for i from 0
-	 do (setf (jewel-id item) i))
-      (format t "[ok] Jewels loaded.~%")
-      nil)))
-
 ;;; ---------- Coding Utilities ----------
 (declaim (inline jewel-skill-sig))
 (defun jewel-skill-sig (jewel-piece required-skill-ids)
