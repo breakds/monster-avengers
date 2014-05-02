@@ -24,7 +24,9 @@
 	#:swiss-knife
 	#:struct-wrapper
         #:eva-list)
-  (:export #:init
+  (:export #:*jewel-product-calculation-cut-off*
+	   #:*jewels*
+	   #:init
            ;; struct exposure
            #:make-jewel
            ;; encoding system
@@ -45,8 +47,13 @@
 	   #:new-key
            #:is-satisfied-skill-key
            #:encode-jewel-if-satisfy
-           #:jewel-set-product))
-
+	   #:make-keyed-jewel-set
+	   #:keyed-jewel-set-key
+	   #:keyed-jewel-set-set
+           #:jewel-set-*
+	   #:jewel-query-client
+	   #:dfs-jewel-query
+	   #:exec-super-jewel-set-expr))
 
 ;;; ---------- Unit Tests ----------
 

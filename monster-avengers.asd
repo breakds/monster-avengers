@@ -9,6 +9,8 @@
     :components ((:file "lisp/package")
                  (:file "lisp/crawler")
                  (:file "lisp/eva-list")
+		 (:file "lisp/encoding")
+		 (:file "lisp/jewels")
                  (:file "lisp/armor-up")
                  (:file "lisp/unit-test/crawler-test")
                  (:file "lisp/unit-test/armor-up-test")))

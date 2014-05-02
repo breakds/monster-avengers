@@ -76,7 +76,7 @@
     (multiple-value-bind (hole-sig-result
                           skill-sig-result)
         (decode-sig-full (encode-jewel-if-satisfy piece '(3 2 1 5)) 4)
-      (is (equal hole-sig-result '(1 0 0)))
+      (is (equal hole-sig-result '(0 0 0)))
       (is (equal skill-sig-result '(5 3 -1 0))))))
 
 
@@ -150,37 +150,139 @@
 			      (11 ((5 4 5 6) (0 1 8)))
     			      (13 ((5 8)))))))))
 
-(deftest (jewel-set-product-test
+(deftest (jewel-set-*-test
           :cases (((list '(2) '(3) nil) 
                    (list '(2) '(3) nil)
                    (list '(2) '(3) nil '(2 3) '(2 2) '(3 3)))
+		  ((list nil) (list nil) (list nil))
+		  ((list '(1) '(2) '(3) '(4))
+		   (list '(5) '(6) '(7) '(8))
+		   (list '(:prod ((1) (2) (3) (4)) ((5) (6) (7) (8)))))
                   ((list '(:prod (4) (5)))
                    (list '(2) '(3) nil)
+		   ;; note that result won't contain (:prod (4) (5))
+		   ;; since empty (nil) only post-connects empty.
                    (list '(:prod (:prod (4) (5)) (2))
-                         '(:prod (:prod (4) (5)) (3))
-                         '(:prod (4) (5))))))
+                         '(:prod (:prod (4) (5)) (3))))))
     (set-a set-b expected)
-  (is (set-equal (jewel-set-product set-a set-b)
-                 expected)))
+  (let ((*jewel-product-calculation-cut-off* 10))
+    (is (set-equal (jewel-set-* set-a set-b)
+		   expected))))
 
-  
-  
-
-
-
-
-
-
+(defun keyed-jewel-set-equal (x y)
+  (and (= (keyed-jewel-set-key x)
+	  (keyed-jewel-set-key y))
+       (set-equal (keyed-jewel-set-set x)
+		  (keyed-jewel-set-set y))))
 
 
+(deftest exec-super-jewel-set-expr-test ()
+  (is (set-equal (exec-super-jewel-set-expr
+		  (+ (list (make-keyed-jewel-set :key 10 :set '((1 2 3)))
+			   (make-keyed-jewel-set :key 7 :set '((8))))
+		     (* (list (make-keyed-jewel-set :key 5 :set '((3) (4)))
+			      (make-keyed-jewel-set :key 10 :set '(nil)))
+			(list (make-keyed-jewel-set :key 5 :set '((3) (4)))
+			      (make-keyed-jewel-set :key 0 :set '((1) (2)))))))
+		 (list (make-keyed-jewel-set :key 15 :set '((3) (4)))
+		       (make-keyed-jewel-set :key 10 :set '((2) (1) (3 4)
+							    (4 4) (3 3)
+							    (1 2 3)))
+		       (make-keyed-jewel-set :key 7 :set '((8))))
+		 :test #'keyed-jewel-set-equal)))
+
+(defparameter *test-jewels* 
+  (make-array 
+   6
+   :initial-contents (list (make-jewel 
+			    :id 0
+			    :name "Attack I"
+			    :holes 1
+			    :effects '((0 1) (1 -1)))
+			   (make-jewel
+			    :id 1
+			    :name "Defenese I"
+			    :holes 1			    
+			    :effects '((0 -1) (1 1)))
+			   (make-jewel
+			    :id 2
+			    :name "Attack II"
+			    :holes 2
+			    :effects '((0 3) (1 -1)))
+			   (make-jewel
+			    :id 3
+			    :name "Defense II"
+			    :holes 2
+			    :effects '((0 -1) (1 3)))
+			   (make-jewel
+			    :id 4
+			    :name "Attack III"
+			    :holes 3
+			    :effects '((0 5) (1 -1)))
+			   (make-jewel
+			    :id 5
+			    :name "Fast III"
+			    :holes 3
+			    :effects '((3 3))))))
+
+(deftest (dfs-jewel-query-test
+	  :cases (('(0 0 0) '((:key (0 0) :set (nil))))
+		  ('(1 0 0) '((:key (0 0) :set (nil))
+			      (:key (1 -1) :set ((0)))
+			      (:key (-1 1) :set ((1)))))
+		  ('(2 0 0) '((:key (0 0) :set (nil (0 1)))
+			      (:key (1 -1) :set ((0)))
+			      (:key (-1 1) :set ((1)))
+			      (:key (-2 2) :set ((1 1)))
+			      (:key (2 -2) :set ((0 0)))))
+		  ('(1 1 0) '((:key (0 0) :set (nil (0 1)))
+		  	      (:key (1 -1) :set ((0) (0 0 1)))
+		  	      (:key (-1 1) :set ((1) (0 1 1)))
+		  	      (:key (3 -3) :set ((0 0 0)))
+		  	      (:key (-3 3) :set ((1 1 1)))
+		  	      (:key (2 -2) :set ((0 0)))
+		  	      (:key (-2 2) :set ((1 1)))
+		  	      (:key (3 -1) :set ((2)))
+		  	      (:key (-1 3) :set ((3)))
+		  	      (:key (4 -2) :set ((0 2)))
+		  	      (:key (0 2) :set ((0 3)))
+		  	      (:key (-2 4) :set ((1 3)))
+		  	      (:key (2 0) :set ((1 2)))))))
+    (hole-alignment expected)
+  ;; Assuming there are two skills with id 0 (attack) and 1 (defense).
+  (let ((*jewels* *test-jewels*))
+    (let ((client (jewel-query-client '((0 2) (1 4)))))
+      (is (set-equal (dfs-jewel-query '(0 1) hole-alignment)
+		     (loop for item in expected
+			collect (make-keyed-jewel-set
+				 :key (encode-skill-sig (second item))
+				 :set (fourth item)))
+		     :test #'keyed-jewel-set-equal)))))
 
 
-
-
-
-
-
-
+(deftest (jewel-query-client-test 
+	  :cases (('(0 0 0))
+		  ('(1 0 0))
+		  ('(2 0 0))
+		  ('(7 0 0))
+		  ('(0 1 0))
+		  ('(0 5 0))
+		  ('(1 1 0))
+		  ('(1 2 0))
+		  ('(3 4 0))
+		  ('(0 0 1))
+		  ('(0 1 1))
+		  ('(2 2 1))
+		  ('(1 2 2))))
+    (hole-alignment)
+  ;; Assuming there are two skills with id 0 (attack) and 1 (defense).
+  (let ((*jewels* *test-jewels*))
+    (let* ((required-effects '((0 2) (1 4)))
+	   (client (jewel-query-client required-effects)))
+      (is (set-equal (funcall client (encode-hole-sig hole-alignment))
+		     (dfs-jewel-query (mapcar #'car required-effects) 
+				      hole-alignment)
+		     :test #'keyed-jewel-set-equal)))))
 
 
 
