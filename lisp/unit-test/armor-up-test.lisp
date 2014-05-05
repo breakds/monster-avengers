@@ -1,11 +1,13 @@
 ;;;; armor-up-test.lisp
-;;;; Unit tests for armor-up.lisp
 ;;;; Author: BreakDS <breakds@gmail.com>
+;;;;
+;;;; Description: unit tests for armor-up.lisp.
+
 
 (in-package #:breakds.monster-avengers.armor-up-test)
 
 (defsuite* (test-all :in root-suite
-                     :documentation "unit tests for armor up"))
+                     :documentation "unit tests for armor-up."))
 
 (deftest (coding-test
           :cases (('(1 1 5) '(10 -10 20))

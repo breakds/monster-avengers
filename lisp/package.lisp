@@ -18,12 +18,23 @@
         #:katana)
   (:export make-eva-list))
 
+;; Emitter
+(defpackage #:breakds.monster-avengers.emitter
+  (:nicknames #:emitter)
+  (:use #:cl
+        #:swiss-knife)
+  (:export #:emitter-from-list
+           #:emitter-from
+           #:cached-emitter-from
+           #:reset-emitter
+           #:emit))
+
 (defpackage #:breakds.monster-avengers.armor-up
   (:nicknames #:armor-up)
   (:use #:cl
 	#:swiss-knife
 	#:struct-wrapper
-        #:eva-list)
+        #:emitter)
   (:export #:*jewel-product-calculation-cut-off*
            #:is-satisfied-skill-key
 	   #:make-split-env
@@ -87,6 +98,14 @@
         #:breakds.monster-avengers.crawler)
   (:export #:test-all))
 
+(defpackage #:breakds.monster-avengers.emitter-test
+  (:nicknames #:emitter-test)
+  (:use #:cl
+        #:stefil
+        #:swiss-knife
+        #:breakds.monster-avengers.emitter)
+  (:export #:test-all))
+
 (defpackage #:breakds.monster-avengers.armor-up-test
   (:nicknames #:armor-up-test)
   (:use #:cl
@@ -95,4 +114,6 @@
         #:breakds.struct-wrapper
         #:breakds.monster-avengers.armor-up)
   (:export #:test-all))
+
+
         
