@@ -56,13 +56,27 @@
       (is (equal hole-sig-reuslt hole-sig-+))
       (is (equal skill-sig-result skill-sig-+)))))
 
+(deftest (replace-skill-key-at-test
+	  :cases ((0 12)
+		  (3 5)
+		  (4 -6)))
+    (n value)
+  (let* ((hole-sig '(1 1 5))
+	 (skill-sig '(10 -10 20))
+	 (key (replace-skill-key-at
+	       (encode-sig hole-sig skill-sig)
+	       n value)))
+    (is (equal (decode-hole-sig key) hole-sig))
+    (is (= (decode-skill-sig-at key n) value))))
+
 (deftest (is-satisfied-skill-key-test
           :cases (('(1 2 1) t)
                   ('(0 0 0 0) t)
                   ('(-1 2 12) nil)
                   ('(0 0 0 -5) nil)))
     (skill-sig expected)
-  (is (eq (is-satisfied-skill-key(encode-skill-sig skill-sig))
+  (is (eq (is-satisfied-skill-key (encode-skill-sig skill-sig)
+				  (gen-skill-mask (length skill-sig)))
           expected)))
 
 (deftest encode-jewel-if-satisfy-test ()
@@ -223,7 +237,7 @@
 			    :id 5
 			    :name "Fast III"
 			    :holes 3
-			    :effects '((3 3))))))
+			    :effects '((2 3))))))
 
 (deftest (dfs-jewel-query-test
 	  :cases (('(0 0 0) '((:key (0 0) :set (nil))))
@@ -283,6 +297,151 @@
 		     (dfs-jewel-query (mapcar #'car required-effects) 
 				      hole-alignment)
 		     :test #'keyed-jewel-set-equal)))))
+
+(defparameter *test-armors*
+  (list (make-armor :id 0 :part-id 0 :name "301" :effects '((0 3) (2 1)))
+	(make-armor :id 1 :part-id 0 :name "302" :effects '((0 3) (2 2)))
+	(make-armor :id 2 :part-id 0 :name "020" :effects '((1 2)))
+	(make-armor :id 3 :part-id 0 :name "023" :effects '((1 2) (2 3)))
+	(make-armor :id 4 :part-id 1 :name "020" :effects '((1 2)))
+	(make-armor :id 5 :part-id 1 :name "021" :effects '((1 2) (2 1)))
+	(make-armor :id 6 :part-id 1 :name "400" :effects '((0 4)))
+	(make-armor :id 7 :part-id 1 :name "40-2" :effects '((0 4) (2 -2)))
+	(make-armor :id 8 :part-id 1 :name "200" :effects '((0 2)))
+	(make-armor :id 9 :part-id 2 :name "101" :effects '((0 1) (2 1)))
+	(make-armor :id 10 :part-id 2 :name "102" :effects '((0 1) (2 2)))
+	(make-armor :id 11 :part-id 2 :name "100" :effects '((0 1)))
+	(make-armor :id 12 :part-id 2 :name "003" :effects '((2 3)))
+	(make-armor :id 13 :part-id 2 :name "20-1" :effects '((0 2) (2 -1)))))
+
+(defun armor-equal (x y)
+  (and (= (armor-id x) (armor-id y))
+       (= (armor-part-id x) (armor-part-id y))))
+
+(defun armor-forest-equal (x y)
+  (if (armor-p (car y))
+      (set-equal x y :test #'armor-equal)
+      (set-equal x y
+		 :test #'armor-tree-equal)))
+
+(defun armor-tree-equal (x y)
+  (and (set-equal (armor-tree-left x)
+		  (armor-tree-left y)
+		  :test #'armor-equal)
+       (armor-forest-equal (armor-tree-right x)
+			   (armor-tree-right y))))
+
+(defun prelim-equal (x y)
+  (and (= (preliminary-key x) (preliminary-key y))
+       (set-equal (preliminary-jewel-sets x)
+		  (preliminary-jewel-sets y))
+       (armor-forest-equal (preliminary-forest x)
+			   (preliminary-forest y))))
+
+(defun assemble-forest (code-forest)
+  (cond ((eq (car code-forest) :tree)
+	 (make-armor-tree 
+	  :left (loop for code in (second code-forest)
+		   collect (nth code *test-armors*))
+	  :right (assemble-forest (third code-forest))))
+	((consp (car code-forest))
+	 (loop for sub-tree in code-forest
+	    collect (assemble-forest sub-tree)))
+	(t (loop for code in code-forest
+	      collect (nth code *test-armors*)))))
+
+(defun ensure-skill-points (forest skill-id skill-points)
+  (if (armor-p (car forest))
+      (every #`,(= (points-of-skill x1 skill-id) 
+		   skill-points)
+	     forest)
+      (every (lambda (tree)
+	       (let ((current (points-of-skill 
+			       (car (armor-tree-left tree))
+			       skill-id)))
+		 (and (ensure-skill-points 
+		       (armor-tree-left tree)
+		       skill-id
+		       current)
+		      (ensure-skill-points 
+		       (armor-tree-right tree)
+		       skill-id
+		       (- skill-points current)))))
+	     forest)))
+
+(deftest split-forest-at-skill-test ()
+  (let ((forest (assemble-forest '((:tree (0 1) ((:tree (4) (9 10))
+						 (:tree (5) (11))))
+				   (:tree (2 3) ((:tree (6 7) (12))
+						 (:tree (8) (13))))))))
+    (is (ensure-skill-points forest 0 4))
+    (is (ensure-skill-points forest 1 2))
+    (let ((result (split-forest-at-skill forest 2 3)))
+      (is (armor-forest-equal 
+	   (gethash 3 result)
+	   (assemble-forest '((:tree (1) ((:tree (4) (9))
+					  (:tree (5) (11))))
+			      (:tree (0) ((:tree (4) (10))))
+			      (:tree (2) ((:tree (6) (12))))))))
+      (is (armor-forest-equal 
+	   (gethash 4 result)
+	   (assemble-forest '((:tree (1) ((:tree (4) (10))))
+			      (:tree (3) ((:tree (7) (12))))))))
+      (is (armor-forest-equal 
+	   (gethash 6 result)
+	   (assemble-forest '((:tree (3) ((:tree (6) (12)))))))))))
+
+(deftest extra-skill-split-test ()
+  (let* ((*jewels* *test-jewels*)
+	 (forest (assemble-forest '((:tree (0 1) ((:tree (4) (9 10))
+						  (:tree (5) (11))))
+				    (:tree (2 3) ((:tree (6 7) (12))
+						  (:tree (8) (13)))))))
+	 (env (make-split-env :hole-query 
+			      (jewel-query-client '((0 6) (1 4) (2 7)))
+			      :target-id 2
+			      :target-points 7
+			      :inv-req-key (encode-skill-sig '(-6 -4 -7))
+			      :satisfy-mask (gen-skill-mask 2)
+			      :n 2))
+	 (result (extra-skill-split 
+		  (make-preliminary :key (encode-sig '(0 2 1)
+						     '(4 2))
+				    :forest forest
+				    :jewel-sets nil)
+		  env)))
+    (is (set-equal result
+		   (list (make-preliminary 
+			  :key (encode-sig '(0 2 1) '(4 2 6))
+			  :forest (assemble-forest 
+				   '((:tree (3) ((:tree (6) (12))))))
+			  :jewel-sets '((2 3 5)))
+			 (make-preliminary 
+			  :key (encode-sig '(0 2 1) '(4 2 4))
+			  :forest (assemble-forest 
+				   '((:tree (1) ((:tree (4) (10))))
+				     (:tree (3) ((:tree (7) (12))))))
+			  :jewel-sets '((2 3 5))))
+		   :test #'prelim-equal))))
+			 
+    
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

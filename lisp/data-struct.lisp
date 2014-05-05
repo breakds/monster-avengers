@@ -137,6 +137,13 @@
                                     :lang lang))
   (format t "[ok] Sabatons loaded.~%"))
 
+(declaim (inline points-of-skill))
+(defun points-of-skill (armor-piece skill-id)
+  (aif (assoc skill-id
+	      (armor-effects armor-piece))
+       (cadr it) 
+       0))
+
 ;;; ---------- Jewels ----------
 
 (defstruct jewel

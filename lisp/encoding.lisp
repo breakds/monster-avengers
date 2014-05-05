@@ -46,7 +46,7 @@
 (defun encode-skill-sig (skill-sig)
   "This function encode a skill signature into a 64-bit unsigned
   integer. Out of the 64 bits, the last 52 bits are used to encode the
-  hole signature, where the points of each skill gets 8 bit in order."
+  hole signature, where the points of each skill gets 6 bit in order."
   (let ((result (the (unsigned-byte 64) 0)))
     (declare (type (unsigned-byte 64) result))
     (loop 
@@ -146,8 +146,8 @@
                    (ldb (byte 6 offset) key-b))))
     result))
 
-(declaim (inline encoded-skill-+))
-(defun encoded-skill-+ (key-a key-b)
+(declaim (inline encoded-skill-+-base))
+(defun encoded-skill-+-base (key-a key-b)
   (declare (type (unsigned-byte 64) key-a))
   (declare (type (unsigned-byte 64) key-b))
   #f3
@@ -159,5 +159,21 @@
                 (+ (ldb (byte 6 offset) key-a)
                    (ldb (byte 6 offset) key-b))))
     result))
+
+(defmacro encoded-skill-+ (&rest keys)
+  (reduce (lambda (y x) 
+	    `(encoded-skill-+-base ,x ,y))
+	  keys))
+
+(declaim (inline replace-skill-key-at))
+(defun replace-skill-key-at (key n value)
+  (declare (type (unsigned-byte 64) key))
+  (let ((result key)
+	(offset (+ 12 (* 6 n))))
+    (declare (type (unsigned-byte 64) result))
+    (setf (ldb (byte 6 offset) result)
+	  (ldb (byte 6 0) value))
+    result))
+
 
 

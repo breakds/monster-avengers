@@ -26,12 +26,24 @@
         #:eva-list)
   (:export #:*jewel-product-calculation-cut-off*
            #:is-satisfied-skill-key
+	   #:make-split-env
+	   #:split-forest-at-skill
+	   #:extra-skill-split
 	   ;; Utilities
 	   #:classify-to-map
 	   #:merge-maps
 	   #:individual
 	   #:individual-key
 	   #:new-key
+	   #:gen-skill-mask
+	   #:make-armor-tree
+	   #:make-preliminary
+	   #:preliminary-key
+	   #:preliminary-jewel-sets
+	   #:preliminary-forest
+	   #:armor-tree-left
+	   #:armor-tree-right
+	   #:armor-forest-navigate
 	   ;; Jewels 
 	   #:make-keyed-jewel-set
 	   #:keyed-jewel-set-key
@@ -52,8 +64,14 @@
            #:encoded-+
            #:encoded-skill-+
            #:encode-jewel-if-satisfy
+	   #:replace-skill-key-at
 	   ;; Data
+	   #:make-armor
+	   #:armor-p
+	   #:armor-id
+	   #:armor-part-id
            #:make-jewel
+	   #:points-of-skill
 	   #:*jewels*
 	   #:init))
 

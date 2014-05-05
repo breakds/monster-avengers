@@ -79,7 +79,7 @@
   (left nil)
   (right nil))
 
-(defstruct armor-sets-preliminary
+(defstruct preliminary
   (forest nil)
   (jewel-sets nil)
   (key 0 :type (unsigned-byte 64)))
@@ -92,11 +92,24 @@
             do (setf (ldb (byte 1 offset) result) 1))
          result)))
 
-(declaim (inline is-satisfied-skill-key))
-(defun is-satisfied-skill-key (key)
-  #f3
-  (zerop (logand *satisfy-test-binary* key)))
+(defun gen-skill-mask (n)
+  "Generate the mask that test for the positivity of the first N
+  skills in a skill-key."
+  (let ((result (the (unsigned-byte 64) 0)))
+    (declare (type (unsigned-byte 64) result))
+    (loop 
+       for offset from 17 to 62 by 6
+       for i below n
+       do (setf (ldb (byte 1 offset) result) 1))
+    result))
 
+
+(declaim (inline is-satisfied-skill-key))
+(defun is-satisfied-skill-key (key mask)
+  (declare (type (unsigned-byte 64) key))
+  (declare (type (unsigned-byte 64) mask))
+  #f3
+  (zerop (logand mask key)))
 
 (defun filter-arsenal-with-jewels (required-effects preliminary-arsenal)
   #f3
@@ -147,86 +160,112 @@
     (loop 
        for key being the hash-keys of preliminary-arsenal
        for forest being the hash-values of preliminary-arsenal
-       collect (make-armor-sets-preliminary :forest forest
-                                            :key key))))
+       collect (make-preliminary :forest forest
+				 :key key))))
 
 
-          
+(defstruct split-env
+  (hole-query nil)
+  (target-id 0)
+  (target-points 0)
+  (inv-req-key 0)
+  (satisfy-mask 0)
+  (n 0))
 
-;; (defun jewel-filter-and-split (required-effects n)
-;;   (let ((done-effects (heads-of required-effects n))
-;;         (target-effect (car (nthcdr n required-effects))))
-;;     (loop for prelim in jew
+(defun split-forest-at-skill (forest target-id minimum)
+  ;; The parameter FOREST is a little bit misleading, as it
+  ;; can be a list of armor-trees, or a list of armors (the
+  ;; last level). For each armor-tree in FOREST, the left
+  ;; child is always a list of armors, and the right child
+  ;; can be a list of armors or a forest.
+  (if (armor-p (car forest))
+      ;; case 1: last level
+      (classify-to-map :in forest
+		       :key (points-of-skill individual
+					     target-id)
+		       :when (>= individual-key minimum))
+      ;; case 2: middle levels
+      (let ((result (make-map)))
+	(loop 
+	   for tree in forest
+	   for left = (classify-to-map :in (armor-tree-left tree)
+				       :key (points-of-skill 
+					     individual
+					     target-id))
+	   for right-minimum = (- minimum 
+				  (max-map-key left))
+	   for right = (split-forest-at-skill (armor-tree-right tree)
+					      target-id
+					      right-minimum)
+	   do (merge-maps (left right)
+			  :to result
+			  :new-key (+ left-key right-key)
+			  :when (>= new-key minimum)
+			  :new-obj (make-armor-tree
+				    :left left-val
+				    :right right-val)))
+	result)))
 
-(declaim (inline points-of-skill))
-(defun points-of-skill (armor-piece skill-id)
-  (aif (assoc skill-id
-	      (armor-effects armor-piece))
-       (cadr it) 
-       0))
+(defun extra-skill-split (prelim env)
+  (let* ((n (split-env-n env))
+	 (target-points (split-env-target-points env))
+	 (prelim-key (the (unsigned-byte 64)
+			  (preliminary-key prelim)))
+	 (jewel-cands (loop for cand in 
+			   (funcall (split-env-hole-query env)
+				    (hole-part prelim-key))
+			 when (is-satisfied-skill-key 
+			       (encoded-skill-+ 
+				(keyed-jewel-set-key cand)
+				(split-env-inv-req-key env)
+				prelim-key)
+			       (split-env-satisfy-mask env))
+			 collect cand))
+	 (minimum (- target-points
+		     (loop for cand in jewel-cands
+			maximize (decode-skill-sig-at 
+				  (keyed-jewel-set-key cand)
+				  n))))
+	 (armor-cands (split-forest-at-skill
+		       (preliminary-forest prelim)
+		       (split-env-target-id env)
+		       minimum)))
+    (loop 
+       for points being the hash-keys of armor-cands
+       for forest being the hash-values of armor-cands
+       for valid-sets = (loop for item in jewel-cands
+			   when (>= (+ points
+				       (decode-skill-sig-at
+					(keyed-jewel-set-key item)
+					n))
+				    target-points)
+			   append (keyed-jewel-set-set item))
+       when valid-sets
+       collect (make-preliminary :key (replace-skill-key-at prelim-key
+							    n
+							    points)
+				 :forest forest
+				 :jewel-sets valid-sets))))
 
-;; (defun extra-skill-split (preliminary target-id target-points hole-map)
-;;   (labels ((split-iter (forest minimum-points)
-;; 	     ;; The parameter FOREST is a little bit misleading, as it
-;; 	     ;; can be a list of armor-trees, or a list of armors (the
-;; 	     ;; last level). For each armor-tree in FOREST, the left
-;; 	     ;; child is always a list of armors, and the right child
-;; 	     ;; can be a list of armors or a forest.
-;; 	     (if (armor-p (car forest))
-;; 		 ;; case 1: last level
-;; 		 (classify-to-map :in forest
-;; 				  :key (points-of-skill individual
-;; 							target-id)
-;; 				  :when (>= individual-key minimum-points))
-;; 		 ;; case 2: middle levels
-;; 		 (let ((result (make-map)))
-;; 		   (loop 
-;; 		      for tree in forest
-;; 		      for left = (classify-to-map :in (armor-tree-left tree)
-;; 						  :key (points-of-skill 
-;; 							individual))
-;; 		      for right-minimum = (- minimum-points 
-;; 					     (max-map-key left))
-;; 		      for right = (spliter-iter (armor-tree-rigt tree)
-;; 						right-minimum)
-;; 		      do (merge-maps (left right)
-;; 				     :to result
-;; 				     :new-key (+ left-key right-key)
-;; 				     :when (>= new-key minimum-points)
-;; 				     :new-obj (make-armor-tree
-;; 					       :left left-val
-;; 					       :right right-val)))
-;; 		   result))
-;;     (let ((prelim-key (the (unsigned-byte 64)
-;; 			   (armor-sets-preliminary-key preliminary)))
-;; 	  (pos (length inv-req-key)))
-;;       (awhen (gethash (the (unsigned-byte 64) 
-;; 			   (hole-part prelim-key))
-;; 		      hole-map)
-;; 	(let* ((valid-jewel-map 
-;; 		(classify-if it 
-;; 			     #`,(let ((test-key (encoded-skill-+ 
-;; 						 inv-req-key
-;; 						 (encoded-skill-+ 
-;; 						  prelim-key 
-;; 						  (jewel-combo-key (car x1))))))
-;; 				     (when (is-satisfied-skill-key test-key)
-;; 				       (decode-skill-sig-at test-key pos)))))
-;; 	       (forest-minimum (- target-points
-;; 				  (loop for key being 
-;; 				     the hash-keys of valid-jewel-map
-;; 				     maximize key)))
-;; 	       (splitted (split-iter (armor-sets-preliminary-forest preliminary)
-;; 				     forest-minimum)))
-	  
-	  
+;; (defun make-extra-skill-stream (input-stream required-effects n)
+;;   (let ((buffer nil)
+;; 	(env (make-split-env :hole-query (jewel-query-client 
+;; 					  (map-n #`,(nth x1 required-effects) 
+;; 						 (1+ n)))
+;; 			     :target-id (first (nth n required-effects))
+;; 			     :target-points (second (nth n required-effects))
+;; 			     :inv-req-key (encode-skill-sig 
+;; 					   (mapcar #`,(- (second x1)) 
+;; 						   required-effects))
+;; 			     :satisfy-mask (gen-skill-mask n)
+;; 			     :n n)))
+;;     (lambda ()
+;;       (when (null buffer)
+;; 	(setf buffer (extra-skill-split (funcall input-stream))))
+;;       (pop buffer))))
+	    
+    
 
-	     
-	 
-	   
-						  
-			  
-	     
 
 ;; (defun make-extra-skill-stream (input-stream required-effects n)
 ;;   (let* ((done-effects (heads-of required-effects n))
@@ -249,50 +288,18 @@
 ;; 		     (self (car it) (cdr$ (cadr it))))))
 ;; 	     nil
 ;; 	     input-stream)))
-		      
-			
-
-		      
-		      
-               
-
-  
-
-(defun search-core (required-effects)
-  (let* ((arsenal (list *helms* *cuirasses*
-                        *gloves* *cuisses*
-                        *sabatons*))
-         (clustered-arsenal (mapcar #`,(cluster-armors x1
-                                                       required-effects)
-                                    arsenal))
-         ;; Construct the armor tree (without jewels)
-         (preliminary-arsenal
-          (reduce (lambda (merged current-part)
-                    (let ((new-merged (make-map)))
-                      (loop 
-                         for current-key being the hash-keys of current-part
-                         for current-item being the hash-values of current-part
-                         do (loop 
-                               for merged-key being the hash-keys of merged
-                               for merged-item being the hash-values of merged
-                               do (let ((new-key (encoded-+ current-key
-                                                            merged-key)))
-                                    (declare (type (unsigned-byte 64) new-key))
-                                    (push (make-armor-tree :left current-item
-                                                           :right merged-item)
-                                          (gethash new-key new-merged nil)))))
-                      new-merged))
-                  clustered-arsenal)))
-    preliminary-arsenal
-    nil))
-         
-
-
-
-
-
 
 ;;; ---------- Debug Utility ----------
+
+(defmacro armor-forest-navigate (tree &rest nav)
+  (reduce (lambda (y x) (case x
+			  (< `(armor-tree-left ,y))
+			  (> `(armor-tree-right ,y))
+			  (t `(nth ,x ,y))))
+	  nav
+	  :initial-value tree))
+
+
 
 
 
