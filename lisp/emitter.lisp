@@ -6,6 +6,12 @@
 
 (in-package #:breakds.monster-avengers.emitter)
 
+(declaim (inline empty-emitter))
+(defun empty-emitter ()
+  (lambda (&optional (reset nil)) 
+    (declare (ignorable reset))
+    nil))
+
 (defun emitter-from-list (input)
   (let ((upper input))
     (lambda (&optional (reset nil))
@@ -13,31 +19,61 @@
           (setf upper input)
           (pop upper)))))
 
-(defmacro emitter-from (input-emitter (upper-element) &body body)
+
+(defmacro emitter-mapcar (input (element) &body body)
   (with-gensyms (upper reset)
-    `(let ((,upper ,input-emitter))
+    `(let ((,upper ,input))
        (lambda (&optional (,reset nil))
          (if ,reset
              (funcall ,upper t)
-             (let ((,upper-element (funcall ,upper)))
-               (when ,upper-element
+             (let ((,element (funcall ,upper)))
+               (when ,element
                  ,@body)))))))
 
-(defmacro cached-emitter-from (input (cache) &body body)
-  "A cached emitter will cache the result from its upper level and
-  keep consuming it. It will refresh the cache if and only if the
-  CACHE is set to nil."
-  (with-gensyms (upper reset)
+(defmacro emitter-mapcan (input (element) &body body)
+  (with-gensyms (upper sub-emitter reset)
     `(let ((,upper ,input)
-           (,cache nil))
+           (,sub-emitter (empty-emitter)))
        (lambda (&optional (,reset nil))
          (if ,reset
-            (progn (setf ,cache nil)
-                   (funcall ,upper t))
-            (progn (when (null ,cache)
-                     (setf ,cache (funcall ,upper)))
-                   (when ,cache
-                     ,@body)))))))
+             (progn
+               (funcall ,upper t)
+               (setf ,sub-emitter (empty-emitter)))
+             (aif (funcall ,sub-emitter)
+                  it
+                  (let ((,element (funcall ,upper)))
+                    (when ,element
+                      (setf ,sub-emitter 
+                            (progn ,@body))
+                      (funcall ,sub-emitter)))))))))
+
+(defun circular-emitter (input)
+  (let ((upper input))
+    (lambda (&optional (reset nil))
+      (if reset
+          (setf upper input)
+          (aif (pop upper)
+               it
+               (progn (setf upper input)
+                      (pop upper)))))))
+
+(defmacro emitter-merge (input-a input-b (element-a element-b) &body body)
+  (with-gensyms (upper-a upper-b reset)
+    `(let ((,upper-a ,input-a)
+           (,upper-b ,input-b))
+       (lambda (&optional (,reset nil))
+         (if ,reset
+             (progn (funcall ,upper-a t)
+                    (funcall ,upper-b t))
+             (let ((,element-a (funcall ,upper-a))
+                   (,element-b (funcall ,upper-b)))
+               (when (and ,element-a ,element-b)
+                 ,@body)))))))
+
+  
+  
+            
+          
 
 (declaim (inline reset-emitter))
 (defun reset-emitter (emitter)
@@ -46,19 +82,3 @@
 (declaim (inline emit))
 (defun emit (emitter)
   (funcall emitter))
-                     
-                    
-                    
-
-               
-         
-             
-             
-       
-           
-       
-  
-
-
-
-              

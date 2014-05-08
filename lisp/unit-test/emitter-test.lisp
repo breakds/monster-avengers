@@ -24,45 +24,76 @@
     (is (= (emit e) 3))
     (is (null (emit e)))))
 
-(deftest emitter-from-test ()
+
+(deftest emitter-mapcar-test ()
   (let* ((source (emitter-from-list '(1 2 3 4)))
-         (sink (emitter-from source (x)
+         ;; sink = '(2 3 4 5)
+         (sink (emitter-mapcar source (x)
                  (1+ x))))
     (is (= (emit sink) 2))
-    (is (= (emit sink) 3))
     (reset-emitter sink)
     (is (= (emit sink) 2))
     (is (= (emit sink) 3))
     (is (= (emit sink) 4))
     (is (= (emit sink) 5))
-    (is (null (emit sink)))
     (is (null (emit sink)))))
 
-(deftest cached-emitter-from-test ()
-  (let* ((source (emitter-from-list '((1 2) (3 4 5))))
-         ;; middle = '((3 1 2) (12 3 4 5)))
-         (middle (emitter-from source (x)
-                   (cons (apply #'+ x) x)))
-         ;; sink = '(3 1 2 12 3 4 5)
-         (sink (cached-emitter-from middle (x)
-                 (pop x))))
-    (is (= (emit sink) 3))
-    (is (= (emit sink) 1))
-    ;; make sure that middle is also advancing
-    (is (equal (emit middle) '(12 3 4 5)))
-    (reset-emitter middle)
-    ;; only reset middle does not change cache
+                               
+(deftest emitter-mapcan-test ()
+  (let* ((source (emitter-from-list '((1 2) (3 4))))
+         ;; sink = '(2 1 4 3)
+         (sink (emitter-mapcan source (x)
+                 (emitter-from-list (reverse x)))))
     (is (= (emit sink) 2))
-    ;; but when cache is used up, the above reset take effect
-    (is (= (emit sink) 3))
+    (reset-emitter source)
+    ;; reset source does not change current sink sub-emitter
     (is (= (emit sink) 1))
+    ;; resetting sink also resets source
+    (reset-emitter sink)
     (is (= (emit sink) 2))
-    (is (= (emit sink) 12))
-    (is (= (emit sink) 3))
+    (is (= (emit sink) 1))
     (is (= (emit sink) 4))
-    (is (= (emit sink) 5))
-    (is (null (emit sink)))
+    (is (= (emit sink) 3))
     (is (null (emit sink)))))
+
+(deftest circular-emitter-test ()
+  (let ((e (circular-emitter '(1 2 3))))
+    (is (= (emit e) 1))
+    (is (= (emit e) 2))
+    (is (= (emit e) 3))
+    ;; looping back
+    (is (= (emit e) 1))
+    (reset-emitter e)
+    (is (= (emit e) 1))
+    (is (= (emit e) 2))
+    (is (= (emit e) 3))
+    (is (= (emit e) 1))
+    (is (= (emit e) 2))
+    (is (= (emit e) 3))))
+
+(deftest emitter-merge-test ()
+  (let* ((a (circular-emitter '(1 2 3)))
+         (b (emitter-from-list '(1 2 3 4 5)))
+         ;; e = '(2 4 6 5 7)
+         (e (emitter-merge a b (x y)
+             (+ x y))))
+    (is (= (emit e) 2))
+    (is (= (emit e) 4))
+    (is (= (emit e) 6))
+    (reset-emitter e)
+    (is (= (emit e) 2))
+    (is (= (emit e) 4))
+    (is (= (emit e) 6))
+    (is (= (emit e) 5))
+    (is (= (emit e) 7))
+    (is (null (emit e)))))
+
+
+    
+                                  
+                                  
+                                  
+
     
 
            

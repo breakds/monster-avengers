@@ -247,7 +247,31 @@
 				 :forest forest
 				 :jewel-sets valid-sets))))
 
-;; (defun make-extra-skill-stream (input-stream required-effects n)
+;; (defun cartesian-emitter (emitter-a emitter-b)
+;;   (cached-emitter-from emitter-b (right :upper)
+;;     (let ((x (emit emitter-a)))
+;;       (when (null x)
+;;         (reset-emitter emitter-a)
+;;         (
+
+
+;; (defun emitter-from-tree (tree)
+;;   (if 
+      
+
+;; (defun emitter-from-forest (forest)
+;;   (let ((list-emitter (emitter-from-list forest)))
+;;     (if (armor-p (car forest))
+;;         ;; if forest is actually an armor list.
+;;         (emitter-from list-emitter (x)
+;;           (when (x) (list x)))
+;;         ;; otherwise, real forest (list of trees).
+;;         (combo-emitter-on list-emitter (x from (emitter-from-tree :upper))
+;;           x))))
+          
+      
+
+;; (defun make-extra-skill-emitter (input required-effects n)
 ;;   (let ((buffer nil)
 ;; 	(env (make-split-env :hole-query (jewel-query-client 
 ;; 					  (map-n #`,(nth x1 required-effects) 
@@ -259,13 +283,23 @@
 ;; 						   required-effects))
 ;; 			     :satisfy-mask (gen-skill-mask n)
 ;; 			     :n n)))
-;;     (lambda ()
-;;       (when (null buffer)
-;; 	(setf buffer (extra-skill-split (funcall input-stream))))
-;;       (pop buffer))))
-	    
-    
+;;     (cached-emitter-from input (cache (extra-skill-split :upper env))
+;;       (pop cache))))
 
+
+
+
+
+    
+    
+    
+    
+  
+  
+
+;; (defun make-armor-set-emitter (input)
+;;   (cached-emitter-from input (cache 
+  
 
 ;; (defun make-extra-skill-stream (input-stream required-effects n)
 ;;   (let* ((done-effects (heads-of required-effects n))

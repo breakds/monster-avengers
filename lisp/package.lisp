@@ -24,8 +24,11 @@
   (:use #:cl
         #:swiss-knife)
   (:export #:emitter-from-list
-           #:emitter-from
-           #:cached-emitter-from
+           #:empty-emitter
+           #:emitter-mapcar
+           #:emitter-mapcan
+           #:circular-emitter
+           #:emitter-merge
            #:reset-emitter
            #:emit))
 
