@@ -82,3 +82,12 @@
 (declaim (inline emit))
 (defun emit (emitter)
   (funcall emitter))
+
+(declaim (inline emit-n))
+(defun emit-n (emitter n)
+  (loop 
+     for i below n
+     for x = (emit emitter)
+     until (null x)
+     collect x))
+         

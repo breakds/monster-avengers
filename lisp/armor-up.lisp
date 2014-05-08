@@ -25,13 +25,16 @@
   (loop for key being the hash-keys of hash-map
      maximize key))
 
-(declaim (inline heads-of))
-(defun heads-of (input-list n)
-  (loop 
-     for head in input-list
-     for i from 0
-     until (>= i n)
-     collect head))
+(declaim (inline first-n))
+(defun first-n (input-list n)
+  (let ((l input-list))
+    (values
+     (loop 
+        for i below n
+        for x = (pop l)
+        until (null x)
+        collect x)
+     l)))
 
 (defmacro classify-to-map (&key (in nil) (across nil) (key nil) (when nil))
   "This anarchy macro introduces the variable INDIVIDUAL and INDIVIDUAL-KEY."
@@ -247,81 +250,55 @@
 				 :forest forest
 				 :jewel-sets valid-sets))))
 
-;; (defun cartesian-emitter (emitter-a emitter-b)
-;;   (cached-emitter-from emitter-b (right :upper)
-;;     (let ((x (emit emitter-a)))
-;;       (when (null x)
-;;         (reset-emitter emitter-a)
-;;         (
+(defun emitter-from-tree (tree)
+  (emitter-merge 
+      (circular-emitter (armor-tree-left tree))
+      (emitter-from-forest (armor-tree-right tree))
+      (x y)
+    (cons x y)))
 
+(defun emitter-from-forest (forest)
+  (if (armor-p (car forest))
+      ;; if forest is actually an armor list.
+      (emitter-mapcar (emitter-from-list forest) (x)
+        (list x))
+      ;; otherwise, real forest (list of trees).
+      (emitter-mapcan (emitter-from-list forest) (x)
+        (emitter-from-tree x))))
 
-;; (defun emitter-from-tree (tree)
-;;   (if 
-      
+(defun make-extra-skill-emitter (input required-effects n)
+  (let ((buffer nil)
+	(env (make-split-env :hole-query (jewel-query-client 
+					  (map-n #`,(nth x1 required-effects) 
+						 (1+ n)))
+			     :target-id (first (nth n required-effects))
+			     :target-points (second (nth n required-effects))
+			     :inv-req-key (encode-skill-sig 
+					   (mapcar #`,(- (second x1)) 
+						   required-effects))
+			     :satisfy-mask (gen-skill-mask n)
+			     :n n)))
+    (emitter-mapcan input (x)
+      (emitter-from-list (extra-skill-split x env)))))
 
-;; (defun emitter-from-forest (forest)
-;;   (let ((list-emitter (emitter-from-list forest)))
-;;     (if (armor-p (car forest))
-;;         ;; if forest is actually an armor list.
-;;         (emitter-from list-emitter (x)
-;;           (when (x) (list x)))
-;;         ;; otherwise, real forest (list of trees).
-;;         (combo-emitter-on list-emitter (x from (emitter-from-tree :upper))
-;;           x))))
-          
-      
+(defun search-core (required-effects)
+  (let ((req-foundation (first-n required-effects 
+                                 *foundation-search-cut-off*)))
+    (reduce (lambda (y x)
+              (make-extra-skill-emitter y required-effects x))
+            (loop 
+               for i from *foundation-search-cut-off* 
+               below (length required-effects))
+            :initial-value (emitter-from-list 
+                            (search-foundation req-foundation)))))
 
-;; (defun make-extra-skill-emitter (input required-effects n)
-;;   (let ((buffer nil)
-;; 	(env (make-split-env :hole-query (jewel-query-client 
-;; 					  (map-n #`,(nth x1 required-effects) 
-;; 						 (1+ n)))
-;; 			     :target-id (first (nth n required-effects))
-;; 			     :target-points (second (nth n required-effects))
-;; 			     :inv-req-key (encode-skill-sig 
-;; 					   (mapcar #`,(- (second x1)) 
-;; 						   required-effects))
-;; 			     :satisfy-mask (gen-skill-mask n)
-;; 			     :n n)))
-;;     (cached-emitter-from input (cache (extra-skill-split :upper env))
-;;       (pop cache))))
-
-
-
-
-
-    
-    
-    
-    
-  
-  
-
-;; (defun make-armor-set-emitter (input)
-;;   (cached-emitter-from input (cache 
-  
-
-;; (defun make-extra-skill-stream (input-stream required-effects n)
-;;   (let* ((done-effects (heads-of required-effects n))
-;;          (target-effect (car (nthcdr n required-effects)))
-;; 	 (target-id (car target-effect))
-;; 	 (target-points (cadr target-effect)))
-;;     (funcall (alambda (buffer input-stream)
-;; 	       (if buffer
-;; 		   #1l(cons (car buffer)
-;; 			    (self (rest buffer)
-;; 				  input-stream))
-;; 		   (awhen (loop 
-;; 			     for pointer = input-stream then (cdr$ pointer)
-;; 			     for split = (extra-skill-split (car$ pointer)
-;; 							    target-id
-;; 							    target-points)
-;; 			     until (null pointer)
-;; 			     when split
-;; 			     return (list split pointer))
-;; 		     (self (car it) (cdr$ (cadr it))))))
-;; 	     nil
-;; 	     input-stream)))
+(defun make-armor-set-emitter (input)
+  (emitter-mapcan input (x)
+    (emitter-mapcar 
+        (emitter-from-forest (preliminary-forest x)) 
+        (armor-list)
+      (list armor-list
+            (preliminary-jewel-sets x)))))
 
 ;;; ---------- Debug Utility ----------
 

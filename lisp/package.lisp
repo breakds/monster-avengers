@@ -30,7 +30,8 @@
            #:circular-emitter
            #:emitter-merge
            #:reset-emitter
-           #:emit))
+           #:emit
+           #:emit-n))
 
 (defpackage #:breakds.monster-avengers.armor-up
   (:nicknames #:armor-up)
