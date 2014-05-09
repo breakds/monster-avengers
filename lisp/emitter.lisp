@@ -21,17 +21,19 @@
 
 
 (defmacro emitter-mapcar (input (element) &body body)
-  (with-gensyms (upper reset)
+  (with-gensyms (upper reset x)
     `(let ((,upper ,input))
        (lambda (&optional (,reset nil))
          (if ,reset
              (funcall ,upper t)
-             (let ((,element (funcall ,upper)))
-               (when ,element
-                 ,@body)))))))
+             (loop 
+                for ,element = (funcall ,upper)
+                for ,x = (when ,element ,@body)
+                when (or ,x (null ,element))
+                return ,x))))))
 
 (defmacro emitter-mapcan (input (element) &body body)
-  (with-gensyms (upper sub-emitter reset)
+  (with-gensyms (upper sub-emitter reset x)
     `(let ((,upper ,input)
            (,sub-emitter (empty-emitter)))
        (lambda (&optional (,reset nil))
@@ -41,11 +43,17 @@
                (setf ,sub-emitter (empty-emitter)))
              (aif (funcall ,sub-emitter)
                   it
-                  (let ((,element (funcall ,upper)))
-                    (when ,element
-                      (setf ,sub-emitter 
-                            (progn ,@body))
-                      (funcall ,sub-emitter)))))))))
+                  (let (,x)
+                    ;; skip when try to generate nil
+                    (loop 
+                       for ,element = (funcall ,upper)
+                       until (null ,element)
+                       do 
+                         (setf ,sub-emitter (progn ,@body))
+                         (when ,sub-emitter
+                           (setf ,x (funcall ,sub-emitter)))
+                       when (or ,x (null ,sub-emitter))
+                       return ,x))))))))
 
 (defun circular-emitter (input)
   (let ((upper input))

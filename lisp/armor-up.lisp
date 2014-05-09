@@ -228,43 +228,28 @@
 		     (loop for cand in jewel-cands
 			maximize (decode-skill-sig-at 
 				  (keyed-jewel-set-key cand)
-				  n))))
-	 (armor-cands (split-forest-at-skill
-		       (preliminary-forest prelim)
-		       (split-env-target-id env)
-		       minimum)))
-    (loop 
-       for points being the hash-keys of armor-cands
-       for forest being the hash-values of armor-cands
-       for valid-sets = (loop for item in jewel-cands
-			   when (>= (+ points
-				       (decode-skill-sig-at
-					(keyed-jewel-set-key item)
-					n))
-				    target-points)
-			   append (keyed-jewel-set-set item))
-       when valid-sets
-       collect (make-preliminary :key (replace-skill-key-at prelim-key
-							    n
-							    points)
-				 :forest forest
-				 :jewel-sets valid-sets))))
-
-(defun emitter-from-tree (tree)
-  (emitter-merge 
-      (circular-emitter (armor-tree-left tree))
-      (emitter-from-forest (armor-tree-right tree))
-      (x y)
-    (cons x y)))
-
-(defun emitter-from-forest (forest)
-  (if (armor-p (car forest))
-      ;; if forest is actually an armor list.
-      (emitter-mapcar (emitter-from-list forest) (x)
-        (list x))
-      ;; otherwise, real forest (list of trees).
-      (emitter-mapcan (emitter-from-list forest) (x)
-        (emitter-from-tree x))))
+				  n)))))
+    (when jewel-cands
+      (let ((armor-cands (split-forest-at-skill
+                          (preliminary-forest prelim)
+                          (split-env-target-id env)
+                          minimum)))
+        (loop 
+           for points being the hash-keys of armor-cands
+           for forest being the hash-values of armor-cands
+           for valid-sets = (loop for item in jewel-cands
+                               when (>= (+ points
+                                           (decode-skill-sig-at
+                                            (keyed-jewel-set-key item)
+                                            n))
+                                        target-points)
+                               append (keyed-jewel-set-set item))
+           when valid-sets
+           collect (make-preliminary :key (replace-skill-key-at prelim-key
+                                                                n
+                                                                points)
+                                     :forest forest
+                                     :jewel-sets valid-sets))))))
 
 (defun make-extra-skill-emitter (input required-effects n)
   (let ((buffer nil)
@@ -282,15 +267,33 @@
       (emitter-from-list (extra-skill-split x env)))))
 
 (defun search-core (required-effects)
-  (let ((req-foundation (first-n required-effects 
-                                 *foundation-search-cut-off*)))
+  (let ((foundation (emitter-from-list
+                     (search-foundation 
+                      (first-n required-effects 
+                               *foundation-search-cut-off*)))))
     (reduce (lambda (y x)
               (make-extra-skill-emitter y required-effects x))
             (loop 
                for i from *foundation-search-cut-off* 
-               below (length required-effects))
-            :initial-value (emitter-from-list 
-                            (search-foundation req-foundation)))))
+               below (length required-effects)
+               collect i)
+            :initial-value foundation)))
+
+(defun emitter-from-tree (tree)
+  (emitter-merge 
+      (circular-emitter (armor-tree-left tree))
+      (emitter-from-forest (armor-tree-right tree))
+      (x y)
+    (cons x y)))
+
+(defun emitter-from-forest (forest)
+  (if (armor-p (car forest))
+      ;; if forest is actually an armor list.
+      (emitter-mapcar (emitter-from-list forest) (x)
+        (list x))
+      ;; otherwise, real forest (list of trees).
+      (emitter-mapcan (emitter-from-list forest) (x)
+        (emitter-from-tree x))))
 
 (defun make-armor-set-emitter (input)
   (emitter-mapcan input (x)
@@ -298,7 +301,8 @@
         (emitter-from-forest (preliminary-forest x)) 
         (armor-list)
       (list armor-list
-            (preliminary-jewel-sets x)))))
+            (preliminary-jewel-sets x)
+            (preliminary-key x)))))
 
 ;;; ---------- Debug Utility ----------
 
@@ -309,6 +313,65 @@
 			  (t `(nth ,x ,y))))
 	  nav
 	  :initial-value tree))
+
+(defun stringify-effect (effect)
+  (concatenate 'string 
+               (skill-system-name (aref *skill-systems* 
+                                        (car effect)))
+               (format nil "~a~a" 
+                       (if (> (second effect) 0) "+" "")
+                       (second effect))))
+
+(defun print-armor (item)
+  (format t "[~a~a~a] ~a  ~{~a ~}~%" 
+          (if (< 0 (armor-holes item)) "O" "-")
+          (if (< 1 (armor-holes item)) "O" "-")
+          (if (< 2 (armor-holes item)) "O" "-")
+          (armor-name item)
+          (loop for effect in (armor-effects item)
+             collect (stringify-effect effect))))
+
+(defun print-jewel (item)
+  (format t "([~a~a~a] ~a ~{~a ~})~%"
+          (if (< 0 (jewel-holes item)) "O" "x")
+          (if (< 1 (jewel-holes item)) "O" "x")
+          (if (< 2 (jewel-holes item)) "O" "x")
+          (jewel-name item)
+          (loop for effect in (jewel-effects item)
+             collect (stringify-effect effect))))
+
+(defun print-armor-set (armor-set)
+  (let ((all-effects))
+    (labels ((add-armor-effects (item)
+               (loop for effect in (armor-effects item)
+                  do (if (getf all-effects (first effect))
+                         (incf (getf all-effects (first effect))
+                               (second effect))
+                         (setf (getf all-effects (first effect)) 
+                               (second effect)))))
+             (add-jewel-effects (item)
+               (loop for effect in (jewel-effects item)
+                  do (if (getf all-effects (first effect))
+                         (incf (getf all-effects (first effect)) 
+                               (second effect))
+                         (setf (getf all-effects (first effect)) 
+                               (second effect))))))
+      (loop for item in (first armor-set)
+         do 
+           (print-armor item)
+           (add-armor-effects item))
+      (loop for id in (first (second armor-set))
+         do 
+           (print-jewel (aref *jewels* id))
+           (add-jewel-effects (aref *jewels* id)))
+      (format t "~{~a~%~}"
+              (loop for effect in (group all-effects 2)
+                 collect (stringify-effect effect)))
+      (decode-sig-full (third armor-set) 3))))
+                    
+  
+
+  
 
 
 

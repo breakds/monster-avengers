@@ -38,6 +38,18 @@
     (is (= (emit sink) 5))
     (is (null (emit sink)))))
 
+(deftest emitter-mapcar-omit-test ()
+  (let* ((source (emitter-from-list '(1 2 3 4 5 6 7)))
+         ;; sink = '(3 5 7)
+         (sink (emitter-mapcar source (x)
+                 (when (= (mod x 2) 0)
+                   (1+ x)))))
+    (is (= (emit sink) 3))
+    (reset-emitter sink)
+    (is (= (emit sink) 3))
+    (is (= (emit sink) 5))
+    (is (= (emit sink) 7))
+    (is (null (emit sink)))))
                                
 (deftest emitter-mapcan-test ()
   (let* ((source (emitter-from-list '((1 2) (3 4))))
@@ -55,6 +67,25 @@
     (is (= (emit sink) 4))
     (is (= (emit sink) 3))
     (is (null (emit sink)))))
+
+(deftest emitter-mapcan-omit-test ()
+  (let* ((source (emitter-from-list '((1 2) (3 4) (5 6))))
+         ;; sink = '(4 3 6 5)
+         (sink (emitter-mapcan source (x)
+                 (emitter-from-list (when (> (car x) 2) 
+                                      (reverse x))))))
+    (is (= (emit sink) 4))
+    (reset-emitter source)
+    ;; reset source does not change current sink sub-emitter
+    (is (= (emit sink) 3))
+    ;; resetting sink also resets source
+    (reset-emitter sink)
+    (is (= (emit sink) 4))
+    (is (= (emit sink) 3))
+    (is (= (emit sink) 6))
+    (is (= (emit sink) 5))
+    (is (null (emit sink)))))
+
 
 (deftest circular-emitter-test ()
   (let ((e (circular-emitter '(1 2 3))))
