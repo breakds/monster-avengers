@@ -25,17 +25,6 @@
   (loop for key being the hash-keys of hash-map
      maximize key))
 
-(declaim (inline first-n))
-(defun first-n (input-list n)
-  (let ((l input-list))
-    (values
-     (loop 
-        for i below n
-        for x = (pop l)
-        until (null x)
-        collect x)
-     l)))
-
 (defmacro classify-to-map (&key (in nil) (across nil) (key nil) (when nil))
   "This anarchy macro introduces the variable INDIVIDUAL and INDIVIDUAL-KEY."
   (if (or (and in across)
@@ -72,6 +61,68 @@
 			   `(enqueue-map ,new-obj new-key 
 					 ,(if to to merged-map))))))
 	,(when (null to) merged-map))))
+
+
+(declaim (inline make-points-map))
+(defun make-points-map ()
+  (list nil nil))
+
+(declaim (max-points-map-key))
+(defun max-points-map-key (p-map)
+  (second p-map))
+
+(declaim (enqueue-points-map))
+(defun enqueue-points-map (value key p-map)
+  (when (or (null (second p-map))
+            (> key (second p-map)))
+    (setf (second p-map) key))
+  (push value (getf (first p-map) key nil)))
+
+(defmacro classify-to-points-map (&key (in nil) (across nil) (key nil) (when nil))
+  "This anarchy macro introduces the variable INDIVIDUAL and INDIVIDUAL-KEY."
+  (if (or (and in across)
+	  (and (null in) (null across)))
+      (error "One and only one of :in and :across should be supplied.")
+      (with-gensyms (result)
+	`(let ((,result (make-points-map)))
+	   (loop for individual ,@(if across
+				      (list 'across across)
+				      (list 'in in))
+	      do (let ((individual-key ,key))
+		   ,(if when
+			`(when ,when
+			   (enqueue-points-map individual individual-key ,result))
+			`(enqueue-points-map individual individual-key ,result))))
+	   ,result))))
+
+(defmacro merge-points-maps ((map-a map-b) &key new-key new-obj (to nil) (when nil))
+  (with-gensyms (merged-map)
+    `(,@(if to
+	    `(progn)
+	    `(let ((,merged-map (make-points-map)))))
+	(loop for (,(symb map-a '-key) ,(symb map-a '-val))
+             on (first ,map-a) by #'cddr
+             do (loop for (,(symb map-b '-key) ,(symb map-b '-val))
+                   on (first ,map-b) by #'cddr
+                   do (let ((new-key ,new-key))
+                        ,(if when
+                             `(when ,when
+                                (enqueue-points-map ,new-obj new-key
+                                             ,(if to to merged-map)))
+                             `(enqueue-points-map ,new-obj new-key 
+                                                  ,(if to to merged-map))))))
+	,(when (null to) merged-map))))
+
+(declaim (inline first-n))
+(defun first-n (input-list n)
+  (let ((l input-list))
+    (values
+     (loop 
+        for i below n
+        for x = (pop l)
+        until (null x)
+        collect x)
+     l)))
 
 
 ;;; ---------- Search ----------

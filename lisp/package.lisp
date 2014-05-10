@@ -45,8 +45,11 @@
 	   #:split-forest-at-skill
 	   #:extra-skill-split
 	   ;; Utilities
+           #:make-points-map
 	   #:classify-to-map
+	   #:classify-to-points-map
 	   #:merge-maps
+	   #:merge-points-maps
 	   #:individual
 	   #:individual-key
 	   #:new-key

@@ -166,6 +166,63 @@
 			      (11 ((5 4 5 6) (0 1 8)))
     			      (13 ((5 8)))))))))
 
+(defun points-map-equal (p-map-a p-map-b)
+  (and (= (second p-map-a) (second p-map-b))
+       (every (lambda (x)
+                (equal (second x) (getf (first p-map-b) (first x))))
+              (group (first p-map-a) 2))))
+
+(deftest classify-to-points-map-test ()
+  (let ((integer-list '((1 2 3)
+			(7 9)
+			(6)
+			(1 5)
+			(0 0 0 0)))
+	(integer-vector #((1 2 3)
+			  (7 9)
+			  (6)
+			  (1 5)
+			  (0 0 0 0))))
+    (is (points-map-equal (classify-to-points-map :in integer-list
+                                                  :key (apply #'+ individual))
+                          '((0 ((0 0 0 0)) 16 ((7 9)) 6 ((1 5) (6) (1 2 3))) 16)))
+    (is (points-map-equal (classify-to-points-map :across integer-vector
+                                                  :key (length individual)
+                                                  :when (> individual-key 1))
+        		  '((2 ((1 5) (7 9))
+                             3 ((1 2 3))
+                             4 ((0 0 0 0))) 4)))))
+
+(deftest merge-points-maps-test ()
+  (let ((small-map '((3 (1 2 3)
+                      2 (0 1)
+                      4 (5)) 4))
+	(big-map '((9 (8)
+                    7 (4 5 6)) 9)))
+    (is (points-map-equal (merge-points-maps (small-map big-map)
+                                             :new-key (+ small-map-key 
+                                                         big-map-key)
+                                             :when (> (+ small-map-key
+                                                         big-map-key)
+                                                      10)
+                                             :new-obj (append small-map-val
+                                                              big-map-val))
+			  '((12 ((1 2 3 8))
+                             11 ((5 4 5 6) (0 1 8))
+                             13 ((5 8))) 13)))
+    (let ((result (make-points-map)))
+      (merge-points-maps (small-map big-map)
+                             :to result
+                             :new-key (+ small-map-key 
+                                         big-map-key)
+                             :when (> new-key 10)
+                             :new-obj (append small-map-val
+                                              big-map-val))
+      (is (points-map-equal result
+    			    '((12 ((1 2 3 8))
+                               11 ((5 4 5 6) (0 1 8))
+                               13 ((5 8))) 13))))))
+
 (deftest (jewel-set-*-test
           :cases (((list '(2) '(3) nil) 
                    (list '(2) '(3) nil)
