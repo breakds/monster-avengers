@@ -234,30 +234,31 @@
   ;; can be a list of armors or a forest.
   (if (armor-p (car forest))
       ;; case 1: last level
-      (classify-to-map :in forest
-		       :key (points-of-skill individual
-					     target-id)
-		       :when (>= individual-key minimum))
+      (classify-to-points-map :in forest
+                              :key (points-of-skill individual
+                                                    target-id)
+                              :when (>= individual-key minimum))
       ;; case 2: middle levels
-      (let ((result (make-map)))
+      (let ((result (make-points-map)))
 	(loop 
 	   for tree in forest
-	   for left = (classify-to-map :in (armor-tree-left tree)
-				       :key (points-of-skill 
-					     individual
-					     target-id))
+	   for left = (classify-to-points-map 
+                       :in (armor-tree-left tree)
+                       :key (points-of-skill 
+                             individual
+                             target-id))
 	   for right-minimum = (- minimum 
-				  (max-map-key left))
+				  (max-points-map-key left))
 	   for right = (split-forest-at-skill (armor-tree-right tree)
 					      target-id
 					      right-minimum)
-	   do (merge-maps (left right)
-			  :to result
-			  :new-key (+ left-key right-key)
-			  :when (>= new-key minimum)
-			  :new-obj (make-armor-tree
-				    :left left-val
-				    :right right-val)))
+	   do (merge-points-maps (left right)
+                                 :to result
+                                 :new-key (+ left-key right-key)
+                                 :when (>= new-key minimum)
+                                 :new-obj (make-armor-tree
+                                           :left left-val
+                                           :right right-val)))
 	result)))
 
 (defun extra-skill-split (prelim env)
@@ -285,9 +286,9 @@
                           (preliminary-forest prelim)
                           (split-env-target-id env)
                           minimum)))
-        (loop 
-           for points being the hash-keys of armor-cands
-           for forest being the hash-values of armor-cands
+        (loop for (points forest) on (first armor-cands) by #'cddr
+           ;; for points being the hash-keys of armor-cands
+           ;; for forest being the hash-values of armor-cands
            for valid-sets = (loop for item in jewel-cands
                                when (>= (+ points
                                            (decode-skill-sig-at
