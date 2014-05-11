@@ -272,6 +272,51 @@
                                            :right right-val)))
 	result)))
 
+;; (defun extra-skill-split (prelim env)
+;;   (let* ((n (split-env-n env))
+;; 	 (target-points (split-env-target-points env))
+;; 	 (prelim-key (the (unsigned-byte 64)
+;; 			  (preliminary-key prelim)))
+;; 	 (jewel-cands (loop for cand in 
+;; 			   (funcall (split-env-hole-query env)
+;; 				    (hole-part prelim-key))
+;; 			 when (is-satisfied-skill-key 
+;; 			       (encoded-skill-+ 
+;; 				(keyed-jewel-set-key cand)
+;; 				(split-env-inv-req-key env)
+;; 				prelim-key)
+;; 			       (split-env-satisfy-mask env))
+;; 			 collect cand))
+;; 	 (minimum (- target-points
+;; 		     (loop for cand in jewel-cands
+;; 			maximize (decode-skill-sig-at 
+;; 				  (keyed-jewel-set-key cand)
+;; 				  n)))))
+;;     (when (and jewel-cands
+;;                (>= (max-at-skill (preliminary-forest prelim)
+;;                                 (split-env-target-id env))
+;;                    minimum))
+;;       (let ((armor-cands (split-forest-at-skill
+;;                           (preliminary-forest prelim)
+;;                           (split-env-target-id env)
+;;                           minimum)))
+;;         (loop for (points forest) on (first armor-cands) by #'cddr
+;;            ;; for points being the hash-keys of armor-cands
+;;            ;; for forest being the hash-values of armor-cands
+;;            for valid-sets = (loop for item in jewel-cands
+;;                                when (>= (+ points
+;;                                            (decode-skill-sig-at
+;;                                             (keyed-jewel-set-key item)
+;;                                             n))
+;;                                         target-points)
+;;                                append (keyed-jewel-set-set item))
+;;            when valid-sets
+;;            collect (make-preliminary :key (replace-skill-key-at prelim-key
+;;                                                                 n
+;;                                                                 points)
+;;                                      :forest forest
+;;                                      :jewel-sets valid-sets))))))
+
 (defun extra-skill-split (prelim env)
   (let* ((n (split-env-n env))
 	 (target-points (split-env-target-points env))
@@ -333,8 +378,6 @@
     (emitter-mapcan input (x)
       (emitter-from-list (extra-skill-split x env)))))
 
-
-
 (defun make-jewel-filter-emitter (input required-effects)
   (let ((hole-query (jewel-query-client required-effects))
         (inv-req-key (encode-skill-sig (mapcar #`,(- (second x1))
@@ -349,13 +392,9 @@
                                          prelim-key)
                         satisfy-mask)
                   append (keyed-jewel-set-set cand))
-          (make-preliminary :key prelim-keyo
+          (make-preliminary :key prelim-key
                             :forest (preliminary-forest x)
                             :jewel-sets it))))))
-                               
-      
-  
-  
 
 (defun search-core (required-effects)
   (let* ((foundation-req (first-n required-effects

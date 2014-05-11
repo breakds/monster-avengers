@@ -21,12 +21,11 @@
 (defun encode-jewel-if-satisfy (jewel-piece required-skill-ids &optional (n nil))
   "Return the encoded key of a jewel if it has a positive points for
   at least one of the required skills. Return nil otherwise."
-  (let ((skill-ids (if n
-                       (list (nth required-skill-ids n))
-                       required-skill-ids)))
-    (let ((skill-sig (jewel-skill-sig jewel-piece skill-ids)))
-      (when (> (count-if #`,(> x1 0) skill-sig) 0)
-        (encode-skill-sig skill-sig)))))
+  (let ((skill-sig (jewel-skill-sig jewel-piece required-skill-ids)))
+    (when (if n 
+	      (> (nth n skill-sig) 0)
+	      (> (count-if #`,(> x1 0) skill-sig) 0))
+      (encode-skill-sig skill-sig))))
 
 ;;; ---------- Jewel Search Subroutines ----------
 
@@ -96,9 +95,10 @@
 				accu)
 		       (compact (cdr sorted-result)
 				(cons a accu)))))))
-    (compact (sort (remove-if-not #'keyed-jewel-set-set super-jewel-set)
-		   #'< :key #'keyed-jewel-set-key)
-	     nil)))
+    (when super-jewel-set
+      (compact (sort (remove-if-not #'keyed-jewel-set-set super-jewel-set)
+		     #'< :key #'keyed-jewel-set-key)
+	       nil))))
 
 
 (defun super-jewel-set-* (super-set-a super-set-b)
@@ -226,7 +226,7 @@
 	   (reverse 
 	    (loop 
 	       for item across *jewels*
-	       for key = (encode-jewel-if-satisfy item required-skill-ids)
+	       for key = (encode-jewel-if-satisfy item required-skill-ids n)
 	       when key
 	       collect (list key item)))))
     (compact-super-jewel-set result)))
