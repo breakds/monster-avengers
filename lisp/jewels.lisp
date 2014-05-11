@@ -18,12 +18,15 @@
           required-skill-ids))
 
 (declaim (inline encode-jewel-if-satisfy))
-(defun encode-jewel-if-satisfy (jewel-piece required-skill-ids)
+(defun encode-jewel-if-satisfy (jewel-piece required-skill-ids &optional (n nil))
   "Return the encoded key of a jewel if it has a positive points for
   at least one of the required skills. Return nil otherwise."
-  (let ((skill-sig (jewel-skill-sig jewel-piece required-skill-ids)))
-    (when (> (count-if #`,(> x1 0) skill-sig) 0)
-      (encode-skill-sig skill-sig))))
+  (let ((skill-ids (if n
+                       (list (nth required-skill-ids n))
+                       required-skill-ids)))
+    (let ((skill-sig (jewel-skill-sig jewel-piece skill-ids)))
+      (when (> (count-if #`,(> x1 0) skill-sig) 0)
+        (encode-skill-sig skill-sig)))))
 
 ;;; ---------- Jewel Search Subroutines ----------
 
@@ -142,7 +145,7 @@
 			       ,@body)))))
 	 #'self)))))
   
-(defun jewel-query-client (required-effects)
+(defun jewel-query-client (required-effects &optional (n nil))
   "The algorithm for generating the jewel combinations for a given
   hole-alignment is described at docs/jewel-query/jewel-query.pdf. The
   only difference here is that we are generating super jewel set
@@ -156,9 +159,9 @@
 						    :set '(nil))))))
 			     (loop for item across *jewels*
 				when (= (jewel-holes item) holes)
-				do (awhen (encode-jewel-if-satisfy 
+				do (awhen (encode-jewel-if-satisfy
 					   item
-					   required-skill-ids)
+					   required-skill-ids n)
 				     (push (make-keyed-jewel-set 
 					    :key it
 					    :set (list (list (jewel-id item))))
@@ -180,7 +183,7 @@
     (lambda (hole-key)
       (apply calc (decode-hole-sig hole-key)))))
 
-(defun dfs-jewel-query (required-skill-ids hole-alignment)
+(defun dfs-jewel-query (required-skill-ids hole-alignment &optional (n nil))
   "This is a naive alternative to the previous algorithm. It was
   orignally implemented for checking the correctness of the previous
   algorithm, but can be used in practice as well."

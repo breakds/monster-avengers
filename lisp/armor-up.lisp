@@ -317,6 +317,7 @@
                                      :forest forest
                                      :jewel-sets valid-sets))))))
 
+
 (defun make-extra-skill-emitter (input required-effects n)
   (let ((buffer nil)
 	(env (make-split-env :hole-query (jewel-query-client 
@@ -334,19 +335,35 @@
 
 
 
-;; (defun make-jewel-filter-emitter (input required-effects)
-;;   (let ((hole-query (jewel-query-client required-effects)))
-;;     (emitter-mapcan input (x)
-;;       (loop for cand in (funcall
+(defun make-jewel-filter-emitter (input required-effects)
+  (let ((hole-query (jewel-query-client required-effects))
+        (inv-req-key (encode-skill-sig (mapcar #`,(- (second x1))
+                                               required-effects)))
+        (satisfy-mask (gen-skill-mask (length required-effects))))
+    (emitter-mapcar input (x)
+      (let ((prelim-key (preliminary-key x)))
+        (awhen (loop for cand in (funcall hole-query prelim-key)
+                  when (is-satisfied-skill-key
+                        (encoded-skill-+ (keyed-jewel-set-key cand)
+                                         inv-req-key
+                                         prelim-key)
+                        satisfy-mask)
+                  append (keyed-jewel-set-set cand))
+          (make-preliminary :key prelim-keyo
+                            :forest (preliminary-forest x)
+                            :jewel-sets it))))))
+                               
       
   
   
 
 (defun search-core (required-effects)
-  (let ((foundation (emitter-from-list
-                     (search-foundation 
-                      (first-n required-effects 
-                               *foundation-search-cut-off*)))))
+  (let* ((foundation-req (first-n required-effects
+                                  *foundation-search-cut-off*))
+         (foundation (make-jewel-filter-emitter
+                      (emitter-from-list
+                       (search-foundation foundation-req))
+                      foundation-req)))
     (reduce (lambda (y x)
               (make-extra-skill-emitter y required-effects x))
             (loop 
