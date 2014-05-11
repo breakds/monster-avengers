@@ -437,17 +437,17 @@
     (is (ensure-skill-points forest 1 2))
     (let ((result (split-forest-at-skill forest 2 3)))
       (is (armor-forest-equal 
-	   (gethash 3 result)
+           (getf (car result) 3)
 	   (assemble-forest '((:tree (1) ((:tree (4) (9))
 					  (:tree (5) (11))))
 			      (:tree (0) ((:tree (4) (10))))
 			      (:tree (2) ((:tree (6) (12))))))))
       (is (armor-forest-equal 
-	   (gethash 4 result)
+           (getf (car result) 4)
 	   (assemble-forest '((:tree (1) ((:tree (4) (10))))
 			      (:tree (3) ((:tree (7) (12))))))))
       (is (armor-forest-equal 
-	   (gethash 6 result)
+           (getf (car result) 6)
 	   (assemble-forest '((:tree (3) ((:tree (6) (12)))))))))))
 
 (deftest extra-skill-split-test ()

@@ -226,6 +226,17 @@
   (satisfy-mask 0)
   (n 0))
 
+(defun max-at-skill (forest target-id)
+  (if (armor-p (car forest))
+      ;; case 1: last level
+      (loop for item in forest
+         maximize (points-of-skill item target-id))
+      ;; case 2 middle levels
+      (loop for tree in forest
+         maximize (+ (loop for item in (armor-tree-left tree)
+                        maximize (points-of-skill item target-id))
+                     (max-at-skill (armor-tree-right tree) target-id)))))
+
 (defun split-forest-at-skill (forest target-id minimum)
   ;; The parameter FOREST is a little bit misleading, as it
   ;; can be a list of armor-trees, or a list of armors (the
@@ -281,7 +292,10 @@
 			maximize (decode-skill-sig-at 
 				  (keyed-jewel-set-key cand)
 				  n)))))
-    (when jewel-cands
+    (when (and jewel-cands
+               (>= (max-at-skill (preliminary-forest prelim)
+                                (split-env-target-id env))
+                   minimum))
       (let ((armor-cands (split-forest-at-skill
                           (preliminary-forest prelim)
                           (split-env-target-id env)
@@ -317,6 +331,16 @@
 			     :n n)))
     (emitter-mapcan input (x)
       (emitter-from-list (extra-skill-split x env)))))
+
+
+
+;; (defun make-jewel-filter-emitter (input required-effects)
+;;   (let ((hole-query (jewel-query-client required-effects)))
+;;     (emitter-mapcan input (x)
+;;       (loop for cand in (funcall
+      
+  
+  
 
 (defun search-core (required-effects)
   (let ((foundation (emitter-from-list
