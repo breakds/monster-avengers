@@ -136,13 +136,13 @@
   (let ((args (mapcar #'car aug-args))
 	(rngs (mapcar #'cadr aug-args)))
     (with-gensyms (cache)
-    `(let ((,cache (make-array ',rngs :initial-element nil)))
+    `(let ((cache1 (make-array ',rngs :initial-element nil)))
        (labels ((self ,args
-		  (aif (aref ,cache ,@args)
+		  (aif (aref cache1 ,@args)
 		       it
-		       (setf (aref ,cache ,@args)
-			     (progn
-			       ,@body)))))
+                       (setf (aref cache1 ,@args)
+                             (progn
+                               ,@body)))))
 	 #'self)))))
   
 (defun jewel-query-client (required-effects &optional (n nil))
@@ -184,48 +184,37 @@
       (apply calc (decode-hole-sig hole-key)))))
 
 (defun stuff-if-fit (alignment holes)
-  (awhen (case holes
-	   (1 (cond ((> (first alignment) 0) '(-1 0 0))
-		    ((> (second alignment) 0) '(1 -1 0))
-		    ((> (third alignment) 0) '(0 1 -1))
-		    (t nil)))
-	   (2 (cond ((> (second alignment) 0) '(0 -1 0))
-		    ((> (third alignment) 0) '(1 0 -1))
-		    (t nil)))
-	   (3 (cond ((> (third alignment) 0) '(0 0 -1))
-		    (t nil))))
-    (align-+ alignment it)))
+  (labels ((align-+ (alignment-a alignment-b)
+             (loop 
+                for a in alignment-a
+                for b in alignment-b
+                collect (+ a b))))
+    (awhen (case holes
+             (1 (cond ((> (first alignment) 0) '(-1 0 0))
+                      ((> (second alignment) 0) '(1 -1 0))
+                      ((> (third alignment) 0) '(0 1 -1))
+                      (t nil)))
+             (2 (cond ((> (second alignment) 0) '(0 -1 0))
+                      ((> (third alignment) 0) '(1 0 -1))
+                      (t nil)))
+             (3 (cond ((> (third alignment) 0) '(0 0 -1))
+                      (t nil))))
+      (align-+ alignment it))))
 
 (defun stuff-jewels (alignment jewel-list)
   (let ((result alignment))
-    (loop for id in jewel-list
-       do (setf result (stuff-if-fit result (jewel-ho
-
-       
+    (loop 
+       for id in jewel-list
+       for holes = (jewel-holes (aref *jewels* id))
+       do (setf result (stuff-if-fit result holes)))
+    result))
 
 (defun dfs-jewel-query (required-skill-ids hole-alignment &optional (n nil))
   "This is a naive alternative to the previous algorithm. It was
   orignally implemented for checking the correctness of the previous
   algorithm, but can be used in practice as well."
   (let (result)
-    (labels ((align-+ (alignment-a alignment-b)
-	       (loop 
-		  for a in alignment-a
-		  for b in alignment-b
-		  collect (+ a b)))
-	     (stuff-if-fit (alignment holes)
-	       (awhen (case holes
-			(1 (cond ((> (first alignment) 0) '(-1 0 0))
-				 ((> (second alignment) 0) '(1 -1 0))
-				 ((> (third alignment) 0) '(0 1 -1))
-				 (t nil)))
-			(2 (cond ((> (second alignment) 0) '(0 -1 0))
-				 ((> (third alignment) 0) '(1 0 -1))
-				 (t nil)))
-			(3 (cond ((> (third alignment) 0) '(0 0 -1))
-				 (t nil))))
-		 (align-+ alignment it)))
-	     (dfs (alignment current-key current-set jewels)
+    (labels ((dfs (alignment current-key current-set jewels)
 	       (push (make-keyed-jewel-set
 		      :key current-key
 		      :set (list current-set))
@@ -250,6 +239,19 @@
 	       when key
 	       collect (list key item)))))
     (compact-super-jewel-set result)))
+
+(defun encode-jewels (jewel-list required-skill-ids)
+  (let ((result (the (unsigned-byte 64) 0)))
+    (declare (type (unsigned-byte 64) result))
+    (loop 
+       for id in jewel-list
+       for skill-sig = (jewel-skill-sig (aref *jewels* id)
+                                        required-skill-ids)
+       do (setf result (encoded-skill-+ (the (unsigned-byte 64) result)
+                                        (the (unsigned-byte 64)
+                                             (encode-skill-sig skill-sig)))))
+    result))
+                                        
 
 
 

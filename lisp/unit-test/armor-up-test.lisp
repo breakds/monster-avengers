@@ -298,6 +298,22 @@
 			    :holes 3
 			    :effects '((2 3))))))
 
+(deftest (stuff-jewels-test 
+          :cases (('(1 2 2) '(0 1 2) '(1 0 2))
+                  ('(0 0 2) '(2 2) '(2 0 0))))
+    (alignment jewel-list expected)
+  (let ((*jewels* *test-jewels*))
+    (is (equal (stuff-jewels alignment jewel-list)
+               expected))))
+
+(deftest encode-jewels-test ()
+  (let ((*jewels* *test-jewels*)
+        (jewel-list '(1 3 5))
+        (ids '(1 0)))
+    (is (equal (decode-skill-sig-full (encode-jewels jewel-list ids) 2)
+               '(4 -2)))))
+                                      
+
 (deftest (dfs-jewel-query-test
 	  :cases (('(0 0 0) '((:key (0 0) :set (nil))))
 		  ('(1 0 0) '((:key (0 0) :set (nil))

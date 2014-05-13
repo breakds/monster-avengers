@@ -70,6 +70,8 @@
 	   #:jewel-query-client
 	   #:dfs-jewel-query
 	   #:exec-super-jewel-set-expr
+           #:stuff-jewels
+           #:encode-jewels
 	   ;; Encoding
            #:encode-hole-sig
            #:decode-hole-sig
