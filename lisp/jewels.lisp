@@ -136,11 +136,11 @@
   (let ((args (mapcar #'car aug-args))
 	(rngs (mapcar #'cadr aug-args)))
     (with-gensyms (cache)
-    `(let ((cache1 (make-array ',rngs :initial-element nil)))
+    `(let ((,cache (make-array ',rngs :initial-element nil)))
        (labels ((self ,args
-		  (aif (aref cache1 ,@args)
+		  (aif (aref ,cache ,@args)
 		       it
-                       (setf (aref cache1 ,@args)
+                       (setf (aref ,cache ,@args)
                              (progn
                                ,@body)))))
 	 #'self)))))
