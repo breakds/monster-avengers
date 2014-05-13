@@ -183,6 +183,26 @@
     (lambda (hole-key)
       (apply calc (decode-hole-sig hole-key)))))
 
+(defun stuff-if-fit (alignment holes)
+  (awhen (case holes
+	   (1 (cond ((> (first alignment) 0) '(-1 0 0))
+		    ((> (second alignment) 0) '(1 -1 0))
+		    ((> (third alignment) 0) '(0 1 -1))
+		    (t nil)))
+	   (2 (cond ((> (second alignment) 0) '(0 -1 0))
+		    ((> (third alignment) 0) '(1 0 -1))
+		    (t nil)))
+	   (3 (cond ((> (third alignment) 0) '(0 0 -1))
+		    (t nil))))
+    (align-+ alignment it)))
+
+(defun stuff-jewels (alignment jewel-list)
+  (let ((result alignment))
+    (loop for id in jewel-list
+       do (setf result (stuff-if-fit result (jewel-ho
+
+       
+
 (defun dfs-jewel-query (required-skill-ids hole-alignment &optional (n nil))
   "This is a naive alternative to the previous algorithm. It was
   orignally implemented for checking the correctness of the previous
