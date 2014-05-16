@@ -138,6 +138,7 @@
     (with-gensyms (cache)
     `(let ((,cache (make-array ',rngs :initial-element nil)))
        (labels ((self ,args
+                  #f3
 		  (aif (aref ,cache ,@args)
 		       it
                        (setf (aref ,cache ,@args)
@@ -304,14 +305,19 @@
     result))
 
 (defun jewels-encoder (required-skill-ids)
-  (let ((single-encoder (mnemonic-alambda ((jewel-id 200))
-                          (encode-jewel-if-satisfy (aref *jewels* jewel-id) 
-                                                   required-skill-ids))))
+  #f3
+  (let ((table (make-array 200 :element-type '(unsigned-byte 64)
+                           :initial-element 0)))
+    (declare (type (simple-array (unsigned-byte 64) (200)) table))
+    (loop for i below (length *jewels*)
+       do (awhen (encode-jewel-if-satisfy (aref *jewels* i) required-skill-ids)
+            (setf (aref table i) (the (unsigned-byte 64) it))))
     (lambda (jewel-list)
       (let ((result (the (unsigned-byte 64) 0)))
         (loop for id in jewel-list
-           do (setf result 
-                    (encoded-skill-+ result (funcall single-encoder id))))
+           do (setf result (encoded-skill-+ result 
+                                            (aref table 
+                                                  (the (signed-byte 32) id)))))
         result))))
               
                                         
