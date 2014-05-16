@@ -220,6 +220,7 @@
 
 (defstruct split-env
   (hole-query nil)
+  (encoder nil)
   (target-id 0)
   (target-points 0)
   (inv-req-key 0)
@@ -325,9 +326,9 @@
          (prelim-holes (decode-hole-sig (hole-part prelim-key)))
 	 (jewel-cands (loop 
                          for base-list in (preliminary-jewel-sets prelim)
-                         for base-key = (encode-jewels base-list required-ids)
-                         for residual = (stuff-jewels prelim-holes
-                                                      (reverse base-list))
+                         for base-key = (funcall (split-env-encoder env)
+                                                 base-list)
+                         for residual = (stuff-jewels-fast prelim-holes base-list)
                          for cands = (funcall (split-env-hole-query env)
                                               (encode-hole-sig residual))
                          append (loop for cand in cands
@@ -377,21 +378,23 @@
 
 
 (defun make-extra-skill-emitter (input required-effects n)
-  (let ((buffer nil)
-        (required-ids (mapcar #`,(first x1) (first-n required-effects (1+ n))))
-	(env (make-split-env :hole-query (jewel-query-client 
-					  (map-n #`,(nth x1 required-effects) 
-						 (1+ n))
-                                          n)
-			     :target-id (first (nth n required-effects))
-			     :target-points (second (nth n required-effects))
-			     :inv-req-key (encode-skill-sig 
-					   (mapcar #`,(- (second x1)) 
-						   required-effects))
-			     :satisfy-mask (gen-skill-mask n)
-			     :n n)))
-    (emitter-mapcan input (x)
-      (emitter-from-list (extra-skill-split-new x env required-ids)))))
+  (let* ((buffer nil)
+         (required-ids (mapcar #`,(first x1) (first-n required-effects (1+ n))))
+         (env (make-split-env :hole-query (jewel-query-client 
+                                           (map-n #`,(nth x1 required-effects) 
+                                                  (1+ n))
+                                           n)
+                              :encoder (jewels-encoder required-ids)
+                              :target-id (first (nth n required-effects))
+                              :target-points (second (nth n required-effects))
+                              :inv-req-key (encode-skill-sig 
+                                            (mapcar #`,(- (second x1)) 
+                                                    required-effects))
+                              :satisfy-mask (gen-skill-mask n)
+                              :n n)))
+    (let ((counter 0))
+      (emitter-mapcan input (x)
+        (emitter-from-list (extra-skill-split-new x env required-ids))))))
 
 (defun make-jewel-filter-emitter (input required-effects)
   (let ((hole-query (jewel-query-client required-effects))

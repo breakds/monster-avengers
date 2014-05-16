@@ -71,7 +71,9 @@
 	   #:dfs-jewel-query
 	   #:exec-super-jewel-set-expr
            #:stuff-jewels
+           #:stuff-jewels-fast
            #:encode-jewels
+           #:jewels-encoder
 	   ;; Encoding
            #:encode-hole-sig
            #:decode-hole-sig

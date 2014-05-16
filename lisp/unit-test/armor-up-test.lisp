@@ -298,12 +298,26 @@
 			    :holes 3
 			    :effects '((2 3))))))
 
+(deftest jewels-encoder-test ()
+  (let ((*jewels* *test-jewels*))
+    (let ((encoder (jewels-encoder '(2 1 0))))
+      (is (equal (decode-skill-sig-full (funcall encoder '(4 3 2)) 3)
+                 '(0 1 7)))
+      (is (equal (decode-skill-sig-full (funcall encoder '(1 5)) 3)
+                 '(3 1 -1))))))
+
+
 (deftest (stuff-jewels-test 
           :cases (('(1 2 2) '(0 1 2) '(1 0 2))
-                  ('(0 0 2) '(2 2) '(2 0 0))))
+                  ('(0 0 2) '(2 2) '(2 0 0))
+                  ('(0 0 2) '(0 2 5) '(0 0 0))
+                  ('(2 2 1) '(0 0 0 0 3 4) '(0 0 0))))
     (alignment jewel-list expected)
   (let ((*jewels* *test-jewels*))
     (is (equal (stuff-jewels alignment jewel-list)
+               expected)))
+  (let ((*jewels* *test-jewels*))
+    (is (equal (stuff-jewels-fast alignment jewel-list)
                expected))))
 
 (deftest encode-jewels-test ()

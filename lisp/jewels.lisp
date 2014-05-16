@@ -209,6 +209,57 @@
        do (setf result (stuff-if-fit result holes)))
     result))
 
+(declaim (inline stuff-jewels-fast))
+(defun stuff-jewels-fast (alignment jewel-list)
+  #f3
+  (let ((x1 (first alignment))
+        (x2 (second alignment))
+        (x3 (third alignment))
+        (y1 0)
+        (y2 0)
+        (y3 0))
+    (declare (type (signed-byte 8) x1))
+    (declare (type (signed-byte 8) x2))
+    (declare (type (signed-byte 8) x3))
+    (declare (type (signed-byte 8) y1))
+    (declare (type (signed-byte 8) y2))
+    (declare (type (signed-byte 8) y3))
+    (loop 
+       for id in jewel-list
+       for holes = (jewel-holes (aref *jewels* id))
+       do (case holes
+            (1 (incf y1))
+            (2 (incf y2))
+            (3 (incf y3))))
+    (decf x3 y3)
+    (if (<= y2 x2) 
+        (decf x2 y2)
+        (progn (decf y2 x2)
+               (setf x2 0)
+               (incf x1 y2)
+               (decf x3 y2)))
+    (if (<= y1 x1)
+        (progn (decf x1 y1)
+               (setf y1 0))
+        (progn (decf y1 x1)
+               (setf x1 0)))
+    (when (> y1 0)
+      (if (<= y1 (ash x2 1))
+          (progn (decf x2 (ash (1+ y1) -1))
+                 (incf x1 (mod y1 2))
+                 (setf y1 0))
+          (progn (decf y1 (ash x2 1))
+                 (setf x2 0)))
+      (when (> y1 0)
+        (multiple-value-bind (d r) (floor y1 3)
+          (decf x3 d)
+          (case r
+            (1 (decf x3)
+               (incf x1))
+            (2 (decf x3)
+               (incf x2))))))
+    (list x1 x2 x3)))
+
 (defun dfs-jewel-query (required-skill-ids hole-alignment &optional (n nil))
   "This is a naive alternative to the previous algorithm. It was
   orignally implemented for checking the correctness of the previous
@@ -251,6 +302,18 @@
                                         (the (unsigned-byte 64)
                                              (encode-skill-sig skill-sig)))))
     result))
+
+(defun jewels-encoder (required-skill-ids)
+  (let ((single-encoder (mnemonic-alambda ((jewel-id 200))
+                          (encode-jewel-if-satisfy (aref *jewels* jewel-id) 
+                                                   required-skill-ids))))
+    (lambda (jewel-list)
+      (let ((result (the (unsigned-byte 64) 0)))
+        (loop for id in jewel-list
+           do (setf result 
+                    (encoded-skill-+ result (funcall single-encoder id))))
+        result))))
+              
                                         
 
 
