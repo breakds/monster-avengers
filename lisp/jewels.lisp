@@ -151,6 +151,7 @@
   hole-alignment is described at docs/jewel-query/jewel-query.pdf. The
   only difference here is that we are generating super jewel set
   instead of jewel combinations to include the key."
+  #f3
   (let* ((required-skill-ids (mapcar #`,(car x1) required-effects))
 	 (calc-fixed (mnemonic-alambda ((holes 4) (num 50))
 		       (if (= num 1)

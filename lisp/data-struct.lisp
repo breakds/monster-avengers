@@ -139,10 +139,11 @@
 
 (declaim (inline points-of-skill))
 (defun points-of-skill (armor-piece skill-id)
+  #f3
   (aif (assoc skill-id
 	      (armor-effects armor-piece))
-       (cadr it) 
-       0))
+       (the fixnum (cadr it))
+       (the fixnum 0)))
 
 ;;; ---------- Jewels ----------
 

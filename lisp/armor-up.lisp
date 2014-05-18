@@ -228,15 +228,18 @@
   (n 0))
 
 (defun max-at-skill (forest target-id)
+  #f3
   (if (armor-p (car forest))
       ;; case 1: last level
-      (loop for item in forest
-         maximize (points-of-skill item target-id))
+      (the fixnum (loop for item in forest
+		     maximize (points-of-skill item target-id)))
       ;; case 2 middle levels
-      (loop for tree in forest
-         maximize (+ (loop for item in (armor-tree-left tree)
-                        maximize (points-of-skill item target-id))
-                     (max-at-skill (armor-tree-right tree) target-id)))))
+      (the fixnum 
+	   (loop for tree in forest
+	      maximize (+ (the fixnum 
+			       (loop for item in (armor-tree-left tree)
+				  maximize (points-of-skill item target-id)))
+			  (max-at-skill (armor-tree-right tree) target-id))))))
 
 (defun split-forest-at-skill (forest target-id minimum)
   ;; The parameter FOREST is a little bit misleading, as it
@@ -273,88 +276,163 @@
                                            :right right-val)))
 	result)))
 
-(defun extra-skill-split (prelim env)
-  (let* ((n (split-env-n env))
-	 (target-points (split-env-target-points env))
-	 (prelim-key (the (unsigned-byte 64)
-			  (preliminary-key prelim)))
-	 (jewel-cands (loop for cand in 
-			   (funcall (split-env-hole-query env)
-				    (hole-part prelim-key))
-			 when (is-satisfied-skill-key 
-			       (encoded-skill-+ 
-				(keyed-jewel-set-key cand)
-				(split-env-inv-req-key env)
-				prelim-key)
-			       (split-env-satisfy-mask env))
-			 collect cand))
-	 (minimum (- target-points
-		     (loop for cand in jewel-cands
-			maximize (decode-skill-sig-at 
-				  (keyed-jewel-set-key cand)
-				  n)))))
-    (when (and jewel-cands
-               (>= (max-at-skill (preliminary-forest prelim)
-                                (split-env-target-id env))
-                   minimum))
-      (let ((armor-cands (split-forest-at-skill
-                          (preliminary-forest prelim)
-                          (split-env-target-id env)
-                          minimum)))
-        (loop for (points forest) on (first armor-cands) by #'cddr
-           ;; for points being the hash-keys of armor-cands
-           ;; for forest being the hash-values of armor-cands
-           for valid-sets = (loop for item in jewel-cands
-                               when (>= (+ points
-                                           (decode-skill-sig-at
-                                            (keyed-jewel-set-key item)
-                                            n))
-                                        target-points)
-                               append (keyed-jewel-set-set item))
-           when valid-sets
-           collect (make-preliminary :key (replace-skill-key-at prelim-key
-                                                                n
-                                                                points)
-                                     :forest forest
-                                     :jewel-sets valid-sets))))))
+;; (defun extra-skill-split (prelim env)
+;;   (let* ((n (split-env-n env))
+;; 	 (target-points (split-env-target-points env))
+;; 	 (prelim-key (the (unsigned-byte 64)
+;; 			  (preliminary-key prelim)))
+;; 	 (jewel-cands (loop for cand in 
+;; 			   (funcall (split-env-hole-query env)
+;; 				    (hole-part prelim-key))
+;; 			 when (is-satisfied-skill-key 
+;; 			       (encoded-skill-+ 
+;; 				(keyed-jewel-set-key cand)
+;; 				(split-env-inv-req-key env)
+;; 				prelim-key)
+;; 			       (split-env-satisfy-mask env))
+;; 			 collect cand))
+;; 	 (minimum (- target-points
+;; 		     (loop for cand in jewel-cands
+;; 			maximize (decode-skill-sig-at 
+;; 				  (keyed-jewel-set-key cand)
+;; 				  n)))))
+;;     (when (and jewel-cands
+;;                (>= 
+;;                    minimum))
+;;       (let ((armor-cands (split-forest-at-skill
+;;                           (preliminary-forest prelim)
+;;                           (split-env-target-id env)
+;;                           minimum)))
+;;         (loop for (points forest) on (first armor-cands) by #'cddr
+;;            ;; for points being the hash-keys of armor-cands
+;;            ;; for forest being the hash-values of armor-cands
+;;            for valid-sets = (loop for item in jewel-cands
+;;                                when (>= (+ points
+;;                                            (decode-skill-sig-at
+;;                                             (keyed-jewel-set-key item)
+;;                                             n))
+;;                                         target-points)
+;;                                append (keyed-jewel-set-set item))
+;;            when valid-sets
+;;            collect (make-preliminary :key (replace-skill-key-at prelim-key
+;;                                                                 n
+;;                                                                 points)
+;;                                      :forest forest
+;;                                      :jewel-sets valid-sets))))))
 
-(defun extra-skill-split-new (prelim env required-ids)
+(defun expand-jewel-candidates (prelim env)
+  #f3
+  (let* (result
+	 ;; (trace-signal nil)
+	 (prelim-key (the (unsigned-byte 64)
+			  (preliminary-key prelim)))
+	 (max-target-points (max-at-skill (preliminary-forest prelim)
+	 				  (split-env-target-id env)))
+	 (prelim-inv-key (encoded-skill-+ 
+			  prelim-key
+			  (replace-skill-key-at (the (unsigned-byte 64) 0)
+						(split-env-n env)
+						max-target-points)
+			  (split-env-inv-req-key env)))
+	 (prelim-holes (decode-hole-sig (hole-part prelim-key))))
+    (declare (type (unsigned-byte 64) prelim-key))
+    ;; (when (> (length (preliminary-jewel-sets prelim)) 20)
+    ;;   (setf trace-signal t)
+    ;;   (format t "----------------------------------------~%")
+    ;;   (loop for base-list in (preliminary-jewel-sets prelim)
+    ;; 	 do (format t "~a: ~a~%" base-list (stuff-jewels-fast prelim-holes
+    ;; 							      base-list))))
+    (loop 
+       for base-list in (preliminary-jewel-sets prelim)
+       for residual = (stuff-jewels-fast prelim-holes base-list)
+       when (not (equal residual '(0 0 0)))
+       do (let* ((base-key (funcall (split-env-encoder env)
+				    base-list))
+		 (cands (funcall (split-env-hole-query env)
+				 (encode-hole-sig residual))))
+	    ;; (when trace-signal
+	    ;;   (format t "cands: ~a~%" (length cands)))
+	    (loop 
+	       for cand in cands
+	       for jewels-key = (encoded-skill-+ base-key
+						 (keyed-jewel-set-key cand))
+	       when (is-satisfied-skill-key 
+		     (encoded-skill-+ 
+		      prelim-inv-key
+		      jewels-key)
+		     (split-env-satisfy-mask env))
+	       do (incf *counter-0*)
+		 (setf result (cons (make-keyed-jewel-set 
+	       			      :key jewels-key
+	       			      :set (mapcar (lambda (x) 
+	       					     (append x base-list))
+	       					   (keyed-jewel-set-set cand)))
+	       			     result)))))	
+    ;; (when trace-signal
+    ;;   (read))
+    result))
+
+;; (defun expand-jewel-candidates (prelim env)
+;;   (let* (result
+;; 	 ;; (trace-signal nil)
+;; 	 (prelim-key (the (unsigned-byte 64)
+;; 			  (preliminary-key prelim)))
+;; 	 (prelim-inv-key (encoded-skill-+ 
+;; 			  prelim-key
+;; 			  (split-env-inv-req-key env)))
+;; 	 (prelim-holes (decode-hole-sig (hole-part prelim-key))))
+;;     (declare (type (unsigned-byte 64) prelim-key))
+;;     ;; (when (> (length (preliminary-jewel-sets prelim)) 20)
+;;     ;;   (setf trace-signal t)
+;;     ;;   (format t "----------------------------------------~%")
+;;     ;;   (loop for base-list in (preliminary-jewel-sets prelim)
+;;     ;; 	 do (format t "~a: ~a~%" base-list (stuff-jewels-fast prelim-holes
+;;     ;; 							      base-list))))
+;;     (loop 
+;;        for base-list in (preliminary-jewel-sets prelim)
+;;        for residual = (stuff-jewels-fast prelim-holes base-list)
+;;        when (not (equal residual '(0 0 0)))
+;;        do (let* ((base-key (funcall (split-env-encoder env)
+;; 				    base-list))
+;; 		 (cands (funcall (split-env-hole-query env)
+;; 				 (encode-hole-sig residual))))
+;; 	    ;; (when trace-signal
+;; 	    ;;   (format t "cands: ~a~%" (length cands)))
+;; 	    (loop 
+;; 	       for cand in cands
+;; 	       for jewels-key = (encoded-skill-+ base-key
+;; 						 (keyed-jewel-set-key cand))
+;; 	       when (is-satisfied-skill-key 
+;; 		     (encoded-skill-+ 
+;; 		      prelim-inv-key
+;; 		      jewels-key)
+;; 		     (split-env-satisfy-mask env))
+;; 	       do (incf *counter-0*)
+;; 		 (setf result (cons (make-keyed-jewel-set 
+;; 	       			      :key jewels-key
+;; 	       			      :set (mapcar (lambda (x) 
+;; 	       					     (append x base-list))
+;; 	       					   (keyed-jewel-set-set cand)))
+;; 	       			     result)))))	
+;;     ;; (when trace-signal
+;;     ;;   (read))
+;;     result))
+
+(defun extra-skill-split-new (prelim env)
   (let* ((n (split-env-n env))
 	 (target-points (split-env-target-points env))
 	 (prelim-key (the (unsigned-byte 64)
 			  (preliminary-key prelim)))
-         (prelim-holes (decode-hole-sig (hole-part prelim-key)))
-	 (jewel-cands (loop 
-                         for base-list in (preliminary-jewel-sets prelim)
-                         for base-key = (funcall (split-env-encoder env)
-                                                 base-list)
-                         for residual = (stuff-jewels-fast prelim-holes base-list)
-                         for cands = (funcall (split-env-hole-query env)
-                                              (encode-hole-sig residual))
-                         append (loop for cand in cands
-                                   when (is-satisfied-skill-key 
-                                         (encoded-skill-+ 
-                                          (keyed-jewel-set-key cand)
-                                          (split-env-inv-req-key env)
-                                          prelim-key
-                                          base-key)
-                                         (split-env-satisfy-mask env))
-                                   collect (make-keyed-jewel-set 
-                                            :key (encoded-skill-+
-                                                  base-key
-                                                  (keyed-jewel-set-key cand))
-                                            :set (mapcar (lambda (x) 
-                                                           (append x base-list))
-                                                         (keyed-jewel-set-set cand))))))
+	 (jewel-cands (expand-jewel-candidates prelim env))
 	 (minimum (- target-points
 		     (loop for cand in jewel-cands
 			maximize (decode-skill-sig-at 
 				  (keyed-jewel-set-key cand)
 				  n)))))
-    (when (and jewel-cands
-               (>= (max-at-skill (preliminary-forest prelim)
-                                (split-env-target-id env))
-                   minimum))
+    (when jewel-cands
+	       ;; (<= minimum (max-at-skill (preliminary-forest prelim)
+	       ;; 				 (split-env-target-id env))))
+      (incf *counter-1*)
       (let ((armor-cands (split-forest-at-skill
                           (preliminary-forest prelim)
                           (split-env-target-id env)
@@ -390,11 +468,11 @@
                               :inv-req-key (encode-skill-sig 
                                             (mapcar #`,(- (second x1)) 
                                                     required-effects))
-                              :satisfy-mask (gen-skill-mask n)
+                              :satisfy-mask (gen-skill-mask (1+ n))
                               :n n)))
     (let ((counter 0))
       (emitter-mapcan input (x)
-        (emitter-from-list (extra-skill-split-new x env required-ids))))))
+        (emitter-from-list (extra-skill-split-new x env))))))
 
 (defun make-jewel-filter-emitter (input required-effects)
   (let ((hole-query (jewel-query-client required-effects))
