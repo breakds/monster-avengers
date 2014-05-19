@@ -225,20 +225,35 @@
   (target-points 0)
   (inv-req-key 0)
   (satisfy-mask 0)
+  (forest-maximizer nil)
   (n 0))
 
-(defun max-at-skill (forest target-id)
-  (if (armor-p (car forest))
-      ;; case 1: last level
-      (the fixnum (loop for item in forest
-		     maximize (points-of-skill item target-id)))
-      ;; case 2 middle levels
-      (the fixnum 
-	   (loop for tree in forest
-	      maximize (+ (the fixnum 
-			       (loop for item in (armor-tree-left tree)
-				  maximize (points-of-skill item target-id)))
-			  (max-at-skill (armor-tree-right tree) target-id))))))
+(defun max-at-skill-client (target-id)
+  #f3
+  (let ((store (make-array '(7 400) :element-type 'fixnum :initial-element 0)))
+    (declare (type (simple-array fixnum (7 400)) store))
+    (loop for part-list in (list *helms* *cuirasses* *gloves* 
+                                 *cuisses* *sabatons*)
+       do (loop for item across part-list
+             do (setf (aref store (armor-part-id item) (armor-id item))
+                      (the fixnum (points-of-skill item target-id)))))
+    (labels ((client (forest)
+               (if (armor-p (car forest))
+                   ;; case 1: last level
+                   (the fixnum (loop for item in forest
+                                  maximize (aref store 
+                                                 (armor-part-id item)
+                                                 (armor-id item))))
+                   ;; case 2 middle levels
+                   (the fixnum 
+                        (loop for tree in forest
+                           maximize (+ (the fixnum 
+                                            (loop for item in (armor-tree-left tree)
+                                               maximize (aref store 
+                                                              (armor-part-id item)
+                                                              (armor-id item))))
+                                       (client (armor-tree-right tree))))))))
+      #'client)))
 
 (defun split-forest-at-skill (forest target-id minimum)
   ;; The parameter FOREST is a little bit misleading, as it
@@ -325,8 +340,8 @@
 	 ;; (trace-signal nil)
 	 (prelim-key (the (unsigned-byte 64)
 			  (preliminary-key prelim)))
-	 (max-target-points (max-at-skill (preliminary-forest prelim)
-	 				  (split-env-target-id env)))
+	 (max-target-points (funcall (split-env-forest-maximizer env)
+                                     (preliminary-forest prelim)))
 	 (prelim-inv-key (encoded-skill-+ 
 			  prelim-key
 			  (replace-skill-key-at (the (unsigned-byte 64) 0)
@@ -360,8 +375,7 @@
 		      prelim-inv-key
 		      jewels-key)
 		     (split-env-satisfy-mask env))
-	       do (incf *counter-0*)
-		 (setf result (cons (make-keyed-jewel-set 
+	       do (setf result (cons (make-keyed-jewel-set 
 	       			      :key jewels-key
 	       			      :set (mapcar (lambda (x) 
 	       					     (append x base-list))
@@ -431,7 +445,6 @@
     (when jewel-cands
 	       ;; (<= minimum (max-at-skill (preliminary-forest prelim)
 	       ;; 				 (split-env-target-id env))))
-      (incf *counter-1*)
       (let ((armor-cands (split-forest-at-skill
                           (preliminary-forest prelim)
                           (split-env-target-id env)
@@ -468,6 +481,8 @@
                                             (mapcar #`,(- (second x1)) 
                                                     required-effects))
                               :satisfy-mask (gen-skill-mask (1+ n))
+                              :forest-maximizer (max-at-skill-client 
+                                                 (first (nth n required-effects)))
                               :n n)))
     (let ((counter 0))
       (emitter-mapcan input (x)
@@ -597,20 +612,4 @@
       (decode-sig-full (third armor-set) 3))))
                     
   
-;; experiments 
-(init)
-
-(defvar *foundation* (make-jewel-filter-emitter
-		      (emitter-from-list
-		       (search-foundation '((91 10) (46 10))))
-		      '((91 10) (46 10))))
-(defvar *pure-list* 
-  (progn (reset-emitter *foundation*)
-	 (loop for x = (emit *foundation*) until (null x)
-	    collect x)))
-
-(defun run-experiment ()
-  (loop for x in *pure-list*
-     maximize (max-at-skill (preliminary-forest x)
-			    121)))
 
