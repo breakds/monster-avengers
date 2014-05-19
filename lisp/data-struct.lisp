@@ -137,9 +137,8 @@
                                     :lang lang))
   (format t "[ok] Sabatons loaded.~%"))
 
-(declaim (inline points-of-skill))
+;; (declaim (inline points-of-skill))
 (defun points-of-skill (armor-piece skill-id)
-  #f3
   (aif (assoc skill-id
 	      (armor-effects armor-piece))
        (the fixnum (cadr it))

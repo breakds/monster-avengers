@@ -228,7 +228,6 @@
   (n 0))
 
 (defun max-at-skill (forest target-id)
-  #f3
   (if (armor-p (car forest))
       ;; case 1: last level
       (the fixnum (loop for item in forest
@@ -598,29 +597,20 @@
       (decode-sig-full (third armor-set) 3))))
                     
   
+;; experiments 
+(init)
 
-  
+(defvar *foundation* (make-jewel-filter-emitter
+		      (emitter-from-list
+		       (search-foundation '((91 10) (46 10))))
+		      '((91 10) (46 10))))
+(defvar *pure-list* 
+  (progn (reset-emitter *foundation*)
+	 (loop for x = (emit *foundation*) until (null x)
+	    collect x)))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+(defun run-experiment ()
+  (loop for x in *pure-list*
+     maximize (max-at-skill (preliminary-forest x)
+			    121)))
 
