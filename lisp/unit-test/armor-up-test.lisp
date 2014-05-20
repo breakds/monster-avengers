@@ -311,6 +311,7 @@
           :cases (('(1 2 2) '(0 1 2) '(1 0 2))
                   ('(0 0 2) '(2 2) '(2 0 0))
                   ('(0 0 2) '(0 2 5) '(0 0 0))
+                  ('(2 2 1) '(0 0 0 0 2 3) '(1 0 0))
                   ('(2 2 1) '(0 0 0 0 3 4) '(0 0 0))))
     (alignment jewel-list expected)
   (let ((*jewels* *test-jewels*))
@@ -482,60 +483,60 @@
 		       (- skill-points current)))))
 	     forest)))
 
-(deftest split-forest-at-skill-test ()
-  (let ((forest (assemble-forest '((:tree (0 1) ((:tree (4) (9 10))
-						 (:tree (5) (11))))
-				   (:tree (2 3) ((:tree (6 7) (12))
-						 (:tree (8) (13))))))))
-    (is (ensure-skill-points forest 0 4))
-    (is (ensure-skill-points forest 1 2))
-    (let ((result (split-forest-at-skill forest 2 3)))
-      (is (armor-forest-equal 
-           (getf (car result) 3)
-	   (assemble-forest '((:tree (1) ((:tree (4) (9))
-					  (:tree (5) (11))))
-			      (:tree (0) ((:tree (4) (10))))
-			      (:tree (2) ((:tree (6) (12))))))))
-      (is (armor-forest-equal 
-           (getf (car result) 4)
-	   (assemble-forest '((:tree (1) ((:tree (4) (10))))
-			      (:tree (3) ((:tree (7) (12))))))))
-      (is (armor-forest-equal 
-           (getf (car result) 6)
-	   (assemble-forest '((:tree (3) ((:tree (6) (12)))))))))))
+;; (deftest split-forest-at-skill-test ()
+;;   (let ((forest (assemble-forest '((:tree (0 1) ((:tree (4) (9 10))
+;; 						 (:tree (5) (11))))
+;; 				   (:tree (2 3) ((:tree (6 7) (12))
+;; 						 (:tree (8) (13))))))))
+;;     (is (ensure-skill-points forest 0 4))
+;;     (is (ensure-skill-points forest 1 2))
+;;     (let ((result (split-forest-at-skill forest 2 3)))
+;;       (is (armor-forest-equal 
+;;            (getf (car result) 3)
+;; 	   (assemble-forest '((:tree (1) ((:tree (4) (9))
+;; 					  (:tree (5) (11))))
+;; 			      (:tree (0) ((:tree (4) (10))))
+;; 			      (:tree (2) ((:tree (6) (12))))))))
+;;       (is (armor-forest-equal 
+;;            (getf (car result) 4)
+;; 	   (assemble-forest '((:tree (1) ((:tree (4) (10))))
+;; 			      (:tree (3) ((:tree (7) (12))))))))
+;;       (is (armor-forest-equal 
+;;            (getf (car result) 6)
+;; 	   (assemble-forest '((:tree (3) ((:tree (6) (12)))))))))))
 
-(deftest extra-skill-split-test ()
-  (let* ((*jewels* *test-jewels*)
-	 (forest (assemble-forest '((:tree (0 1) ((:tree (4) (9 10))
-						  (:tree (5) (11))))
-				    (:tree (2 3) ((:tree (6 7) (12))
-						  (:tree (8) (13)))))))
-	 (env (make-split-env :hole-query 
-			      (jewel-query-client '((0 6) (1 4) (2 7)))
-			      :target-id 2
-			      :target-points 7
-			      :inv-req-key (encode-skill-sig '(-6 -4 -7))
-			      :satisfy-mask (gen-skill-mask 2)
-			      :n 2))
-	 (result (extra-skill-split 
-		  (make-preliminary :key (encode-sig '(0 2 1)
-						     '(4 2))
-				    :forest forest
-				    :jewel-sets nil)
-		  env)))
-    (is (set-equal result
-		   (list (make-preliminary 
-			  :key (encode-sig '(0 2 1) '(4 2 6))
-			  :forest (assemble-forest 
-				   '((:tree (3) ((:tree (6) (12))))))
-			  :jewel-sets '((2 3 5)))
-			 (make-preliminary 
-			  :key (encode-sig '(0 2 1) '(4 2 4))
-			  :forest (assemble-forest 
-				   '((:tree (1) ((:tree (4) (10))))
-				     (:tree (3) ((:tree (7) (12))))))
-			  :jewel-sets '((2 3 5))))
-		   :test #'prelim-equal))))
+;; (deftest extra-skill-split-test ()
+;;   (let* ((*jewels* *test-jewels*)
+;; 	 (forest (assemble-forest '((:tree (0 1) ((:tree (4) (9 10))
+;; 						  (:tree (5) (11))))
+;; 				    (:tree (2 3) ((:tree (6 7) (12))
+;; 						  (:tree (8) (13)))))))
+;; 	 (env (make-split-env :hole-query 
+;; 			      (jewel-query-client '((0 6) (1 4) (2 7)))
+;; 			      :target-id 2
+;; 			      :target-points 7
+;; 			      :inv-req-key (encode-skill-sig '(-6 -4 -7))
+;; 			      :satisfy-mask (gen-skill-mask 2)
+;; 			      :n 2))
+;; 	 (result (extra-skill-split 
+;; 		  (make-preliminary :key (encode-sig '(0 2 1)
+;; 						     '(4 2))
+;; 				    :forest forest
+;; 				    :jewel-sets nil)
+;; 		  env)))
+;;     (is (set-equal result
+;; 		   (list (make-preliminary 
+;; 			  :key (encode-sig '(0 2 1) '(4 2 6))
+;; 			  :forest (assemble-forest 
+;; 				   '((:tree (3) ((:tree (6) (12))))))
+;; 			  :jewel-sets '((2 3 5)))
+;; 			 (make-preliminary 
+;; 			  :key (encode-sig '(0 2 1) '(4 2 4))
+;; 			  :forest (assemble-forest 
+;; 				   '((:tree (1) ((:tree (4) (10))))
+;; 				     (:tree (3) ((:tree (7) (12))))))
+;; 			  :jewel-sets '((2 3 5))))
+;; 		   :test #'prelim-equal))))
 			 
     
   

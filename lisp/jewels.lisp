@@ -257,9 +257,9 @@
           (decf x3 d)
           (case r
             (1 (decf x3)
-               (incf x1))
+               (incf x2))
             (2 (decf x3)
-               (incf x2))))))
+               (incf x1))))))
     (list x1 x2 x3)))
 
 (defun dfs-jewel-query (required-skill-ids hole-alignment &optional (n nil))

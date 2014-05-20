@@ -360,7 +360,15 @@
        for base-list in (preliminary-jewel-sets prelim)
        for residual = (stuff-jewels-fast prelim-holes base-list)
        when (not (equal residual '(0 0 0)))
-       do (let* ((base-key (funcall (split-env-encoder env)
+       do ;; (when (and (= (split-env-target-id env) 121)
+          ;;            (equal prelim-holes '(2 2 1)))
+          ;;   (format t "~a~%" prelim-holes)
+          ;;   (format t "~a~%" (loop for x in base-list collect (jewel-holes (aref *jewels* x)))))
+         ;; (when (= (split-env-target-id env) 43)
+         ;;   (format t "~a~%" prelim-holes)
+         ;;   (format t "~a~%" (loop for x in base-list collect x))
+         ;;   (format t "~a~%" (loop for x in base-list collect (jewel-holes (aref *jewels* x)))))
+         (let* ((base-key (funcall (split-env-encoder env)
 				    base-list))
 		 (cands (funcall (split-env-hole-query env)
 				 (encode-hole-sig residual))))
@@ -381,8 +389,6 @@
 	       					     (append x base-list))
 	       					   (keyed-jewel-set-set cand)))
 	       			     result)))))	
-    ;; (when trace-signal
-    ;;   (read))
     result))
 
 ;; (defun expand-jewel-candidates (prelim env)
@@ -468,8 +474,7 @@
 
 
 (defun make-extra-skill-emitter (input required-effects n)
-  (let* ((buffer nil)
-         (required-ids (mapcar #`,(first x1) (first-n required-effects (1+ n))))
+  (let* ((required-ids (mapcar #`,(first x1) (first-n required-effects (1+ n))))
          (env (make-split-env :hole-query (jewel-query-client 
                                            (map-n #`,(nth x1 required-effects) 
                                                   (1+ n))
@@ -484,9 +489,8 @@
                               :forest-maximizer (max-at-skill-client 
                                                  (first (nth n required-effects)))
                               :n n)))
-    (let ((counter 0))
-      (emitter-mapcan input (x)
-        (emitter-from-list (extra-skill-split-new x env))))))
+    (emitter-mapcan input (x)
+      (emitter-from-list (extra-skill-split-new x env)))))
 
 (defun make-jewel-filter-emitter (input required-effects)
   (let ((hole-query (jewel-query-client required-effects))
