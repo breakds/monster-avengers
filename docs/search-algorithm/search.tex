@@ -1,0 +1,101 @@
+\documentclass[a4paper,12pt]{article}
+\title{Armor Search Algorithm}
+\author{BreakDS (breakds@gmail.com)}
+\date{\today}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{multicol}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{lazylist}
+\usepackage{synttree}
+\usepackage{algorithm}
+
+\newcommand{\TR}[1]{#1^{\rm T}}
+\newcommand{\lproof}{$\blacktriangleleft$}
+\newcommand{\rproof}{$\blacktriangleright$}
+\newcommand{\norm}[1]{\left|\left|#1\right|\right|}
+\newcommand{\diag}{\mathop{\mathrm{diag}}} 
+\newcommand{\mat}[2][ccccccccccccccccccccccccc]{\left[
+    \begin{array}{#1}
+      #2\\
+    \end{array}
+  \right]}
+\newcommand{\Eq}[1]{Eq. (\ref{eq:#1})}
+\newcommand{\Fact}[1]{(\ref{fact:#1})}
+\newcommand{\Fig}[1]{Figure \ref{fig:#1}}
+\newcommand{\Empty}{\text{Empty}}
+\newcommand{\nil}{\text{nil}}
+\newcommand{\fun}[1]{\emph{\textcolor{blue}{#1}}}
+\newcommand{\E}[1]{\textbf{E}[[#1]]}
+\newcommand{\C}[1]{\textbf{C}[[#1]]}
+\newcommand{\B}[1]{\textbf{B}[[#1]]}
+\newcommand{\Prog}[1]{\textbf{Prog}[[#1]]}
+\newcommand{\update}{\textcolor{blue}{\text{update}}}
+\newcommand{\access}{\textcolor{blue}{\text{access}}}
+\newcommand{\plus}{\textcolor{blue}{\text{plus}}}
+\newcommand{\result}{\text{result}}
+\newcommand{\letin}[2]{\textcolor{blue}{\text{let}}\,#1 = #2\,\textcolor{blue}{\text{in}}}
+\newcommand{\If}{\textcolor{blue}{\text{if}}}
+\newcommand{\Then}{\textcolor{blue}{\text{then}}}
+\newcommand{\Else}{\textcolor{blue}{\text{else}}}
+\newcommand{\equals}{\textcolor{blue}{\text{equals}}}
+\newcommand{\minus}{\textcolor{blue}{\text{minus}}}
+
+
+
+
+\mathchardef\mhyphen="2D
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+
+\newcommand*{\Comment}[1]{\hfill\makebox[3.0cm][l]{#1}}%
+% Copied from http://en.wikibooks.org/wiki/LaTeX/Packages/Listings
+\lstset{ %
+  language=C++,                % the language of the code
+  basicstyle=\small,           % the size of the fonts that are used for the code
+  columns=fullflexible,
+  numbers=left,                   % where to put the line-numbers
+  numberstyle=\tiny\color{black},  % the style that is used for the line-numbers
+  stepnumber=1,                   % the step between two line-numbers. If it's 1, each line 
+                                  % will be numbered
+  numbersep=10pt,                  % how far the line-numbers are from the code
+  backgroundcolor=\color{white},      % choose the background color. You must add \usepackage{color}
+  showspaces=false,               % show spaces adding particular underscores
+  showstringspaces=false,         % underline spaces within strings
+  showtabs=false,                 % show tabs within strings adding particular underscores
+  frame=trBL,                   % adds a frame around the code
+  frameround = fttt,
+  % rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+  tabsize=2,                      % sets default tabsize to 2 spaces
+  captionpos=b,                   % sets the caption-position to bottom
+  breaklines=true,                % sets automatic line breaking
+  breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+  title=\lstname,                   % show the filename of files included with \lstinputlisting;
+                                  % also try caption instead of title
+  keywordstyle=\color{blue},          % keyword style
+  commentstyle=\color{dkgreen},       % comment style
+  stringstyle=\color{mauve},         % string literal style
+  escapeinside={\%*}{*)},            % if you want to add a comment within your code
+  morekeywords={*,cases,onError}               % if you want to add more keywords to the set
+}
+
+\begin{document}
+\maketitle
+
+\section{Definition of the Problem}
+\begin{enumerate}
+\item \textbf{Concepts} 
+  \begin{enumerate}
+  \item \textbf{Skill and Skill points}: In the world of Monster
+    Hunter, there are more than 100 different skills. To
+    \emph{activate} a particular skill, one need to gain enough
+    \emph{skill points} for that particular skill. For example, one
+    might need $10$ Attack Skill points to activate the skill
+    ``Attack''.
+  \item \textbf{Armor} In Monster Hunter there 
+  \end{enumerate}
+
+\end{enumerate}
+\end{document}
