@@ -25,8 +25,12 @@
   (loop for key being the hash-keys of hash-map
      maximize key))
 
+
+;; See unit-test/armor-up-test.lisp for usage.
 (defmacro classify-to-map (&key (in nil) (across nil) (key nil) (when nil))
-  "This anarchy macro introduces the variable INDIVIDUAL and INDIVIDUAL-KEY."
+  "This macro generates the code to put the elements in an array or a
+   list into buckets managed by a hashtable (map). This anarchy macro
+   introduces the variables INDIVIDUAL and INDIVIDUAL-KEY."
   (if (or (and in across)
 	  (and (null in) (null across)))
       (error "One and only one of :in and :across should be supplied.")
@@ -42,7 +46,13 @@
 			`(enqueue-map individual individual-key ,result))))
 	   ,result))))
 
+;; See unit-test/armor-up-test.lisp for usage
 (defmacro merge-maps ((map-a map-b) &key new-key new-obj (to nil) (when nil))
+  "This macro generates code to merge two maps. It iterates over the
+  pairs from the cartesian product of two maps, merge each pair and
+  bucket them in a new map. Note that this anarchy macro introduces
+  variable (symb map-a '-key) (symb map-a '-val) (symb map-b
+  '-key) (symb map-b '-val), as well as NEW-KEY."
   (with-gensyms (merged-map)
     `(,@(if to
 	    `(progn)
@@ -63,6 +73,12 @@
 	,(when (null to) merged-map))))
 
 
+
+;;; POINTS-MAP is a light-weight hashtable, implemented as a
+;;; two-elements list, where the first element is an assoc-list that
+;;; maps points to its bucket, and the second element is the maximumu
+;;; of the points in the points-map.
+
 (declaim (inline make-points-map))
 (defun make-points-map ()
   (list nil nil))
@@ -73,11 +89,17 @@
 
 (declaim (enqueue-points-map))
 (defun enqueue-points-map (value key p-map)
+  "Push a new key-value pair into the points map. If the bucket with
+  the points hasn't been created yet, it will be created with a one
+  element bucket (list)."
+  ;; Update the maximum points when necessary.
   (when (or (null (second p-map))
             (> key (second p-map)))
     (setf (second p-map) key))
   (push value (getf (first p-map) key nil)))
 
+;; classify-to-points-map is a points-map analogy to
+;; classify-to-map. See unit-test/armor-up-test.lisp for sample usage.
 (defmacro classify-to-points-map (&key (in nil) (across nil) (key nil) (when nil))
   "This anarchy macro introduces the variable INDIVIDUAL and INDIVIDUAL-KEY."
   (if (or (and in across)
@@ -95,7 +117,12 @@
 			`(enqueue-points-map individual individual-key ,result))))
 	   ,result))))
 
+;; classify-to-points-map is a points-map analogy to merge-maps. See
+;; unit-test/armor-up-test.lisp for sample usage.
 (defmacro merge-points-maps ((map-a map-b) &key new-key new-obj (to nil) (when nil))
+  "This anarchy macro introduces variable (symb map-a '-key) (symb
+  map-a '-val) (symb map-b '-key) (symb map-b '-val) as well as
+  NEW-KEY."
   (with-gensyms (merged-map)
     `(,@(if to
 	    `(progn)
@@ -115,6 +142,11 @@
 
 (declaim (inline first-n))
 (defun first-n (input-list n)
+  "Returns two values, where the first value is a list containing the
+  first N elements in INPUT-LIST, and the second value is a list
+  containing the rest of INPUT-LIST. If INPUT-LIST is shorter than N
+  elements, the first return value is going to be identical to
+  INPUT-LIST, and the second return value is NIL."
   (let ((l input-list))
     (values
      (loop 
@@ -127,6 +159,10 @@
 
 ;;; ---------- Search ----------
 
+;;; The following code form the core of the search algorithm. It is
+;;; well-documented but not detailed documented. To have a better
+;;; understanding of the algorithm, refer to the document.
+
 (defstruct armor-tree
   ;; An armor tree is extremely unbalanced, and every left child
   ;; always has a height of 1.
@@ -137,57 +173,6 @@
   (forest nil)
   (jewel-sets nil)
   (key 0 :type (unsigned-byte 64)))
-
-(defparameter *satisfy-test-binary* 
-  (the (unsigned-byte 64)
-       (let ((result (the (unsigned-byte 64) 0)))
-         (declare (type (unsigned-byte 64) result))
-         (loop for offset from 17 to 62 by 6
-            do (setf (ldb (byte 1 offset) result) 1))
-         result)))
-
-(defun gen-skill-mask (n)
-  "Generate the mask that test for the positivity of the first N
-  skills in a skill-key."
-  (let ((result (the (unsigned-byte 64) 0)))
-    (declare (type (unsigned-byte 64) result))
-    (loop 
-       for offset from 17 to 62 by 6
-       for i below n
-       do (setf (ldb (byte 1 offset) result) 1))
-    result))
-
-
-(declaim (inline is-satisfied-skill-key))
-(defun is-satisfied-skill-key (key mask)
-  (declare (type (unsigned-byte 64) key))
-  (declare (type (unsigned-byte 64) mask))
-  #f3
-  (zerop (logand mask key)))
-
-(defun filter-arsenal-with-jewels (required-effects preliminary-arsenal)
-  #f3
-  (let ((jewel-combos (create-jewel-combos required-effects))
-        (result nil)
-        (inv-req-key (encode-skill-sig (mapcar #`,(- (cadr x1)) required-effects))))
-    (format t "filtering started ...~%")
-    (format t "preliminary: ~a~%" (hash-table-count preliminary-arsenal))
-    (loop 
-       for armor-key being the hash-keys of preliminary-arsenal
-       for forest being the hash-values of preliminary-arsenal
-       do (awhen (loop for item in 
-                      (gethash (the (signed-byte 64) (hole-part armor-key))
-                               jewel-combos)
-                    when (is-satisfied-skill-key
-                          (encoded-skill-+ inv-req-key
-                                           (encoded-skill-+ armor-key
-                                                            (jewel-combo-key (car item)))))
-                    collect item)
-            (push (make-armor-preliminary :forest forest
-                                          :jewel-sets it)
-                  result)))
-    result))
-
 
 (defun search-foundation (required-effects type)
   (let* ((arsenal (list *helms* *cuirasses*

@@ -129,6 +129,38 @@
       (incf (nth (1- (armor-holes armor-piece)) hole-sig)))
     (encode-sig hole-sig skill-sig)))
 
+
+;;; The following two functions, gen-skill-mask and
+;;; is-satisfied-skill-key are used to test whether a skill-key is
+;;; said to be satisfied. KEY-A (a1 b1 c1) is said to satisfy the
+;;; requirement represented by KEY-B (a2 b2 c2) if a1 < b1, a2 < b2
+;;; and a3 < b3 hold simultaneously. The way we test for such
+;;; satisification is to calculate the inverse of KEY-B (INV-KEY-B) as
+;;; (-a2 -b2 -c2), and test whether (encoded-+ KEY-A INV-KEY-V) has
+;;; every skill chunk positive. This is equivalent to test the sign
+;;; bits of the first N (length of KEY-A) chunks of (encoded-+ KEY-A
+;;; INV-KEY-V).
+(defun gen-skill-mask (n)
+  "Generate the mask that test for the positivity of the first N
+  skills in a skill-key."
+  (let ((result (the (unsigned-byte 64) 0)))
+    (declare (type (unsigned-byte 64) result))
+    (loop 
+       for offset from 17 to 62 by 6
+       for i below n
+       do (setf (ldb (byte 1 offset) result) 1))
+    result))
+
+(declaim (inline is-satisfied-skill-key))
+(defun is-satisfied-skill-key (key mask)
+  "Test whether KEY (which is usually a sum of test skill keys and
+  inverse requirement key) has all positive skill chunks, where the
+  number of chunks being tested is dictated by MASK."
+  (declare (type (unsigned-byte 64) key))
+  (declare (type (unsigned-byte 64) mask))
+  #f3
+  (zerop (logand mask key)))
+
 ;;; ---------- Coding Arithmetics ----------
 
 (declaim (inline encoded-+))
