@@ -111,6 +111,9 @@
   (setf *helms* (load-armor-list "armors/helms.lisp"
                                  0
                                  :lang lang))
+  ;; hard code fix helms so that their type are both
+  (loop for item across *helms*
+     do (setf (armor-type item) "both"))
   (format t "[ok] Helms loaded.~%"))
 
 (defun load-cuirasses (&key (lang "jap"))
