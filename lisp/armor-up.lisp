@@ -189,13 +189,15 @@
     result))
 
 
-(defun search-foundation (required-effects)
+(defun search-foundation (required-effects type)
   (let* ((arsenal (list *helms* *cuirasses*
                         *gloves* *cuisses*
                         *sabatons*))
          (clustered-arsenal 
 	  (mapcar (lambda (armor-list) 
 		    (classify-to-map :across armor-list
+                                     :when (or (string= (armor-type individual) "both")
+                                               (string= (armor-type individual) type))
 				     :key (the (unsigned-byte 64) 
 					       (encode-armor individual 
 							     required-effects))))
@@ -510,12 +512,12 @@
                             :forest (preliminary-forest x)
                             :jewel-sets it))))))
 
-(defun search-core (required-effects)
+(defun search-core (required-effects &optional (type "melee"))
   (let* ((foundation-req (first-n required-effects
                                   *foundation-search-cut-off*))
          (foundation (make-jewel-filter-emitter
                       (emitter-from-list
-                       (search-foundation foundation-req))
+                       (search-foundation foundation-req type))
                       foundation-req)))
     (reduce (lambda (y x)
               (make-extra-skill-emitter y required-effects x))
