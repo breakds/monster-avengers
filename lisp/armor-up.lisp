@@ -162,25 +162,56 @@
 ;;; The following code form the core of the search algorithm. It is
 ;;; well-documented but not detailed documented. To have a better
 ;;; understanding of the algorithm, refer to the document.
+;;; TODO(breakds): Create the search algorithm documentation.
 
+
+
+;; Armor tree is the foundamemntal data structure in search
+;; algorithm. An armor-tree represents a group of armor sets that
+;; share the same signature (holes + skills). For each armor tree, 
+;; 
+;; 1) The left child is a list of armors of the same part
+;; (e.g. cuiress), and all these armors have the same signature.
+;; 
+;; 2) The right child is a forest of armor-trees that share the the
+;; same signature.
+;;
+;; 3) An armor tree with height 2 represents a group of armor sets in
+;; which each armor set has two parts. Eventually we want armor trees
+;; with height 5 (all parts) or more (with weapon and stone).
+;;
+;; Therefore, armor trees are extremely unbalanced, and every left
+;; child always has a height of 1.
 (defstruct armor-tree
-  ;; An armor tree is extremely unbalanced, and every left child
-  ;; always has a height of 1.
   (left nil)
   (right nil))
 
+
+;; Preliminary represent a preliminary search result. It is a wrapper
+;; to a armor forest. 
 (defstruct preliminary
   (forest nil)
+  ;; jewel-sets is a list of jewel sets, where each of them can make
+  ;; the forest meet the requirement.
   (jewel-sets nil)
+  ;; key is the encoded signature of the forest (does not include
+  ;; jewels).
   (key 0 :type (unsigned-byte 64)))
 
 (defun search-foundation (required-effects type)
+  "Search foundation returns a list of preliminaries without jewels,
+  which contains all the possible combinations of armors for each kind
+  of signature w.r.t. REQUIRED-EFFECTS. Requirement are not met until
+  the next step (jewels-filtering). TYPE can be 'melee' or 'range'."
   (let* ((arsenal (list *helms* *cuirasses*
                         *gloves* *cuisses*
                         *sabatons*))
          (clustered-arsenal 
+          ;; Group the armors of the same parts and with the same
+          ;; signature.
 	  (mapcar (lambda (armor-list) 
 		    (classify-to-map :across armor-list
+                                     ;; filtering out armors with mismatched type
                                      :when (or (string= (armor-type individual) "both")
                                                (string= (armor-type individual) type))
 				     :key (the (unsigned-byte 64) 
@@ -198,13 +229,17 @@
 					  :left current-part-val
 					  :right merged-val)))
                   clustered-arsenal)))
+    ;; The above result PRELIMINARY-ARSENAL is a map (hash-table) of
+    ;; armor-forest. This final step converts it to a list of
+    ;; preliminaries instead.
     (loop 
        for key being the hash-keys of preliminary-arsenal
        for forest being the hash-values of preliminary-arsenal
        collect (make-preliminary :forest forest
 				 :key key))))
 
-
+;; SPLIT-ENV conveys the necessary parameters for an
+;; extra-skill-split.
 (defstruct split-env
   (hole-query nil)
   (encoder nil)
@@ -216,7 +251,12 @@
   (n 0))
 
 (defun max-at-skill-client (target-id)
+  "This function generates a closure with one argument, which is an
+  armor-forest. The closure returns the maximum points of the
+  specified skill (TARGET-ID) one armor set can achieve within the
+  given forest."
   #f3
+  ;; STORE is a cache of armor skill points query.
   (let ((store (make-array '(7 400) :element-type 'fixnum :initial-element 0)))
     (declare (type (simple-array fixnum (7 400)) store))
     (loop for part-list in (list *helms* *cuirasses* *gloves* 
@@ -243,6 +283,12 @@
       #'client)))
 
 (defun split-forest-at-skill (forest target-id minimum)
+  "The original FOREST is an armor forest with no respect to the skill
+  specified by TARGET-ID. This function returns a list of forest
+  derived from the input FOREST, each of them will have almost the
+  exact singnature as the input FOREST, with an extra chunk for the
+  new skill. All the potential forests with points (at TARGET-ID) less
+  than minimum will be ignored."
   ;; The parameter FOREST is a little bit misleading, as it
   ;; can be a list of armor-trees, or a list of armors (the
   ;; last level). For each armor-tree in FOREST, the left
@@ -278,11 +324,20 @@
 	result)))
 
 (defun expand-jewel-candidates (prelim env)
+  "Try adding jewels voting positively to TARGET-ID (from ENV) to the
+  current jewel-sets of PRELIM to form new jewel-set candidates. If
+  any of the candidates violate the previous requirements (new jewel
+  votes negatively to previous skills and drags their points below the
+  requirements), or couldn't satisfy the requirement for the target
+  skill, ignore it. This is so far the most time consuming part."  
   #f3
   (let* (result
-	 ;; (trace-signal nil)
 	 (prelim-key (the (unsigned-byte 64)
 			  (preliminary-key prelim)))
+         ;; MAX-TARGET-POINTS is the maximum we can get from any armor
+         ;; set in the forest. If a jewel set candidate cannot meet
+         ;; the requirement at target skill with the help of
+         ;; MAX-TARGET-POINTS. it will be ignored.
 	 (max-target-points (funcall (split-env-forest-maximizer env)
                                      (preliminary-forest prelim)))
 	 (prelim-inv-key (encoded-skill-+ 
@@ -318,7 +373,12 @@
 	       			     result)))))	
     result))
 
-(defun extra-skill-split-new (prelim env)
+(defun extra-skill-split (prelim env)
+  "This is the core of the search algorithm. PRELIM is one of the
+  preliminaries that represent a list of armor sets meeting the
+  requirements of previous skills. EXTRA-SKILL-SPLIT attempts to
+  generate new preliminaries out of PRELIM that meets the requirement
+  of the target skill (in ENV) as well."
   (let* ((n (split-env-n env))
 	 (target-points (split-env-target-points env))
 	 (prelim-key (the (unsigned-byte 64)
@@ -329,6 +389,9 @@
 			maximize (decode-skill-sig-at 
 				  (keyed-jewel-set-key cand)
 				  n)))))
+    ;; Failing to get any possible jewel candidates means we can not
+    ;; derive any preliminaries from PRELIM that satisfy both previous
+    ;; skills and target skill requirements.
     (when jewel-cands
       (let ((armor-cands (split-forest-at-skill
                           (preliminary-forest prelim)
@@ -368,9 +431,13 @@
                                                  (first (nth n required-effects)))
                               :n n)))
     (emitter-mapcan input (x)
-      (emitter-from-list (extra-skill-split-new x env)))))
+      (emitter-from-list (extra-skill-split x env)))))
 
 (defun make-jewel-filter-emitter (input required-effects)
+  "Filtering out the preliminaries in the INPUT emitter that can not
+  meet the REQUIRED-EFFECTS with any jewel sets that fit into its
+  holes. For the ones who survived the test, put the jewel sets
+  information into it. This function returns a preliminary emitter."
   (let ((hole-query (jewel-query-client required-effects))
         (inv-req-key (encode-skill-sig (mapcar #`,(- (second x1))
                                                required-effects)))
@@ -389,12 +456,19 @@
                             :jewel-sets it))))))
 
 (defun search-core (required-effects &optional (type "melee"))
+  "This function returns an emitter that emits one preliminary each
+  call that satisfies all the REQUIRED-EFFECTS."
   (let* ((foundation-req (first-n required-effects
                                   *foundation-search-cut-off*))
          (foundation (make-jewel-filter-emitter
                       (emitter-from-list
                        (search-foundation foundation-req type))
                       foundation-req)))
+    ;; Foundation is a list-emitter generated from the result of
+    ;; SEARCH-FOUNDATION. It considers only the first
+    ;; *FOUNDATION-SEARCH-CUT-OFF* of REQUIRED-EFFECTS. Other
+    ;; requirements are added one by one in the following code by
+    ;; applying an extra-skill-emitter upon the previous emitter.
     (reduce (lambda (y x)
               (make-extra-skill-emitter y required-effects x))
             (loop 
@@ -420,6 +494,9 @@
         (emitter-from-tree x))))
 
 (defun make-armor-set-emitter (input)
+  "Emitter that emits armor sets from a preliminary emitter. This is
+  the last step of the search (to show the search result in a readable
+  way)."
   (emitter-mapcan input (x)
     (emitter-mapcar 
         (emitter-from-forest (preliminary-forest x)) 

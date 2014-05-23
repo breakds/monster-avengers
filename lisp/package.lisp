@@ -46,10 +46,10 @@
 	   #:extra-skill-split
 	   ;; Utilities
            #:make-points-map
-	   #:classify-to-map
 	   #:classify-to-points-map
-	   #:merge-maps
 	   #:merge-points-maps
+	   #:classify-to-map
+	   #:merge-maps
 	   #:individual
 	   #:individual-key
 	   #:new-key
@@ -62,6 +62,7 @@
 	   #:armor-tree-left
 	   #:armor-tree-right
 	   #:armor-forest-navigate
+           #:max-at-skill-client
 	   ;; Jewels 
 	   #:make-keyed-jewel-set
 	   #:keyed-jewel-set-key
