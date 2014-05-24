@@ -11,6 +11,7 @@
                  (:file "lisp/eva-list")
                  (:file "lisp/emitter")
 		 (:file "lisp/data-struct")
+		 (:file "lisp/data-loader")
 		 (:file "lisp/encoding")
 		 (:file "lisp/jewels")
                  (:file "lisp/armor-up")
