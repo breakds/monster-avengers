@@ -202,3 +202,14 @@
   (format t "[ok] *** Monster Avengers, Armor Up! ***~%")
   nil)
 
+;;; ---------- Localization ----------
+
+(defstruct name-pkg
+  (skill-system (make-array '(0) :element-type 'string :initial-element "")
+		:type (simple-array string (*)))
+  (armor (make-array '(0 0) :element-type 'string :initial-element "")
+	  :type (simple-array string (* *)))
+  (jewel (make-array '(0) :element-type 'string :initial-element "")
+	  :type (simple-array string (*))))
+
+(defparameter *name-packages* nil)
