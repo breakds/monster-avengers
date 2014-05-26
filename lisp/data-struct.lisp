@@ -213,7 +213,7 @@
 	  :type (simple-array string (*))))
 
 (defparameter *name-packages* nil)
-(defvar *name-packages* nil)
+(defvar *name-package* nil)
 
 (defun translate-language-buffer (lang-buf)
   (setf *name-packages* nil)
@@ -269,23 +269,24 @@
 	      (skill-system (setf (get-cell (second item) skill-system 
 					    (third item))
 				  (fourth item)))))))
-  (setf *name-packages* (cadar *name-packages*)))
+  (setf *name-package* (cadar *name-packages*)))
 
-(defmacro with-name-package (language &body body)
-  `(let ((*name-package* (second (assoc language *name-packages*))))
+(defmacro with-name-package ((language) &body body)
+  `(let ((*name-package* (second (assoc ,language *name-packages*
+					:test #'string-equal))))
      ,@body))
 
 (defmethod get-name ((item armor))
-  (aref (name-pkg-armor *name-packages*) 
+  (aref (name-pkg-armor *name-package*) 
 	(armor-part-id item)
 	(armor-id item)))
 
 (defmethod get-name ((item jewel))
-  (aref (name-pkg-jewel *name-packages*)
+  (aref (name-pkg-jewel *name-package*)
 	(jewel-id item)))
 
 (defmethod get-name ((item skill-system))
-  (aref (name-pkg-skill-system *name-packages*)
+  (aref (name-pkg-skill-system *name-package*)
 	(skill-system-id item)))
 
 
