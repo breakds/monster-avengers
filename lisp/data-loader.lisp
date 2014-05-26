@@ -7,6 +7,62 @@
 
 (in-package #:breakds.monster-avengers.armor-up)
 
+(defun translate-language-buffer (lang-buf)
+  (setf *name-packages* nil)
+  ;; get list of languages
+  (loop for item in lang-buf
+     do (when (not (assoc (second item) *name-packages* :test #'equal))
+	  (push (list (second item) (make-name-pkg))
+		*name-packages*)))
+  (let ((dim-skill-systems 0)
+	(dim-armors 0)
+	(dim-parts 0)
+	(dim-jewels 0))
+    ;; get dimensions
+    (loop for item in lang-buf
+       do (case (first item)
+	    (armor (progn (when (> (third item) dim-parts)
+			    (setf dim-parts (third item)))
+			  (when (> (fourth item) dim-armors)
+			    (setf dim-armors (fourth item)))))
+	    (jewel (when (> (third item) dim-jewels)
+		     (setf dim-jewels (third item))))
+	    (skill-system (when (> (third item) dim-skill-systems)
+			    (setf dim-skill-systems (third item))))))
+    ;; update dimensions
+    (loop for (key val) in *name-packages*
+       do (progn (setf (name-pkg-skill-system val)
+		       (make-array (+ 50 dim-skill-systems)
+				   :element-type 'string
+				   :initial-element ""))
+		 (setf (name-pkg-jewel val)
+		       (make-array (+ 50 dim-jewels)
+				   :element-type 'string
+				   :initial-element ""))
+		 (setf (name-pkg-armor val)
+		       (make-array (list (+ 3 dim-parts)
+					 (+ 50 dim-armors))
+				   :element-type 'string
+				   :initial-element ""))))
+    ;; update packages
+    (macrolet ((get-cell (language type &rest indices)
+		 `(aref (,(symb 'name-pkg- type) 
+			  (second (assoc ,language
+					 *name-packages*
+					 :test #'equal)))
+			,@indices)))
+      (loop for item in lang-buf
+	 do (case (first item)
+	      (armor (setf (get-cell (second item) armor 
+				     (third item) (fourth item))
+			   (fifth item)))
+	      (jewel (setf (get-cell (second item) jewel (third item))
+			   (fourth item)))
+	      (skill-system (setf (get-cell (second item) skill-system 
+					    (third item))
+				  (fourth item)))))))
+  (setf *name-package* (cadar *name-packages*)))
+
 (defmacro load-data-file (data-store 
 			 (row &key (from nil) (sorting nil) (when nil))
 			 &body body)

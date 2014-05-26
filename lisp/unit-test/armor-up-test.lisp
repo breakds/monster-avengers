@@ -83,7 +83,6 @@
 
 (deftest encode-jewel-if-satisfy-test ()
   (let ((piece (make-jewel :id 0
-                           :name "test jewel"
                            :holes 1
                            :effects '((1 -1) (2 3) (3 5) (4 -5)))))
     (is (null (encode-jewel-if-satisfy piece '(5))))
@@ -269,32 +268,26 @@
    6
    :initial-contents (list (make-jewel 
 			    :id 0
-			    :name "Attack I"
 			    :holes 1
 			    :effects '((0 1) (1 -1)))
 			   (make-jewel
 			    :id 1
-			    :name "Defenese I"
 			    :holes 1			    
 			    :effects '((0 -1) (1 1)))
 			   (make-jewel
 			    :id 2
-			    :name "Attack II"
 			    :holes 2
 			    :effects '((0 3) (1 -1)))
 			   (make-jewel
 			    :id 3
-			    :name "Defense II"
 			    :holes 2
 			    :effects '((0 -1) (1 3)))
 			   (make-jewel
 			    :id 4
-			    :name "Attack III"
 			    :holes 3
 			    :effects '((0 5) (1 -1)))
 			   (make-jewel
 			    :id 5
-			    :name "Fast III"
 			    :holes 3
 			    :effects '((2 3))))))
 
@@ -413,20 +406,20 @@
 		     :test #'keyed-jewel-set-equal)))))
 
 (defparameter *test-armors*
-  (list (make-armor :id 0 :part-id 0 :name "301" :effects '((0 3) (2 1)))
-	(make-armor :id 1 :part-id 0 :name "302" :effects '((0 3) (2 2)))
-	(make-armor :id 2 :part-id 0 :name "020" :effects '((1 2)))
-	(make-armor :id 3 :part-id 0 :name "023" :effects '((1 2) (2 3)))
-	(make-armor :id 4 :part-id 1 :name "020" :effects '((1 2)))
-	(make-armor :id 5 :part-id 1 :name "021" :effects '((1 2) (2 1)))
-	(make-armor :id 6 :part-id 1 :name "400" :effects '((0 4)))
-	(make-armor :id 7 :part-id 1 :name "40-2" :effects '((0 4) (2 -2)))
-	(make-armor :id 8 :part-id 1 :name "200" :effects '((0 2)))
-	(make-armor :id 9 :part-id 2 :name "101" :effects '((0 1) (2 1)))
-	(make-armor :id 10 :part-id 2 :name "102" :effects '((0 1) (2 2)))
-	(make-armor :id 11 :part-id 2 :name "100" :effects '((0 1)))
-	(make-armor :id 12 :part-id 2 :name "003" :effects '((2 3)))
-	(make-armor :id 13 :part-id 2 :name "20-1" :effects '((0 2) (2 -1)))))
+  (list (make-armor :id 0 :part-id 0 :effects '((0 3) (2 1)))
+	(make-armor :id 1 :part-id 0 :effects '((0 3) (2 2)))
+	(make-armor :id 2 :part-id 0 :effects '((1 2)))
+	(make-armor :id 3 :part-id 0 :effects '((1 2) (2 3)))
+	(make-armor :id 4 :part-id 1 :effects '((1 2)))
+	(make-armor :id 5 :part-id 1 :effects '((1 2) (2 1)))
+	(make-armor :id 6 :part-id 1 :effects '((0 4)))
+	(make-armor :id 7 :part-id 1 :effects '((0 4) (2 -2)))
+	(make-armor :id 8 :part-id 1 :effects '((0 2)))
+	(make-armor :id 9 :part-id 2 :effects '((0 1) (2 1)))
+	(make-armor :id 10 :part-id 2 :effects '((0 1) (2 2)))
+	(make-armor :id 11 :part-id 2 :effects '((0 1)))
+	(make-armor :id 12 :part-id 2 :effects '((2 3)))
+	(make-armor :id 13 :part-id 2 :effects '((0 2) (2 -1)))))
 
 (defun armor-equal (x y)
   (and (= (armor-id x) (armor-id y))
