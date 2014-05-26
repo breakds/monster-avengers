@@ -77,7 +77,7 @@
 					 :initial-contents ,elements)))))))
 
 (defmacro define-data-set-loader (name (title) &body body)
-  (with-gensyms (file-name)
+  (with-gensyms (file-name item)
     `(defun ,(symb 'load- name '-data-set) ()
        ;; Anarchy local variables LANGUAGE-BUFFER 
        (let ((language-buffer nil))
@@ -88,6 +88,7 @@
 				     (asdf:system-source-directory 
 				      'monster-avengers))))
 	   ,@body
+	   (translate-language-buffer language-buffer)
 	   (format t "[ok] Data set [~a] has been successfully loaded.~%" ,title)
 	   (format t "Monster avengers, armor up!~%"))))))
 
@@ -133,49 +134,11 @@
 	       (:effects <- (progn 
 			      (loop for pair in (getf row :effects)
 				 when (not (empty-struct-p pair))
-				 do (print (list (getf row :name)
-						 (gethash (getf pair :skill-name)
-							  jap-name-to-id)
-						 (getf pair :skill-name)))
 				 collect (list (gethash (getf pair :skill-name)
 							jap-name-to-id)
 					       (getf pair :skill-point)))))))
       (format t "[ok] Jewels loaded.~%"))))
-						    
 
-
-      
-		     
-
-  
-  
-
-  
-	 
-	 
-
-       
-      
-;; (defparameter *helms* nil
-;;   "Array that stores all the helms.")
-
-;; (defparameter *cuirasses* nil
-;;   "Array that stores all the cuirasses.")
-
-;; (defparameter *gloves* nil
-;;   "Array that stores all the gloves.")
-
-;; (defparameter *cuisses* nil
-;;   "Array that stores all the cuisses.")
-
-;; (defparameter *sabatons* nil
-;;   "Array that stores all the sabatons.")
-
-;; (defparameter *skill-systems* nil
-;;   "Array that stores all the skill systems.")
-
-;; (defparameter *skill-systems-indices* nil
-;;   "Hash-table that maps skill name to its id.")
 
 
 
