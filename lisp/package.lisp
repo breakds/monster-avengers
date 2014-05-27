@@ -1,6 +1,6 @@
 ;;;; package.lisp
 
-(defpackage #:breakds.monster-avengers.crawler
+(defpackage #:breakds.monster-avengers.mh4-crawler
   (:nicknames #:mh4-crawler)
   (:use #:cl
         #:swiss-knife
@@ -9,6 +9,15 @@
   (:export #:crawl-skill-system
            #:crawl-skill-systems
            #:update-jap-dataset))
+
+(defpackage #:breakds.monster-avengers.mhp3-crawler
+  (:nicknames #:mhp3-crawler)
+  (:use #:cl
+        #:swiss-knife
+        #:breakds.html-operation
+        #:breakds.struct-wrapper)
+  (:export #:crawl-skill-system))
+
 
 ;; Eventually Available List
 (defpackage #:breakds.monster-avengers.eva-list
@@ -107,7 +116,7 @@
         #:swiss-knife
         #:breakds.html-operation
         #:breakds.struct-wrapper
-        #:breakds.monster-avengers.crawler)
+        #:breakds.monster-avengers.mh4-crawler)
   (:export #:test-all))
 
 (defpackage #:breakds.monster-avengers.emitter-test

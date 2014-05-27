@@ -7,7 +7,8 @@
                  #:bordeaux-threads
                  #:stefil)
     :components ((:file "lisp/package")
-                 (:file "lisp/crawler")
+                 (:file "lisp/crawler/mh4-crawler")
+                 (:file "lisp/crawler/mhp3-crawler")
                  (:file "lisp/eva-list")
                  (:file "lisp/emitter")
 		 (:file "lisp/data-struct")

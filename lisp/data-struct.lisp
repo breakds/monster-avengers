@@ -37,7 +37,6 @@
        (the fixnum 0)))
 
 
-
 ;;; ---------- Globals and Specials ----------
 
 (defparameter *skill-systems* nil
