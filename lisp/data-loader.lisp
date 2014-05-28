@@ -148,6 +148,9 @@
 	   (format t "[ok] Data set [~a] has been successfully loaded.~%" ,title)
 	   (format t "Monster avengers, armor up!~%"))))))
 
+
+;;; ---------- Monster Hunter 4 ----------
+
 (define-data-set-loader mh4 ("Monster Hunter 4")
   (load-data-file *skill-systems* (row :from (access-file "skills.lisp"))
     (skill-system (:name-japanese <- (getf row :system-name))
@@ -192,6 +195,54 @@
 				 when (not (empty-struct-p pair))
 				 collect (list (gethash (getf pair :skill-name)
 							jap-name-to-id)
+					       (getf pair :skill-point)))))))
+      (format t "[ok] Jewels loaded.~%"))))
+
+
+(define-data-set-loader mhp3 ("Monster Hunter P3")
+  (load-data-file *skill-systems* (row :from (access-file "skills.lisp"))
+    (skill-system (:name-chinese <- (getf row :system-name))
+		  (:skills <- (getf row :skills))))
+  (format t "[ok] Skill system loaded.~%")
+  ;; Create skill-system chinese-name to id map 
+  (let ((chn-name-to-id (make-hash-table :test #'equal)))
+    (loop for item in language-buffer
+       when (string-equal (second item) "chinese")
+       do (setf (gethash (fourth item) chn-name-to-id) (third item)))
+    (macrolet 
+	((load-armor (data-store file-name part-id)
+	   `(progn
+	      (load-data-file ,data-store (row :from (access-file ,file-name)
+					       :when (getf row :name))
+		(armor (:name-chinese <- (getf row :name))
+		       (:part-id <- ,part-id)
+		       (:holes <- (getf row :holes))
+		       (:defense <- (getf row :defense))
+		       (:type <- (getf row :type))
+		       (:effects 
+			<- (loop 
+			      for points in (getf row :effective-points)
+			      for skill-name in (getf row :effective-skills)
+			      collect (list (gethash skill-name chn-name-to-id)
+					    points)))))
+	      (format t "[ok] ~a loaded.~%" ,(mkstr data-store)))))
+      (load-armor *helms* "helms.lisp" 0)
+      (load-armor *cuirasses* "cuirasses.lisp" 1)
+      (load-armor *gloves* "gloves.lisp" 2)
+      (load-armor *cuisses* "cuisses.lisp" 3)
+      (load-armor *sabatons* "sabatons.lisp" 4)
+      (loop for item across *helms* do (setf (armor-type item) "both"))
+      (load-data-file *jewels* (row :from (access-file "jewels.lisp")
+				    :sorting (lambda (x y)
+					       (< (getf x :holes)
+						  (getf y :holes))))
+	(jewel (:name-chinese <- (getf row :name))
+	       (:holes <- (getf row :holes))
+	       (:effects <- (progn 
+			      (loop for pair in (getf row :effects)
+				 when (not (empty-struct-p pair))
+				 collect (list (gethash (getf pair :skill-name)
+							chn-name-to-id)
 					       (getf pair :skill-point)))))))
       (format t "[ok] Jewels loaded.~%"))))
 

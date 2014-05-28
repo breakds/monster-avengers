@@ -40,8 +40,15 @@
 ;;; ---------- Skill System Wrapper ----------
 
 (def-struct-wrapper crawl-skill-system
-  ("body #globalWrapper #column-content #content #bodyContent table tbody tr:2 td p strong"
-   :system-name (lambda (node) (string-trim-all (get-content node))))
+  ("body #globalWrapper #column-content #content #bodyContent table tbody tr:2 td:1"
+   :system-name (lambda (node)
+                  (loop for child in (get-children node)
+                     when (string-equal (get-tag child) "p")
+                     return (loop for grand-child in (get-children child)
+                               when (string-equal (get-tag grand-child) "strong")
+                               return (get-trimmed-content grand-child))
+                     when (string-equal (get-tag child) "strong")
+                     return (get-trimmed-content child))))
   ("body #globalWrapper #column-content #content #bodyContent table tbody"
    :skills (make-list-wrapper "tr:>1" 
                               (lambda (node)
@@ -189,7 +196,7 @@
 ;;; ---------- Crawler ----------
 
 (defun refresh-mhp3-dataset ()
-  ;; (crawl-skill-systems-from "http://mhp3wiki.duowan.com/%E6%8A%80%E8%83%BD?variant=zh-hans")
+  (crawl-skill-systems-from "http://mhp3wiki.duowan.com/%E6%8A%80%E8%83%BD?variant=zh-hans")
   (crawl-armors-from "http://mhp3wiki.duowan.com/%E5%A4%B4%E9%98%B2%E5%85%B7?variant=zh-hans"
                      "helms")
   (crawl-armors-from "http://mhp3wiki.duowan.com/%E8%83%B4%E9%98%B2%E5%85%B7?variant=zh-hans"
