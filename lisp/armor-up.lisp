@@ -517,7 +517,7 @@
 
 (defun stringify-effect (effect)
   (concatenate 'string 
-               (skill-system-name (aref *skill-systems* 
+               (get-name (aref *skill-systems* 
                                         (car effect)))
                (format nil "~a~a" 
                        (if (> (second effect) 0) "+" "")
@@ -528,7 +528,7 @@
           (if (< 0 (armor-holes item)) "O" "-")
           (if (< 1 (armor-holes item)) "O" "-")
           (if (< 2 (armor-holes item)) "O" "-")
-          (armor-name item)
+          (get-name item)
           (loop for effect in (armor-effects item)
              collect (stringify-effect effect))))
 
@@ -537,7 +537,7 @@
           (if (< 0 (jewel-holes item)) "O" "x")
           (if (< 1 (jewel-holes item)) "O" "x")
           (if (< 2 (jewel-holes item)) "O" "x")
-          (jewel-name item)
+          (get-name item)
           (loop for effect in (jewel-effects item)
              collect (stringify-effect effect))))
 
