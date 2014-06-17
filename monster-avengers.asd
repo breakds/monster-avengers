@@ -5,6 +5,8 @@
     :depends-on (#:struct-wrapper
                  #:basicl
                  #:bordeaux-threads
+                 #:hunchentoot
+                 #:realispic
                  #:stefil)
     :components ((:file "lisp/package")
                  ;; crawler
@@ -20,4 +22,6 @@
 		 (:file "lisp/engine/jewels")
                  (:file "lisp/engine/armor-up")
                  (:file "lisp/engine/emitter-test")
-                 (:file "lisp/engine/armor-up-test")))
+                 (:file "lisp/engine/armor-up-test")
+                 ;; webapp
+                 (:file "lisp/webapp/app")))

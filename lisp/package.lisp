@@ -42,6 +42,7 @@
            #:emit
            #:emit-n))
 
+;; The Engine (armor-up)
 (defpackage #:breakds.monster-avengers.armor-up
   (:nicknames #:armor-up)
   (:use #:cl
@@ -106,6 +107,15 @@
 	   #:points-of-skill
 	   #:*jewels*
 	   #:init))
+
+;; Webapp
+(defpackage #:breakds.monster-avengers.webapp
+  (:nicknames #:monster-avengers.webapp)
+  (:use #:cl
+        #:parenscript
+        #:realispic)
+  (:export #:monster-arsenal))
+  
 
 ;;; ---------- Unit Tests ----------
 
