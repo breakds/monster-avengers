@@ -37,15 +37,14 @@
                  (:li ((class-name "topcoat-list__item")) 
                       "Dodge Up"))))
 
-  
-            
-
 (def-widget side-bar ()
     ()
   #jsx(:div ((style :width "30%"
                     :min-height "1200px"
                     :left "0px"
                     :box-shadow "5px 0px 20px 0px #999"
+                    :position "fixed"
+                    :z-index 1
                     :float "left"))
             (:div ((class-name "topcoat-navigation-bar"))
                   (:div ((class-name "topcoat-navigation-bar__item two-thirds left"))
@@ -95,7 +94,38 @@
                                                          (style :color "#000055"))
                                                         "search")))))))))
 
-                            
+(def-widget armor-view (armor-name)
+    ()
+  #jsx(:li ((class-name "block")
+            (style :padding "0px"
+                   :box-shadow "7px 7px 20px 0px #555"
+                   :margin-left "0px"))
+           (:label ((style :border-top "1px solid #878e98"
+                           :display "block"
+                           :color "#fff"
+                           :text-shadow "0 1px 1px #000"
+                           :padding "12px"
+                           :background "-webkit-gradient(linear, 0% 0%, 0% 100%, from(#888888), to(#737271))"
+                           :border-bottom "1px solid #33373d"))
+                   (:span ((class-name "icomatic"))
+                          "arrowright")
+                   (+ " " armor-name))))
+
+(def-widget armor-set-view ()
+    ()
+  #jsx(:ul ((style :min-height "300px"
+                   :margin-left "5%"
+                   :margin-right "5%"
+                   :margin-top "40px"
+                   :box-sizing "border-box"
+                   :list-style "none"))
+           (:armor-view ((armor-name "Helm")))
+           (:armor-view ((armor-name "Chest Plate")))
+           (:armor-view ((armor-name "Gloves")))
+           (:armor-view ((armor-name "Cuisses")))
+           (:armor-view ((armor-name "Boots")))))
+
+                      
                   
             
 
@@ -104,7 +134,19 @@
     ()
   #jsx(:div ((style :width "65%"
                     :min-height "1200px"
-                    :float "left"))))
+                    :position "relative"
+                    :margin-left "30%"
+                    :float "left"))
+            (:div ((style :float "right"
+                          :width "50%"))
+                  (:armor-set-view)
+                  (:armor-set-view)
+                  (:armor-set-view))
+            (:div ((style :overflow "hidden"))
+                  (:armor-set-view)
+                  (:armor-set-view))))
+
+                          
 
 
 
