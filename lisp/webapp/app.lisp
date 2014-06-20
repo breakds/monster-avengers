@@ -5,25 +5,6 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (enable-jsx-reader))
 
-(def-widget search-controller ()
-    ()
-  #jsx(:div ()
-            (:div ((class-name "topcoat-button-bar"))
-                  (:div ((class-name "topcoat-button-bar__item"))
-                        (:button ((class-name "topcoat-button-bar__button"))
-                                 "Add"))
-                  (:div ((class-name "topcoat-button-bar__item"))
-                        (:button ((class-name "topcoat-button-bar__button"))
-                                 "Search")))
-            (:label ((class-name "topcoat-switch topcoat-button-bar__button"))
-                    (:input ((type "checkbox")
-                             (class-name "topcoat-switch__input")))
-                    (:div ((class-name "topcoat-switch__toggle"))))))
-
-
-
-
-
 (def-widget criteria-list ()
     ()
   #jsx(:div ((class-name "topcoat-list")
@@ -37,6 +18,36 @@
                  (:li ((class-name "topcoat-list__item")) 
                       "Dodge Up"))))
 
+(def-widget search-controller ()
+    ()
+  #jsx(:div ((class-name "topcoat-button-bar full"))
+	    (:div ((class-name "topcoat-button-bar__item"))
+		  (:button ((class-name "topcoat-button-bar__button full"))
+			   (:span ((class-name "icomatic"))
+				  "minus")))
+	    (:div ((class-name "topcoat-button-bar__item"))
+		  (:button ((class-name "topcoat-button-bar__button full"))
+			   (:span ((class-name "icomatic"))
+				  "plus")))
+	    (:div ((class-name "topcoat-button-bar__item"))
+		  (:button ((class-name "topcoat-button-bar__button full"))
+			   (:span ((class-name "icomatic")
+				   (style :color "#000055"))
+				  "search")))))
+
+(def-widget armor-type-switch ()
+    ()
+  ;; <label class="topcoat-switch">
+  ;; <input type="checkbox" class="topcoat-switch__input">
+  ;; <div class="topcoat-switch__toggle"></div>
+  ;; </label>
+  #jsx(:label ((class-name "topcoat-switch"))
+	      (:input ((type "checkbox")
+		       (class-name "topcoat-switch__input")
+		       (checked t)))
+	      (:div ((class-name "topcoat-switch__toggle")))))
+
+
 (def-widget side-bar ()
     ()
   #jsx(:div ((style :width "30%"
@@ -48,16 +59,18 @@
                     :float "left"))
             (:div ((class-name "topcoat-navigation-bar"))
                   (:div ((class-name "topcoat-navigation-bar__item two-thirds left"))
-                        (:div ((class-name "topcoat-navigation-bar__title center"))
+                        (:div ((class-name "topcoat-navigation-bar__title center")
+			       (style :text-shadow "0 3px 3px #888"))
+
                               (:span ((style :color "black"
-                                             :font-size 24)) "M")
+                                             :font-size 28)) "M")
                               (:span ((style :color "#888888"
-                                             :font-size 18))
+                                             :font-size 24))
                                      "ONSTER ")
                               (:span ((style :color "black"
-                                             :font-size 24)) "A")
+                                             :font-size 28)) "A")
                               (:span ((style :color "#888888"
-                                             :font-size 18))
+                                             :font-size 24))
                                      "VENGERS")))
                   (:div ((class-name "topcoat-navigation-bar__item third right"))
                         (:button ((class-name "topcoat-icon-button--quiet"))
@@ -68,10 +81,7 @@
                   (:h3 ((class-name "topcoat-list__header")) "Criterias")
                   (:ul ((class-name "topcoat-list__container"))
                        (:li ((class-name "topcoat-list__item"))
-                            (:label ((class-name "topcoat-switch"))
-                                    (:input ((type "checkbox")
-                                             (class-name "topcoat-switch__input")))
-                                    (:div ((class-name "topcoat-switch__toggle")))))
+			    (:armor-type-switch))
                        (:li ((class-name "topcoat-list__item"))
                             "Attack Up")
                        (:li ((class-name "topcoat-list__item"))
@@ -79,20 +89,7 @@
                        (:li ((class-name "topcoat-list__item"))
                             "Critical Up")
                        (:li ((class-name "topcoat-list__item"))
-                            (:div ((class-name "topcoat-button-bar full"))
-                                  (:div ((class-name "topcoat-button-bar__item"))
-                                        (:button ((class-name "topcoat-button-bar__button full"))
-                                                 (:span ((class-name "icomatic"))
-                                                        "minus")))
-                                  (:div ((class-name "topcoat-button-bar__item"))
-                                        (:button ((class-name "topcoat-button-bar__button full"))
-                                                 (:span ((class-name "icomatic"))
-                                                        "plus")))
-                                  (:div ((class-name "topcoat-button-bar__item"))
-                                        (:button ((class-name "topcoat-button-bar__button full"))
-                                                 (:span ((class-name "icomatic")
-                                                         (style :color "#000055"))
-                                                        "search")))))))))
+			    (:search-controller))))))
 
 (def-widget armor-view (armor-name)
     ()
