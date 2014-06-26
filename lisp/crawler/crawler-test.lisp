@@ -8,7 +8,8 @@
                      :documentation "unit tests for mh4 crawler"))
 
 (defun html-from-test-folder (uri)
-  (html5-parser:node-to-xmls
+  (html5-parser:transform-html5-dom 
+   :xmls
    (html5-parser:parse-html5 
     (merge-pathnames (format nil "lisp/unit-test/~a" uri)
 		     (asdf:system-source-directory 'monster-avengers)))))
