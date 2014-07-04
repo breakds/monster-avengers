@@ -5,6 +5,7 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (enable-jsx-reader))
 
+
 (def-widget criteria-list ()
     ()
   #jsx(:div ((class-name "topcoat-list")
@@ -37,15 +38,11 @@
 
 (def-widget armor-type-switch ()
     ()
-  ;; <label class="topcoat-switch">
-  ;; <input type="checkbox" class="topcoat-switch__input">
-  ;; <div class="topcoat-switch__toggle"></div>
-  ;; </label>
   #jsx(:label ((class-name "topcoat-switch"))
 	      (:input ((type "checkbox")
-		       (class-name "topcoat-switch__input")
-		       (checked t)))
-	      (:div ((class-name "topcoat-switch__toggle")))))
+		       (class-name "topcoat-switch__input")))
+	      (:div ((class-name "armor-type-switch__toggle armor-type-switch__eng")))))
+
 
 
 (def-widget side-bar ()
@@ -90,6 +87,7 @@
                             "Critical Up")
                        (:li ((class-name "topcoat-list__item"))
 			    (:search-controller))))))
+
 
 (def-widget armor-view (armor-name)
     ()
@@ -158,15 +156,16 @@
 
 (def-realispic-app (avenger-tools :title "Monster Hunter's Arsenal"
                                   :port 16383
-                                  :css ("http://cdnjs.cloudflare.com/ajax/libs/topcoat/0.8.0/css/topcoat-mobile-light.min.css"
+                                  :css (;;"http://cdnjs.cloudflare.com/ajax/libs/topcoat/0.8.0/css/topcoat-mobile-light.min.css"
+					"css/topcoat/topcoat-mobile-light.min.css"
                                         "css/effeckt.css"
+					"css/supplement.css"
                                         "css/icomatic/icomatic.css")
-                                  :libs ("http://fb.me/react-0.10.0.js"
-                                         "http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js")
+                                  :libs ("lib/react/react-0.10.0.js"
+					 "lib/jquery/jquery.min.js")
                                   :document-base (merge-pathnames "assets/"
                                                                   (asdf:system-source-directory 'monster-avengers)))
   #jsx(:app-view))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (disable-jsx-reader))
-
