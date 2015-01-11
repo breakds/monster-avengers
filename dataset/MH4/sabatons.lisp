@@ -495,7 +495,7 @@
  (:TYPE "range" :OBJ T)
  (:EFFECTIVE-POINTS (1) :EFFECTIVE-SKILLS ("胴系統倍化") :HOLES 0 :DEFENSE 26 :RANK
   6 :NAME "メイドタイツ" :TYPE "range" :OBJ T)
- (:EFFECTIVE-POINTS (2 3 -3 2) :EFFECTIVE-SKILLS ("通常弾強化" "スタミナ" "防御") :HOLES 1
+ (:EFFECTIVE-POINTS (2 3 -3 2) :EFFECTIVE-SKILLS ("怒" "通常弾強化" "スタミナ" "防御") :HOLES 1
   :DEFENSE 43 :RANK 7 :NAME "ミラバルレグス" :TYPE "range" :OBJ T)
  (:TYPE "range" :OBJ T)
  (:EFFECTIVE-POINTS (2 1 2 1 3) :EFFECTIVE-SKILLS
