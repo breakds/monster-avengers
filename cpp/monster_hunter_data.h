@@ -1,11 +1,9 @@
+#ifndef _MONSTER_AVENGERS_MONSTER_HUNTER_DATA_
+#define _MONSTER_AVENGERS_MONSTER_HUNTER_DATA_
+
 #include <vector>
 #include <string>
 #include <cstdio>
-#include <iosfwd>
-#include <iostream>
-#include <fstream>
-#include <cwchar>
-#include <locale>
 #include <map>
 
 #include "helpers.h"
@@ -370,38 +368,6 @@ namespace monster_avengers {
     }
   };
   
-  Status ParseSkillSystems(const std::string &file_name) {
-    parser::Tokenizer tokenizer(file_name);
-    std::vector<SkillSystem> systems = 
-      std::move(parser::ParseList<SkillSystem>::Do(&tokenizer));
-    for (const SkillSystem &system : systems) {
-      system.DebugPrint();
-    }
-    UpdateSkillSystemLookUp(systems);
-    return Status(SUCCESS);
-  }
-
-  Status ParseJewels(const std::string &file_name) {
-    parser::Tokenizer tokenizer(file_name);
-    std::vector<Jewel> jewels = 
-      std::move(parser::ParseList<Jewel>::Do(&tokenizer));
-    for (const Jewel &jewel : jewels) {
-      jewel.DebugPrint();
-    }
-    return Status(SUCCESS);
-  }
-
-  Status ParseArmors(const std::string &file_name) {
-    parser::Tokenizer tokenizer(file_name);
-    std::vector<Armor> armors = 
-      std::move(parser::ParseList<Armor>::Do(&tokenizer));
-    for (const Armor &armor : armors) {
-      armor.DebugPrint();
-    }
-    return Status(SUCCESS);
-  }
-
-
   class DataSet {
   public:
     DataSet(const std::string &data_folder) 
@@ -410,7 +376,7 @@ namespace monster_avengers {
       // Skills:
       {
         const std::string path = data_folder + "/skills.lisp";
-        parser::Tokenizer tokenizer(path);
+        auto tokenizer = std::move(parser::Tokenizer::FromFile(path));
         skill_systems_ = 
           std::move(parser::ParseList<SkillSystem>::Do(&tokenizer));
         UpdateSkillSystemLookUp(skill_systems_);
@@ -419,7 +385,7 @@ namespace monster_avengers {
       // Jewels:
       {
         const std::string path = data_folder + "/jewels.lisp";
-        parser::Tokenizer tokenizer(path);
+        auto tokenizer = std::move(parser::Tokenizer::FromFile(path));
         jewels_ = 
           std::move(parser::ParseList<Jewel>::Do(&tokenizer));
       }
@@ -448,14 +414,14 @@ namespace monster_avengers {
     
     template <ArmorPart Part>
     void ReadArmors(const std::string &path) {
-        parser::Tokenizer tokenizer(path);
-        std::vector<Armor> armor_list = 
-          std::move(parser::ParseList<Armor>::Do(&tokenizer));
-        for (const Armor &armor : armor_list) {
-          armors_.push_back(armor);
-          armors_.back().part = Part;
-          armor_indices_by_parts_[Part].push_back(armors_.size() - 1);
-        }
+      auto tokenizer = std::move(parser::Tokenizer::FromFile(path));
+      std::vector<Armor> armor_list = 
+        std::move(parser::ParseList<Armor>::Do(&tokenizer));
+      for (const Armor &armor : armor_list) {
+        armors_.push_back(armor);
+        armors_.back().part = Part;
+        armor_indices_by_parts_[Part].push_back(armors_.size() - 1);
+      }
     }
     
     std::vector<SkillSystem> skill_systems_;
@@ -465,3 +431,5 @@ namespace monster_avengers {
   };
 
 }  // namespace monster_avengers
+
+#endif  // _MONSTER_AVENGERS_MONSTER_HUNTER_DATA_

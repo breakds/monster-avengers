@@ -1,8 +1,18 @@
+#ifndef _MONSTER_AVENGERS_MONSTER_DATA_PARSER_
+#define _MONSTER_AVENGERS_MONSTER_DATA_PARSER_
+
 #include <cstdio>
 #include <cwchar>
+#include <memory>
 #include <string>
 #include <locale>
+#include <iosfwd>
+#include <sstream>
+#include <fstream>
+#include <iostream>
 #include <type_traits>
+
+#include "helpers.h"
 
 namespace monster_avengers {
   
@@ -56,16 +66,38 @@ namespace monster_avengers {
 
     class Tokenizer {
     public:
-      Tokenizer(const std::string &file_name) 
-        : input_stream_(file_name), buffer_(), end_of_file_(false) {
-        if (!input_stream_.good()) {
+
+      // Move Constructor
+      Tokenizer(Tokenizer &&other) {
+        input_stream_ = std::move(other.input_stream_);
+        buffer_ = other.buffer_;
+        end_of_file_ = other.end_of_file_;
+      }
+
+      // Move Assignment
+      const Tokenizer &operator=(Tokenizer &&other) {
+        input_stream_ = std::move(other.input_stream_);
+        buffer_ = other.buffer_;
+        end_of_file_ = other.end_of_file_;
+        return *this;
+      }
+
+      // Tokenizer from file.
+      static Tokenizer FromFile(const std::string &file_name) {
+        std::wifstream *input_stream = new std::wifstream(file_name);
+        if (!input_stream->good()) {
           Log(ERROR, L"error while opening %s.", file_name.c_str());
           exit(-1);
         }
-        input_stream_.imbue(std::locale("en_US.UTF-8"));
-        GetChar();
+        return Tokenizer(input_stream);
       }
 
+      // Tokenizer from wstring.
+      static Tokenizer FromText(std::wstring text) {
+        std::wistringstream *input_stream = new std::wistringstream(text);
+        return Tokenizer(input_stream);
+      }
+      
       // Returns false if end of file. Returns true otherwise, even if
       // the read token may be invalid.
       bool Next(Token *token) {
@@ -115,9 +147,16 @@ namespace monster_avengers {
     private:
       template <TokenName T, TokenName H>
       using Enabler = typename std::enable_if<(T==H), void>::type;
+
+      // Will obtain the ownership of input_stream.
+      explicit Tokenizer(std::wistream *input_stream) 
+        : input_stream_(input_stream), buffer_(), end_of_file_(false) {
+        input_stream_->imbue(std::locale("en_US.UTF-8"));
+        GetChar();
+      }
       
       inline wchar_t GetChar() {
-        if (!input_stream_.get(buffer_)) {
+        if (!input_stream_->get(buffer_)) {
           end_of_file_ = true;
           buffer_ = L' ';
         }
@@ -228,7 +267,7 @@ namespace monster_avengers {
       }
 
       // Rely on wifstream to close itself automatically on destruction.
-      std::wifstream input_stream_;
+      std::unique_ptr<std::wistream> input_stream_;
       wchar_t buffer_;
       bool end_of_file_;
     };
@@ -325,3 +364,5 @@ namespace monster_avengers {
     
   }  // namespace parser
 }  // namespace monster_avengers
+
+#endif  // _MONSTER_AVENGERS_MONSTER_DATA_PARSER_

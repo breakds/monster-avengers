@@ -1,3 +1,6 @@
+#ifndef _MONSTER_AVENGERS_HELPERS_H_
+#define _MONSTER_AVENGERS_HELPERS_H_
+
 #include <cstdio>
 #include <cwchar>
 
@@ -40,34 +43,57 @@ enum StatusName {
 };
   
 class Status {
-public:
+ public:
   Status (StatusName name, std::string error_message)
     : name_(name), error_message_(error_message) {}
 
   explicit Status(StatusName name) 
     : Status(name, "") {}
 
+  const Status &operator=(const Status &other) {
+    name_ = other.name_;
+    error_message_ = other.error_message_;
+    return *this;
+  }
+
   inline bool Success() {
     return SUCCESS == name_;
+  }
+
+  const std::string &message() {
+    return error_message_;
   }
 
   inline const std::string &Message() {
     return error_message_;
   }
 
-private:
+ private:
   StatusName name_;
-  const std::string error_message_;
+  std::string error_message_;
 };
 
 // ---------- CHECK ----------
 
-#define CHECK(predicate) {                                              \
-    if (!(predicate)) {                                                 \
-      Log(ERROR, L"CHECK failed at %s:%d -> %s",                        \
-          __FILE__, __LINE__, #predicate);                              \
-      exit(-1);                                                         \
-    }                                                                   \
+#define CHECK(predicate) {                              \
+    if (!(predicate)) {                                 \
+      Log(ERROR, L"CHECK failed at %s:%d -> %s",        \
+          __FILE__, __LINE__, #predicate);              \
+      exit(-1);                                         \
+    }                                                   \
+  }
+
+void CheckSuccess(Status status, const char *file, int line) {
+  if (!status.Success()) {
+    Log(ERROR, L"CHECK_SUCCESS failed at %s:%d.", file, line);
+    Log(ERROR, L"%s", status.message().c_str());
+    exit(-1);
+  }
 }
 
+#define CHECK_SUCCESS(status) {                 \
+    CheckSuccess(status, __FILE__, __LINE__);   \
+  }
 
+
+#endif // _MONSTER_AVENGERS_HELPERS_H_
