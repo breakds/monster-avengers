@@ -271,7 +271,8 @@ namespace monster_avengers {
     HANDS = 2,
     WAIST = 3,
     FEET = 4,
-    NECK = 5
+    NECK = 5,
+    PART_NUM = 6
   };
 
   struct Armor {
@@ -313,8 +314,9 @@ namespace monster_avengers {
               type = MELEE;
             } else if (L"range" == type_string) {
               type = RANGE;
+            } else {
+              type = BOTH;
             }
-            type = BOTH;
           } else if (L"DEFENSE" == token.value) {
             defense = tokenizer->ExpectNumber();
           } else if (L"EFFECTIVE-POINTS" == token.value) {
@@ -399,6 +401,14 @@ namespace monster_avengers {
       ReadArmors<FEET>(data_folder + "/sabatons.lisp");
     }
 
+    inline const std::vector<int> &ArmorIds(ArmorPart part) {
+      return armor_indices_by_parts_[part];
+    }
+
+    inline const Armor& armor(int id) {
+      return armors_[id];
+    }
+
     void Summarize() {
       Log(INFO, L"Skill Systems: %lld", skill_systems_.size());
       Log(INFO, L"Jewels: %lld", jewels_.size());
@@ -420,6 +430,9 @@ namespace monster_avengers {
       for (const Armor &armor : armor_list) {
         armors_.push_back(armor);
         armors_.back().part = Part;
+        if (HEAD == Part) {
+          armors_.back().type = BOTH;
+        }
         armor_indices_by_parts_[Part].push_back(armors_.size() - 1);
       }
     }
