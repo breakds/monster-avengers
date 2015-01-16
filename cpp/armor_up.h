@@ -40,10 +40,12 @@ namespace monster_avengers {
 
   class EffectsIterator : public IndexIterator {
   public:
-    explicit EffectsIterator(std::shared_ptr<IndexIterator> base_iter,
+    explicit EffectsIterator(IndexIterator *base_iter,
                              const NodePool *pool,
                              const std::vector<Effect> &effects)
-      : base_iter_(base_iter), pool_(pool), thresholds_() {
+      : base_iter_(base_iter), 
+        pool_(pool),
+        thresholds_() {
       for (const Effect &effect : effects) {
         thresholds_.push_back(effect.points);
       }
@@ -59,7 +61,6 @@ namespace monster_avengers {
         bool satisfied = true;
         int j = 0;
         for (int threshold : thresholds_) {
-          wprintf(L"%d\n", points[j]);
           if (points[j++] < threshold) {
             satisfied = false;
             break;
@@ -80,7 +81,7 @@ namespace monster_avengers {
     }
 
   private:
-    std::shared_ptr<IndexIterator> base_iter_;
+    IndexIterator *base_iter_;
     const NodePool *pool_;
     std::vector<int> thresholds_;
   };
@@ -89,10 +90,10 @@ namespace monster_avengers {
   class ArmorUp {
   public:
     ArmorUp(const std::string &data_folder) 
-      : data_(data_folder), pool_() {
-    }
+      : data_(data_folder), pool_(),
+        iterators_(), output_(nullptr) {}
 
-    std::vector<int> SearchFoundation(const Query &query) {
+    std::vector<int> Foundation(const Query &query) {
       std::vector<int> previous;
       std::vector<int> current;
       for (ArmorPart part = HEAD; part < PART_NUM; ++part) {
@@ -106,16 +107,12 @@ namespace monster_avengers {
     }
 
     void Search(const Query &query, int required_num) {
-      std::shared_ptr<DirectIterator> direct;
-      direct.reset(new DirectIterator(SearchFoundation(query)));
-      std::shared_ptr<EffectsIterator> effects_iter;
-      effects_iter.reset(new EffectsIterator(direct.get(),
-                                             &pool_,
-                                             query.effects));
-      ArmorSetIterator output(effects_iter.get(), &pool_); 
+      CHECK_SUCCESS(ApplyFoundation(query));
+      CHECK_SUCCESS(ApplyEffectFilter(query.effects));
+      CHECK_SUCCESS(PrepareOutput());
       int i = 0;
-      while (i < required_num && !output.empty()) {
-        const OR &or_node = pool_.Or(output.BaseIndex());
+      while (i < required_num && !output_->empty()) {
+        const OR &or_node = pool_.Or(output_->BaseIndex());
         for (const Effect &effect : sig::KeyEffects(or_node.key, 
                                                     query)) {
           wprintf(L"%ls(%d)  ", 
@@ -123,9 +120,9 @@ namespace monster_avengers {
                   effect.points);
         }
         wprintf(L"\n");
-        OutputArmorSet(data_, *output);
+        OutputArmorSet(data_, **output_);
         ++i;
-        ++output;
+        ++(*output_);
       }
     }
 
@@ -183,7 +180,7 @@ namespace monster_avengers {
           }
         }
       }
-
+      
       std::vector<int> forest;
       forest.reserve(and_map.size());
       for (auto &item : and_map) {
@@ -193,8 +190,31 @@ namespace monster_avengers {
       return forest;
     }
 
+    Status ApplyFoundation(const Query &query) {
+      iterators_.clear();
+      iterators_.emplace_back(new DirectIterator(Foundation(query)));
+      return Status(SUCCESS);
+    }
+
+    Status ApplyEffectFilter(const std::vector<Effect> &effects) {
+      IndexIterator *new_iter = 
+        new EffectsIterator(iterators_.back().get(),
+                            &pool_,
+                            effects);
+      iterators_.emplace_back(new_iter);
+      return Status(SUCCESS);
+    }
+
+    Status PrepareOutput() {
+      output_.reset(new ArmorSetIterator(iterators_.back().get(), 
+                                         &pool_));
+      return Status(SUCCESS);
+    }
+    
     DataSet data_;
     NodePool pool_;
+    std::vector<std::unique_ptr<IndexIterator> > iterators_;
+    std::unique_ptr<ArmorSetIterator> output_;
   };
 }
 

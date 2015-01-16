@@ -1,6 +1,7 @@
 #ifndef _MONSTER_AVENGERS_ITERATOR_
 #define _MONSTER_AVENGERS_ITERATOR_
 
+#include <memory>
 #include <array>
 #include "search_util.h"
 
