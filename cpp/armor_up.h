@@ -40,7 +40,7 @@ namespace monster_avengers {
 
   class EffectsIterator : public IndexIterator {
   public:
-    explicit EffectsIterator(IndexIterator *base_iter,
+    explicit EffectsIterator(std::shared_ptr<IndexIterator> base_iter,
                              const NodePool *pool,
                              const std::vector<Effect> &effects)
       : base_iter_(base_iter), pool_(pool), thresholds_() {
@@ -80,7 +80,7 @@ namespace monster_avengers {
     }
 
   private:
-    IndexIterator *base_iter_;
+    std::shared_ptr<IndexIterator> base_iter_;
     const NodePool *pool_;
     std::vector<int> thresholds_;
   };
@@ -106,9 +106,9 @@ namespace monster_avengers {
     }
 
     void Search(const Query &query, int required_num) {
-      std::unique_ptr<DirectIterator> direct;
+      std::shared_ptr<DirectIterator> direct;
       direct.reset(new DirectIterator(SearchFoundation(query)));
-      std::unique_ptr<EffectsIterator> effects_iter;
+      std::shared_ptr<EffectsIterator> effects_iter;
       effects_iter.reset(new EffectsIterator(direct.get(),
                                              &pool_,
                                              query.effects));
