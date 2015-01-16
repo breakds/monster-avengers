@@ -271,8 +271,7 @@ namespace monster_avengers {
     HANDS = 2,
     WAIST = 3,
     FEET = 4,
-    NECK = 5,
-    PART_NUM = 6
+    PART_NUM
   };
 
   struct Armor {
@@ -401,12 +400,22 @@ namespace monster_avengers {
       ReadArmors<FEET>(data_folder + "/sabatons.lisp");
     }
 
-    inline const std::vector<int> &ArmorIds(ArmorPart part) {
+    inline const std::vector<int> &ArmorIds(ArmorPart part) const {
       return armor_indices_by_parts_[part];
     }
 
-    inline const Armor& armor(int id) {
+    inline const Armor &armor(int id) const {
       return armors_[id];
+    }
+
+    inline const SkillSystem &skill_system(int id) const {
+      return skill_systems_[id];
+    }
+
+    void PrintSkillSystems() {
+      for (int i = 0; i < skill_systems_.size(); ++i) {
+        wprintf(L"%d: %ls\n", i, skill_systems_[i].name.c_str());
+      }
     }
 
     void Summarize() {
