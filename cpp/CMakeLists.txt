@@ -22,4 +22,5 @@ SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
 SET(CMAKE_CXX_FLAGS_GPROF "-O1 -pg")
 
 ADD_EXECUTABLE(test test.cc)
+ADD_EXECUTABLE(jewels_query_test jewels_query_test.cc)
 

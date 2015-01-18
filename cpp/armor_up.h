@@ -120,6 +120,10 @@ namespace monster_avengers {
                   effect.points);
         }
         wprintf(L"\n");
+        int one(0), two(0), three(0);
+        sig::KeyHoles(or_node.key, &one, &two, &three);
+        wprintf(L"O:%d   OO:%d   OOO:%d\n", one, two, three);
+
         OutputArmorSet(data_, **output_);
         ++i;
         ++(*output_);

@@ -1,6 +1,7 @@
 #ifndef _MONSTER_AVENGERS_MONSTER_HUNTER_DATA_
 #define _MONSTER_AVENGERS_MONSTER_HUNTER_DATA_
 
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <cstdio>
@@ -154,6 +155,7 @@ namespace monster_avengers {
       }
       parser::Token token;
       bool complete = false;
+      skill_id = -1;
       while (!complete) {
         CHECK(tokenizer->Next(&token));
         
@@ -238,6 +240,14 @@ namespace monster_avengers {
           CHECK(false);
         }
       }
+
+      auto it = std::remove_if(effects.begin(), effects.end(),
+                               [](const Effect &effect) {
+                                 return -1 == effect.skill_id;
+                               });
+      for (int i = 0; i < effects.end() - it; ++i) {
+        effects.pop_back();
+      }
     }
 
     void DebugPrint(int indent = 0) const {
@@ -293,7 +303,8 @@ namespace monster_avengers {
       std::vector<int> skill_points;
       parser::Token token;
       bool complete = false;
-
+      bool name_detected = false;
+      
       while (!complete) {
         CHECK(tokenizer->Next(&token));
         switch (token.name) {
@@ -303,6 +314,7 @@ namespace monster_avengers {
         case parser::KEYWORD:
           if (L"NAME" == token.value) {
             name = tokenizer->ExpectString();
+            name_detected = true;
           } else if (L"HOLES" == token.value) {
             holes = tokenizer->ExpectNumber();
           } else if (L"RANK" == token.value) {
@@ -341,6 +353,8 @@ namespace monster_avengers {
         effects.emplace_back(LookUpSkillSystem(skill_names[i]), 
                              skill_points[i]);
       }
+      
+      if (!name_detected) name = L"";
     }
 
     void DebugPrint(int indent = 0) const {
@@ -400,12 +414,20 @@ namespace monster_avengers {
       ReadArmors<FEET>(data_folder + "/sabatons.lisp");
     }
 
+    inline const std::vector<Jewel> &Jewels() const {
+      return jewels_;
+    }
+
     inline const std::vector<int> &ArmorIds(ArmorPart part) const {
       return armor_indices_by_parts_[part];
     }
 
     inline const Armor &armor(int id) const {
       return armors_[id];
+    }
+
+    inline const Armor &armor(ArmorPart part, int id) const {
+      return armors_[armor_indices_by_parts_[part][id]];
     }
 
     inline const SkillSystem &skill_system(int id) const {
@@ -436,6 +458,14 @@ namespace monster_avengers {
       auto tokenizer = std::move(parser::Tokenizer::FromFile(path));
       std::vector<Armor> armor_list = 
         std::move(parser::ParseList<Armor>::Do(&tokenizer));
+      auto it = std::remove_if(armor_list.begin(),
+                               armor_list.end(),
+                               [](const Armor &armor) {
+                                 return armor.name.empty();
+                               });
+      for (int i = 0; i < armor_list.end() - it; ++i) {
+        armor_list.pop_back();
+      }
       for (const Armor &armor : armor_list) {
         armors_.push_back(armor);
         armors_.back().part = Part;
