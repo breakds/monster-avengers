@@ -7,80 +7,6 @@
 namespace monster_avengers {
   typedef uint64_t Signature;
 
-  class HoleCoder {
-  public:
-
-    HoleCoder() {
-      char i = 0;
-      char j = 0;
-      char k = 0;
-      char code = 0;
-      do {
-        int semi_key = i | (j << 3) | (k << 6);
-        ones_[code] = i;
-        twos_[code] = j;
-        threes_[code] = k;
-        code_[semi_key] = code++;
-        if (i + j + k < 7) {
-          ++i;
-        } else {
-          i = 0;
-          if (j + k < 7) {
-            ++j;
-          } else {
-            j = 0;
-            ++k;
-          }
-        }
-      } while (k < 8);
-    }
-
-    inline char Encode(int holes) {
-      return (holes > 0) ? code_[1 << (holes - 1) * 3] : 0;
-    }
-
-    inline char Encode(int one, 
-                       int two, 
-                       int three) {
-      int semi_key = one | (two << 3) | (three << 6);
-      return code_[semi_key];
-    }
-
-    inline void Decode(char key, 
-                       int *one, 
-                       int *two, 
-                       int *three) {
-      *one = ones_[key];
-      *two = twos_[key];
-      *three = threes_[key];
-    }
-
-    inline void DecodeTo(char key, 
-                         int *one, 
-                         int *two, 
-                         int *three) {
-      *one += ones_[key];
-      *two += twos_[key];
-      *three += threes_[key];
-    }
-
-    inline char Combine(char key_a,
-                        char key_b) {
-      int one(0), two(0), three(0);
-      Decode(key_a, &one, &two, &three);
-      DecodeTo(key_b, &one, &two, &three);
-      return Encode(one, two, three);
-    }
-    
-  private:
-    char ones_[256];
-    char twos_[256];
-    char threes_[256];
-    char code_[512];
-  };
-
-  HoleCoder hole_coder;
-
   namespace sig {
     inline Signature ArmorKey(const Armor &armor, 
                               const Query &query, 
@@ -89,12 +15,18 @@ namespace monster_avengers {
       
       union {
         Signature key;
-        char bytes[sizeof(Signature)];
+        unsigned char bytes[sizeof(Signature)];
       };
 
       key = 0;
-      bytes[0] = hole_coder.Encode(armor.holes);
-      int byte_id = 1;
+      if (1 == armor.holes) {
+        bytes[0] = 1;
+      } else if (2 == armor.holes) {
+        bytes[1] = 1;
+      } else if (3 == armor.holes) {
+        bytes[1] = 16;
+      }
+      int byte_id = 2;
       for (const Effect& effect : query.effects) {
         for (const Effect &armor_effect : armor.effects) {
           if (effect.skill_id == armor_effect.skill_id) {
@@ -117,12 +49,19 @@ namespace monster_avengers {
       
       union {
         Signature key;
-        char bytes[sizeof(Signature)];
+        unsigned char bytes[sizeof(Signature)];
       };
 
       key = 0;
-      bytes[0] = hole_coder.Encode(jewel.holes);
-      int byte_id = 1;
+      if (1 == jewel.holes) {
+        bytes[0] = 1;
+      } else if (2 == jewel.holes) {
+        bytes[1] = 1;
+      } else if (3 == jewel.holes) {
+        bytes[1] = 16;
+      }
+      
+      int byte_id = 2;
       for (auto it = effects_begin; it != effects_end; ++it) {
         for (const Effect &jewel_effect : jewel.effects) {
           if (it->skill_id == jewel_effect.skill_id) {
@@ -152,8 +91,7 @@ namespace monster_avengers {
       };
       key_a = a;
       key_b = b;
-      bytes[0] = hole_coder.Combine(bytes_a[0], bytes_b[0]);
-      for (int i = 1; i < sizeof(Signature); ++i) {
+      for (int i = 0; i < sizeof(Signature); ++i) {
         bytes[i] =  bytes_a[i] + bytes_b[i];
       }
       return key;
@@ -166,7 +104,7 @@ namespace monster_avengers {
         char bytes[sizeof(Signature)];
       };
       key = input_key;
-      int byte_id = 1;
+      int byte_id = 2;
       std::vector<Effect> result;
       result.reserve(required.size());
       for (int i = 0; i < required.size(); ++i) {
@@ -188,7 +126,9 @@ namespace monster_avengers {
         char bytes[sizeof(Signature)];
       };
       key = input_key;
-      hole_coder.Decode(bytes[0], one, two, three);
+      *one = bytes[0];
+      *two = bytes[1] & 15;
+      *three = bytes[1] >> 4;
     }
 
     inline std::vector<int> KeyPointsVec(Signature input_key, 
@@ -200,7 +140,7 @@ namespace monster_avengers {
       key = input_key;
       std::vector<int> result;
       result.reserve(size);
-      for (int byte_id = 1; byte_id < 1 + size; ++byte_id) {
+      for (int byte_id = 2; byte_id < 2 + size; ++byte_id) {
         result.push_back(bytes[byte_id]);
       }
       return result;

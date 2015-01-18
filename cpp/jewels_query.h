@@ -41,7 +41,9 @@ namespace monster_avengers {
 
       key = input;
       int i(0), j(0), k(0);
-      hole_coder.Decode(bytes[0], &i ,&j ,&k);
+      i = bytes[0];
+      j = bytes[1] & 15;
+      k = bytes[2] >> 4;
       return Calculate(i, j, k);
     }
 
@@ -179,7 +181,7 @@ namespace monster_avengers {
           }
         } else if (3 == p) {
           if (0 < k) {
-            DFS(i + 1, j, k - 1, p, q,
+            DFS(i, j, k - 1, p, q,
                 sig::CombineKey(key, jewels[p][q]),
                 jewels, result);
           }
