@@ -7,21 +7,21 @@
 
 namespace monster_avengers {
 
-  class IndexIterator {
+  class TreeIterator {
   public:
     virtual void operator++() = 0;
-    virtual int operator*() const = 0;
+    virtual const TreeRoot &operator*() const = 0;
     virtual bool empty() const = 0;
     // void Reset() = 0;
   };
   
   class ArmorSetIterator {
   public:
-    ArmorSetIterator(IndexIterator *base_iter, 
+    ArmorSetIterator(TreeIterator *base_iter, 
                      const NodePool *pool)
       : base_iter_(base_iter), pool_(pool), top_(-1) {
       if (!base_iter_->empty()) {
-        int or_id = *(*base_iter);
+        int or_id = (**base_iter).id;
         while (-1 != or_id) {
           const OR &or_node = pool_->Or(or_id);
           if (ANDS == or_node.tag) {
@@ -77,11 +77,11 @@ namespace monster_avengers {
         }
         top_--;
       }
-
+      
       if (-1 >= top_) {
         if (!base_iter_->empty()) {
-          or_id = *(*base_iter_);
           ++(*base_iter_);
+          or_id = (**base_iter_).id;
         } else {
           or_id = -1;
         }
@@ -121,7 +121,7 @@ namespace monster_avengers {
     }
 
     inline int BaseIndex() const {
-      return **base_iter_;
+      return (**base_iter_).id;
     }
     
   private:
@@ -132,7 +132,7 @@ namespace monster_avengers {
       int armor_seq;
     };
     
-    IndexIterator *base_iter_;
+    TreeIterator *base_iter_;
     const NodePool *pool_;
     std::array<StackElement, PART_NUM> stack_;
     int top_;

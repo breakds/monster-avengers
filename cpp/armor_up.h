@@ -10,37 +10,43 @@
 #include "signature.h"
 #include "search_util.h"
 #include "iterator.h"
+#include "jewels_query.h"
 
 namespace monster_avengers {
 
-  class DirectIterator : public IndexIterator {
+  constexpr int FOUNDATION_NUM = 2;
+
+  class DirectIterator : public TreeIterator {
   public:
     explicit DirectIterator(std::vector<int> &&or_forest)
-      : or_forest_() {
-      or_forest_.swap(or_forest);
-      current_ = or_forest_.begin();
+      : forest_() {
+      forest_.reserve(or_forest.size());
+      for (int or_id : or_forest) {
+        forest_.emplace_back(or_id);
+      }
+      current_ = forest_.begin();
     }
 
     inline void operator++() override {
-      if (or_forest_.end() != current_) current_++;
+      if (forest_.end() != current_) current_++;
     }
 
-    inline int operator*() const override {
+    inline const TreeRoot &operator*() const override {
       return *current_;
     }
 
     inline bool empty() const override {
-      return or_forest_.end() == current_;
+      return forest_.end() == current_;
     }
     
   private:
-    std::vector<int> or_forest_;
-    std::vector<int>::const_iterator current_;
+    std::vector<TreeRoot> forest_;
+    std::vector<TreeRoot>::const_iterator current_;
   };
 
-  class EffectsIterator : public IndexIterator {
+  class EffectsIterator : public TreeIterator {
   public:
-    explicit EffectsIterator(IndexIterator *base_iter,
+    explicit EffectsIterator(TreeIterator *base_iter,
                              const NodePool *pool,
                              const std::vector<Effect> &effects)
       : base_iter_(base_iter), 
@@ -51,10 +57,11 @@ namespace monster_avengers {
       }
       ++(*this);
     }
-
+    
     inline void operator++() override {
       while (!base_iter_->empty()) {
-        int i = **base_iter_;
+        const TreeRoot &root = **base_iter_;
+        int i = root.id;
         std::vector<int> points = 
           std::move(sig::KeyPointsVec(pool_->Or(i).key, 
                                       thresholds_.size()));
@@ -72,7 +79,7 @@ namespace monster_avengers {
       }
     }
 
-    inline int operator*() const override {
+    inline const TreeRoot &operator*() const override {
       return **base_iter_;
     }
 
@@ -81,12 +88,170 @@ namespace monster_avengers {
     }
 
   private:
-    IndexIterator *base_iter_;
+    TreeIterator *base_iter_;
     const NodePool *pool_;
     std::vector<int> thresholds_;
   };
 
   
+  class JewelFilterIterator : public TreeIterator {
+  public:
+    explicit JewelFilterIterator(TreeIterator *base_iter,
+                                 const DataSet &data,
+                                 const NodePool *pool,
+                                 const std::vector<int> &skill_ids,
+                                 const std::vector<Effect> &effects)
+      : base_iter_(base_iter), 
+        pool_(pool),
+        hole_client_(data, skill_ids, effects),
+        current_(0),
+        inverse_points_(sig::InverseKey(effects.begin(),
+                                        effects.begin() + skill_ids.size())) {
+      sig::ExplainSignature(inverse_points_, effects);
+      Proceed();
+    }
+
+    inline void operator++() override {
+      if (!base_iter_->empty()) {
+        ++(*base_iter_);
+      }
+      Proceed();
+    }
+
+    inline const TreeRoot &operator*() const override {
+      return current_;
+    }
+
+    inline bool empty() const override {
+      return base_iter_->empty();
+    }
+
+  private:
+    inline void Proceed() {
+      while (!base_iter_->empty()) {
+        current_.id = (**base_iter_).id;
+        const Signature &key = pool_->Or(current_.id).key;
+        const std::unordered_set<Signature> &jewel_keys = 
+          hole_client_.Query(key);
+        for (const Signature &jewel_key : jewel_keys) {
+          if (sig::Satisfy(sig::CombineKeyPoints(key, jewel_key),
+                           inverse_points_)) {
+            current_.jewel_keys.push_back(jewel_key);
+          }
+        }
+        if (current_.jewel_keys.empty()) {
+          ++(*base_iter_);
+        } else {
+          return;
+        }
+      }
+    }
+    
+    TreeIterator *base_iter_;
+    const NodePool *pool_;
+    HoleClient hole_client_;
+    TreeRoot current_;
+    Signature inverse_points_;
+  };
+
+  class SkillSplitIterator : public TreeIterator {
+  public:
+    SkillSplitIterator(TreeIterator *base_iter, 
+                       const DataSet &data,
+                       NodePool *pool,
+                       int effect_id,
+                       const std::vector<Effect> &effects)  
+      : base_iter_(base_iter), pool_(pool), 
+        splitter_(data, pool, effect_id, 
+                  effects[effect_id].skill_id),
+        hole_client_(data, effects[effect_id].skill_id, effects),
+        effect_id_(effect_id),
+        required_points_(effects[effect_id].points),
+        inverse_points_(sig::InverseKey(effects.begin(), 
+                                        effects.begin() + effect_id + 1)) {
+      Proceed();
+    }
+
+    inline void operator++() override {
+      buffer_.pop_back();
+      if (buffer_.empty()) {
+        Proceed();
+      }
+    }
+
+    inline const TreeRoot &operator*() const override {
+      return buffer_.back();
+    }
+
+    inline bool empty() const override {
+      return base_iter_->empty();
+    }
+    
+  private:
+    inline void Proceed() {
+      while (!base_iter_->empty()) {
+        const TreeRoot root = **base_iter_;
+
+        const OR &node = pool_->Or(root.id);
+        int one(0), two(0), three(0);
+
+        int sub_max = splitter_.Max(root.id);
+        int sub_min = 1000;
+        Signature key0 = sig::AddPoints(node.key, effect_id_, sub_max);
+
+        std::vector<Signature> jewel_candidates;
+
+        for (const Signature &jewel_key : root.jewel_keys) {
+          HoleClient::GetResidual(node.key, jewel_key,
+                                  &one, &two, &three);
+          for (const Signature &new_key : hole_client_.Query(one, 
+                                                             two, 
+                                                             three)) {
+            Signature key1 = sig::CombineKey(jewel_key, new_key);
+            if (sig::Satisfy(sig::CombineKeyPoints(key0, key1),
+                             inverse_points_)) {
+              jewel_candidates.push_back(key1);
+              int diff = required_points_ - sig::GetPoints(key1, effect_id_);
+              if (diff < sub_min) {
+                sub_min = diff;
+              }
+            }
+          }
+        }
+
+        // If there is no valid jewel signatures, we can proceed to
+        // the next tree in the forest.
+        if (jewel_candidates.empty()) {
+          ++(*base_iter_);
+          continue;
+        }
+
+        std::vector<int> new_ors = splitter_.Split(root, sub_min);
+        for (int or_id : new_ors) {
+          buffer_.emplace_back(or_id);
+          const OR &or_node = pool_->Or(or_id);
+          for (const Signature &jewel_key : jewel_candidates) {
+            if (sig::Satisfy(sig::CombineKeyPoints(jewel_key,
+                                                   or_node.key),
+                             inverse_points_)) {
+              buffer_.back().jewel_keys.push_back(jewel_key);
+            }
+          }
+        }
+      }
+    }
+    
+    TreeIterator *base_iter_;
+    NodePool *pool_;
+    SkillSplitter splitter_;
+    HoleClient hole_client_;
+    int effect_id_;
+    int required_points_;
+    Signature inverse_points_;
+    std::vector<TreeRoot> buffer_;
+  };
+
+
   class ArmorUp {
   public:
     ArmorUp(const std::string &data_folder) 
@@ -108,7 +273,7 @@ namespace monster_avengers {
 
     void Search(const Query &query, int required_num) {
       CHECK_SUCCESS(ApplyFoundation(query));
-      CHECK_SUCCESS(ApplyEffectFilter(query.effects));
+      CHECK_SUCCESS(ApplyJewelFilter(query.effects));
       CHECK_SUCCESS(PrepareOutput());
       int i = 0;
       while (i < required_num && !output_->empty()) {
@@ -139,14 +304,20 @@ namespace monster_avengers {
 
   private:
     // Returns a vector of newly created or nodes' indices.
-    std::vector<int> ClassifyArmors(ArmorPart part, 
+    std::vector<int> ClassifyArmors(ArmorPart part,
                                     const Query &query) {
       std::unordered_map<Signature, std::vector<int> > armor_map;
+
+      std::vector<Effect> effects;
+      for (int i = 0; i < FOUNDATION_NUM; ++i) {
+        effects.push_back(query.effects[i]);
+      }
+      
       bool valid = false;
       for (int id : data_.ArmorIds(part)) {
         const Armor &armor = data_.armor(id);
         if (armor.type == query.weapon_type || BOTH == armor.type) {
-          Signature key = sig::ArmorKey(armor, query, &valid);
+          Signature key = sig::ArmorKey(armor, effects, &valid);
           if (valid) {
             auto it = armor_map.find(key);
             if (armor_map.end() == it) {
@@ -200,11 +371,17 @@ namespace monster_avengers {
       return Status(SUCCESS);
     }
 
-    Status ApplyEffectFilter(const std::vector<Effect> &effects) {
-      IndexIterator *new_iter = 
-        new EffectsIterator(iterators_.back().get(),
-                            &pool_,
-                            effects);
+    Status ApplyJewelFilter(const std::vector<Effect> &effects) {
+      std::vector<int> skill_ids;
+      for (int i = 0; i < FOUNDATION_NUM; ++i) {
+        skill_ids.push_back(effects[i].skill_id);
+      }
+      TreeIterator *new_iter = 
+        new JewelFilterIterator(iterators_.back().get(),
+                                data_,
+                                &pool_,
+                                skill_ids,
+                                effects);
       iterators_.emplace_back(new_iter);
       return Status(SUCCESS);
     }
@@ -217,7 +394,7 @@ namespace monster_avengers {
     
     DataSet data_;
     NodePool pool_;
-    std::vector<std::unique_ptr<IndexIterator> > iterators_;
+    std::vector<std::unique_ptr<TreeIterator> > iterators_;
     std::unique_ptr<ArmorSetIterator> output_;
   };
 }

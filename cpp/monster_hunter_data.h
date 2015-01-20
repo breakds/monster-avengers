@@ -430,6 +430,10 @@ namespace monster_avengers {
       return armors_[armor_indices_by_parts_[part][id]];
     }
 
+    inline const std::vector<Armor> &armors() const {
+      return armors_;
+    }
+
     inline const SkillSystem &skill_system(int id) const {
       return skill_systems_[id];
     }

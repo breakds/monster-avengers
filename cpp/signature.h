@@ -9,16 +9,17 @@ namespace monster_avengers {
 
   namespace sig {
     inline Signature ArmorKey(const Armor &armor, 
-                              const Query &query, 
+                              const std::vector<Effect> &effects,
                               bool *valid) {
       *valid = false;
       
       union {
         Signature key;
-        unsigned char bytes[sizeof(Signature)];
+        char bytes[sizeof(Signature)];
       };
 
       key = 0;
+
       if (1 == armor.holes) {
         bytes[0] = 1;
       } else if (2 == armor.holes) {
@@ -26,8 +27,9 @@ namespace monster_avengers {
       } else if (3 == armor.holes) {
         bytes[1] = 16;
       }
+      
       int byte_id = 2;
-      for (const Effect& effect : query.effects) {
+      for (const Effect& effect : effects) {
         for (const Effect &armor_effect : armor.effects) {
           if (effect.skill_id == armor_effect.skill_id) {
             bytes[byte_id] = static_cast<char>(armor_effect.points);
@@ -42,17 +44,30 @@ namespace monster_avengers {
     }
 
     inline Signature JewelKey(const Jewel &jewel, 
-                              std::vector<Effect>::const_iterator effects_begin,
-                              std::vector<Effect>::const_iterator effects_end,
+                              const std::vector<int> &skill_ids,
+                              const std::vector<Effect> &effects,
                               bool *valid) {
       *valid = false;
       
       union {
         Signature key;
-        unsigned char bytes[sizeof(Signature)];
+        char bytes[sizeof(Signature)];
       };
 
       key = 0;
+
+      for (int skill_id : skill_ids) {
+        for (const Effect &jewel_effect : jewel.effects) {
+          if (skill_id == jewel_effect.skill_id) {
+            if (jewel_effect.points > 0) {
+              *valid = true;
+            }
+          }
+        }
+      }
+      
+      if (!(*valid)) return 0;
+
       if (1 == jewel.holes) {
         bytes[0] = 1;
       } else if (2 == jewel.holes) {
@@ -60,18 +75,30 @@ namespace monster_avengers {
       } else if (3 == jewel.holes) {
         bytes[1] = 16;
       }
-      
+
       int byte_id = 2;
-      for (auto it = effects_begin; it != effects_end; ++it) {
+      for (const Effect &effect : effects) {
         for (const Effect &jewel_effect : jewel.effects) {
-          if (it->skill_id == jewel_effect.skill_id) {
+          if (effect.skill_id == jewel_effect.skill_id) {
             bytes[byte_id] = static_cast<char>(jewel_effect.points);
-            if (jewel_effect.points > 0) {
-              *valid = true;
-            }
           }
         }
         byte_id++;
+      }
+      return key;
+    }
+
+    inline Signature InverseKey(std::vector<Effect>::const_iterator begin,
+                                std::vector<Effect>::const_iterator end) {
+      union {
+        Signature key;
+        char bytes[sizeof(Signature)];
+      };
+      
+      key = 0;
+      int byte_id = 2;
+      for (auto it = begin; it != end; ++it) {
+        bytes[byte_id++] = -it->points;
       }
       return key;
     }
@@ -95,6 +122,54 @@ namespace monster_avengers {
         bytes[i] =  bytes_a[i] + bytes_b[i];
       }
       return key;
+    }
+
+    inline Signature CombineKeyPoints(Signature a, Signature b) {
+      union {
+        Signature key;
+        char bytes[sizeof(Signature)];
+      };
+      union {
+        Signature key_a;
+        char bytes_a[sizeof(Signature)];
+      };
+      union {
+        Signature key_b;
+        char bytes_b[sizeof(Signature)];
+      };
+      key_a = a;
+      key_b = b;
+      for (int i = 2; i < sizeof(Signature); ++i) {
+        bytes[i] = bytes_a[i] + bytes_b[i];
+      }
+      return key;
+    }
+
+    inline Signature AddPoints(Signature input_key, 
+                               int effect_id, int points) {
+      union {
+        Signature key;
+        char bytes[sizeof(Signature)];
+      };
+      
+      key = input_key;
+      bytes[2 + effect_id] += points;
+      
+      return key;
+    }
+
+    inline int GetPoints(Signature input_key, int effect_id) {
+      union {
+        Signature key;
+        char bytes[sizeof(Signature)];
+      };
+      
+      key = input_key;
+      return bytes[2 + effect_id];
+    }
+
+    inline bool Satisfy(Signature test, Signature inverse_target) {
+      return 0 == (CombineKey(test, inverse_target) & 0x8080808000);
     }
 
     inline std::vector<Effect> KeyEffects(Signature input_key, 
@@ -129,6 +204,18 @@ namespace monster_avengers {
       *one = bytes[0];
       *two = bytes[1] & 15;
       *three = bytes[1] >> 4;
+    }
+
+    inline Signature HolesToKey(int one, int two, int three) {
+      union {
+        Signature key;
+        char bytes[sizeof(Signature)];
+      };
+      key = 0;
+      bytes[0] = one;
+      bytes[1] = two;
+      bytes[1] |= (three << 4);
+      return key;
     }
 
     inline std::vector<int> KeyPointsVec(Signature input_key, 

@@ -14,14 +14,15 @@ namespace monster_avengers {
     constexpr static int MAX_ONES = 24;
     constexpr static int MAX_TWOS = 8;
     constexpr static int MAX_THREES = 8;
-    
+
     HoleClient(const DataSet &data, 
-               const std::vector<Effect> &effects) 
+               const std::vector<int> &skill_ids,
+               const std::vector<Effect> &effects)
       : jewel_keys_() {
       bool valid = false;
       for (Jewel jewel : data.Jewels()) {
-        Signature key = sig::JewelKey(jewel, effects.begin(), 
-                                      effects.end(), &valid);
+        Signature key = sig::JewelKey(jewel, skill_ids, 
+                                      effects, &valid);
         if (valid) {
           jewel_keys_[jewel.holes].insert(key);
         }
@@ -32,18 +33,19 @@ namespace monster_avengers {
       fixed_buffer_[2][0].insert(0);
       fixed_buffer_[3][0].insert(0);
     }
-
-    const std::unordered_set<Signature> &Query(Signature input) {
-      union {
-        Signature key;
-        char bytes[sizeof(Signature)];
-      };
-
-      key = input;
+    
+    HoleClient(const DataSet &data, 
+               const std::vector<Effect> &effects) 
+      : HoleClient(data, SkillIdsFromEffects(effects), effects) {}
+    
+    HoleClient(const DataSet &data, int skill_id, 
+               const std::vector<Effect> &effects) 
+      : HoleClient(data, std::vector<int>({skill_id}), 
+                   effects) {}
+    
+    inline const std::unordered_set<Signature> &Query(Signature input) {
       int i(0), j(0), k(0);
-      i = bytes[0];
-      j = bytes[1] & 15;
-      k = bytes[2] >> 4;
+      sig::KeyHoles(input, &i, &j, &k);
       return Calculate(i, j, k);
     }
 
@@ -51,6 +53,49 @@ namespace monster_avengers {
                                                       int j, 
                                                       int k) {
       return Calculate(i, j, k);
+    }
+
+    // Use the hole aligment from stuffed to stuff the original hole
+    // aligment, and get the residual hole alignment.
+    static void GetResidual(Signature original, Signature stuffed,
+                            int *i, int *j, int *k) {
+      sig::KeyHoles(original, i, j, k);
+      int one(0), two(0), three(0);
+      sig::KeyHoles(stuffed, &one, &two, &three);
+      
+      // Handle 3 holes
+      *k -= three;
+
+      // Handle 2 holes
+      if (two <= *j) {
+        *j -= two;
+      } else {
+        two -= *j;
+        *j = 0;
+        *k -= two;
+        *i += two;
+      }
+
+      if (one <= *i) {
+        *i -= one;
+      } else {
+        one -= *i;
+        *i = 0;
+        if (one <= ((*j) << 1)) {
+          *j -= ((one + 1) >> 1);
+          if (1 & one) {
+            *i = 1;
+          }
+        } else {
+          *k -= ((one + 2) / 3);
+          int remain = one % 3;
+          if (1 == remain) {
+            (*j)++;
+          } else if (2 == remain) {
+            (*i)++;
+          }
+        }
+      }
     }
 
     // This is only for unit test purpose.
@@ -67,6 +112,14 @@ namespace monster_avengers {
     }
 
   private:
+    std::vector<int> SkillIdsFromEffects(const std::vector<Effect> &effects) {
+      std::vector<int> skill_ids;
+      for (const Effect &effect : effects) {
+        skill_ids.push_back(effect.skill_id);
+      }
+      return skill_ids;
+    }
+
     inline void SetProduct(const std::unordered_set<Signature> &a,
                     const std::unordered_set<Signature> &b,
                     std::unordered_set<Signature> *c) {
@@ -107,6 +160,7 @@ namespace monster_avengers {
 
     const std::unordered_set<Signature> &Calculate(int i, int j) {
       int index = j * MAX_ONES + i;
+      
       if (!buffer_[index].empty()) {
         return buffer_[index];
       }

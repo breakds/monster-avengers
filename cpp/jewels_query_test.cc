@@ -1,3 +1,4 @@
+#include <utility>
 #include "jewels_query.h"
 
 
@@ -29,6 +30,21 @@ void Compare(HoleClient &hole_client, int i, int j, int k,
   }
 }
 
+void TestResidual(int one, int two, int three,
+                  int stuffed_one, int stuffed_two, int stuffed_three,
+                  int i, int j, int k) {
+  Signature original = sig::HolesToKey(one, two, three);
+  Signature stuffed = sig::HolesToKey(stuffed_one, stuffed_two, stuffed_three);
+  int res_i(0), res_j(0), res_k(0);
+  HoleClient::GetResidual(original, stuffed,
+                          &res_i, &res_j, &res_k);
+  // Uncomment for Debugging
+  // wprintf(L"Expected: %d, %d, %d      Actual: %d, %d, %d\n", 
+  //         i, j, k, res_i, res_j, res_k);
+  CHECK(std::make_tuple(i, j, k) == std::make_tuple(res_i, res_j, res_k));
+}
+
+
 int main() {
   std::setlocale(LC_ALL, "en_US.UTF-8");
 
@@ -51,6 +67,14 @@ int main() {
   CHECK(hole_client.DFS(0, 0, 1) == hole_client.Query(0, 0, 1));
   CHECK(hole_client.DFS(2, 2, 1) == hole_client.Query(2, 2, 1));
   CHECK(hole_client.DFS(1, 0, 6) == hole_client.Query(1, 0, 6));
-  
+
+
+  // Residual tests
+  TestResidual(1, 2, 2, 0, 2, 0, 1, 0, 2);
+  TestResidual(0, 0, 2, 0, 2, 0, 2, 0, 0);
+  TestResidual(0, 0, 2, 1, 1, 1, 0, 0, 0);
+  TestResidual(2, 2, 1, 4, 2, 0, 1, 0, 0);
+  TestResidual(2, 2, 1, 4, 1, 1, 0, 0, 0);
+
   return 0;
 }
