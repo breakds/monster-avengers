@@ -62,7 +62,7 @@ namespace monster_avengers {
       sig::KeyHoles(original, i, j, k);
       int one(0), two(0), three(0);
       sig::KeyHoles(stuffed, &one, &two, &three);
-      
+
       // Handle 3 holes
       *k -= three;
 
@@ -87,6 +87,8 @@ namespace monster_avengers {
             *i = 1;
           }
         } else {
+          one -= (*j << 1);
+          *j = 0;
           *k -= ((one + 2) / 3);
           int remain = one % 3;
           if (1 == remain) {

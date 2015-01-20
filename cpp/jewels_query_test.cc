@@ -75,6 +75,7 @@ int main() {
   TestResidual(0, 0, 2, 1, 1, 1, 0, 0, 0);
   TestResidual(2, 2, 1, 4, 2, 0, 1, 0, 0);
   TestResidual(2, 2, 1, 4, 1, 1, 0, 0, 0);
+  TestResidual(1, 2, 2, 8, 0, 0, 0, 0, 1);
 
   return 0;
 }

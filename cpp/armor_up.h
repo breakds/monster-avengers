@@ -107,15 +107,14 @@ namespace monster_avengers {
         current_(0),
         inverse_points_(sig::InverseKey(effects.begin(),
                                         effects.begin() + skill_ids.size())) {
-      sig::ExplainSignature(inverse_points_, effects);
       Proceed();
     }
 
     inline void operator++() override {
       if (!base_iter_->empty()) {
         ++(*base_iter_);
+        Proceed();
       }
-      Proceed();
     }
 
     inline const TreeRoot &operator*() const override {
@@ -128,11 +127,13 @@ namespace monster_avengers {
 
   private:
     inline void Proceed() {
+      current_.jewel_keys.clear();
       while (!base_iter_->empty()) {
         current_.id = (**base_iter_).id;
         const Signature &key = pool_->Or(current_.id).key;
         const std::unordered_set<Signature> &jewel_keys = 
           hole_client_.Query(key);
+
         for (const Signature &jewel_key : jewel_keys) {
           if (sig::Satisfy(sig::CombineKeyPoints(key, jewel_key),
                            inverse_points_)) {
@@ -175,6 +176,7 @@ namespace monster_avengers {
     inline void operator++() override {
       buffer_.pop_back();
       if (buffer_.empty()) {
+        ++(*base_iter_);
         Proceed();
       }
     }
@@ -198,7 +200,7 @@ namespace monster_avengers {
         int sub_max = splitter_.Max(root.id);
         int sub_min = 1000;
         Signature key0 = sig::AddPoints(node.key, effect_id_, sub_max);
-
+        
         std::vector<Signature> jewel_candidates;
 
         for (const Signature &jewel_key : root.jewel_keys) {
@@ -218,29 +220,30 @@ namespace monster_avengers {
             }
           }
         }
-
+        
         // If there is no valid jewel signatures, we can proceed to
         // the next tree in the forest.
-        if (jewel_candidates.empty()) {
-          ++(*base_iter_);
-          continue;
-        }
-
-        std::vector<int> new_ors = splitter_.Split(root, sub_min);
-        for (int or_id : new_ors) {
-          buffer_.emplace_back(or_id);
-          const OR &or_node = pool_->Or(or_id);
-          for (const Signature &jewel_key : jewel_candidates) {
-            if (sig::Satisfy(sig::CombineKeyPoints(jewel_key,
-                                                   or_node.key),
-                             inverse_points_)) {
-              buffer_.back().jewel_keys.push_back(jewel_key);
+        if (!jewel_candidates.empty()) {
+          std::vector<int> new_ors = splitter_.Split(root, sub_min);
+          for (int or_id : new_ors) {
+            buffer_.emplace_back(or_id);
+            const OR &or_node = pool_->Or(or_id);
+            for (const Signature &jewel_key : jewel_candidates) {
+              if (sig::Satisfy(sig::CombineKeyPoints(jewel_key,
+                                                     or_node.key),
+                               inverse_points_)) {
+                buffer_.back().jewel_keys.push_back(jewel_key);
+              }
             }
           }
+
+          break;
         }
+        
+        ++(*base_iter_);
       }
     }
-    
+      
     TreeIterator *base_iter_;
     NodePool *pool_;
     SkillSplitter splitter_;
@@ -274,6 +277,7 @@ namespace monster_avengers {
     void Search(const Query &query, int required_num) {
       CHECK_SUCCESS(ApplyFoundation(query));
       CHECK_SUCCESS(ApplyJewelFilter(query.effects));
+      CHECK_SUCCESS(ApplySkillSplitter(query.effects, 2));
       CHECK_SUCCESS(PrepareOutput());
       int i = 0;
       while (i < required_num && !output_->empty()) {
@@ -300,7 +304,7 @@ namespace monster_avengers {
       data_.Summarize();
       Log(INFO, L"OR Nodes: %lld\n", pool_.OrSize());
       Log(INFO, L"AND Nodes: %lld\n", pool_.AndSize());
-    }
+   } 
 
   private:
     // Returns a vector of newly created or nodes' indices.
@@ -382,6 +386,18 @@ namespace monster_avengers {
                                 &pool_,
                                 skill_ids,
                                 effects);
+      iterators_.emplace_back(new_iter);
+      return Status(SUCCESS);
+    }
+
+    Status ApplySkillSplitter(const std::vector<Effect> &effects,
+                              int effect_id) {
+      TreeIterator *new_iter = 
+        new SkillSplitIterator(iterators_.back().get(),
+                               data_,
+                               &pool_,
+                               effect_id,
+                               effects);
       iterators_.emplace_back(new_iter);
       return Status(SUCCESS);
     }

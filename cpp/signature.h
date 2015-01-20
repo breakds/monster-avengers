@@ -137,11 +137,14 @@ namespace monster_avengers {
         Signature key_b;
         char bytes_b[sizeof(Signature)];
       };
+      key = 0;
       key_a = a;
       key_b = b;
+      
       for (int i = 2; i < sizeof(Signature); ++i) {
         bytes[i] = bytes_a[i] + bytes_b[i];
       }
+      
       return key;
     }
 
@@ -166,10 +169,6 @@ namespace monster_avengers {
       
       key = input_key;
       return bytes[2 + effect_id];
-    }
-
-    inline bool Satisfy(Signature test, Signature inverse_target) {
-      return 0 == (CombineKey(test, inverse_target) & 0x8080808000);
     }
 
     inline std::vector<Effect> KeyEffects(Signature input_key, 
@@ -246,6 +245,10 @@ namespace monster_avengers {
         wprintf(L"  %d: %d\n", effect.skill_id, effect.points);
       }
       wprintf(L"}\n");
+    }
+
+    inline bool Satisfy(Signature test, Signature inverse_target) {
+      return 0 == (CombineKey(test, inverse_target) & 0x8080808080800000);
     }
 
   }  // namespace sig
