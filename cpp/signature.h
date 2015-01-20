@@ -248,7 +248,7 @@ namespace monster_avengers {
     }
 
     inline bool Satisfy(Signature test, Signature inverse_target) {
-      return 0 == (CombineKey(test, inverse_target) & 0x8080808080800000);
+      return !(CombineKey(test, inverse_target) & 0x8080808080800000);
     }
 
   }  // namespace sig
