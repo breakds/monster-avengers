@@ -259,7 +259,7 @@ namespace monster_avengers {
   public:
     ArmorUp(const std::string &data_folder) 
       : data_(data_folder), pool_(),
-        iterators_(), output_(nullptr) {}
+        iterators_(), output_iterators_() {}
 
     std::vector<int> Foundation(const Query &query) {
       std::vector<int> previous;
@@ -277,12 +277,14 @@ namespace monster_avengers {
     void Search(const Query &query, int required_num) {
       CHECK_SUCCESS(ApplyFoundation(query));
       CHECK_SUCCESS(ApplyJewelFilter(query.effects));
-      CHECK_SUCCESS(ApplySkillSplitter(query.effects, 2));
+      for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
+	CHECK_SUCCESS(ApplySkillSplitter(query.effects, i));	
+      }
       CHECK_SUCCESS(PrepareOutput());
       JewelSolver solver(data_, query.effects);
-      int i = 0;
-      while (i < required_num && !output_->empty()) {
-        const OR &or_node = pool_.Or(output_->BaseIndex());
+      int count = 0;
+      while (count < required_num && !output_iterators_.back()->empty()) {
+        const OR &or_node = pool_.Or(output_iterators_.back()->BaseIndex());
         for (const Effect &effect : sig::KeyEffects(or_node.key, 
                                                     query)) {
           wprintf(L"%ls(%d)  ", 
@@ -294,9 +296,9 @@ namespace monster_avengers {
         sig::KeyHoles(or_node.key, &one, &two, &three);
         wprintf(L"O:%d   OO:%d   OOO:%d\n", one, two, three);
 
-        OutputArmorSet(data_, **output_, query.effects, solver);
-        ++i;
-        ++(*output_);
+        OutputArmorSet(data_, **output_iterators_.back(), query.effects, solver);
+	++count;
+        ++(*output_iterators_.back());
       }
     }
 
@@ -404,15 +406,15 @@ namespace monster_avengers {
     }
 
     Status PrepareOutput() {
-      output_.reset(new ArmorSetIterator(iterators_.back().get(), 
-                                         &pool_));
+      output_iterators_.emplace_back(new ExpansionIterator(iterators_.back().get(), 
+							   &pool_));
       return Status(SUCCESS);
     }
     
     DataSet data_;
     NodePool pool_;
     std::vector<std::unique_ptr<TreeIterator> > iterators_;
-    std::unique_ptr<ArmorSetIterator> output_;
+    std::vector<std::unique_ptr<ArmorSetIterator> > output_iterators_;
   };
 }
 

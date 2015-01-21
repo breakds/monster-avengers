@@ -13,12 +13,21 @@ namespace monster_avengers {
     virtual void operator++() = 0;
     virtual const TreeRoot &operator*() const = 0;
     virtual bool empty() const = 0;
-    // void Reset() = 0;
+    // virtual void Reset() = 0;
   };
-  
+
   class ArmorSetIterator {
   public:
-    ArmorSetIterator(TreeIterator *base_iter, 
+    virtual void operator++() = 0;
+    virtual const ArmorSet& operator*() const = 0;
+    virtual bool empty() const = 0;
+    virtual int BaseIndex() const = 0;
+    // virtual void Reset() = 0;
+  };
+  
+  class ExpansionIterator : public ArmorSetIterator {
+  public:
+    ExpansionIterator(TreeIterator *base_iter, 
                      const NodePool *pool)
       : base_iter_(base_iter), pool_(pool), top_(-1) {
       if (!base_iter_->empty()) {
@@ -48,7 +57,7 @@ namespace monster_avengers {
       }
     }
 
-    void operator++() {
+    void operator++() override {
       if (-1 >= top_) return;
       {
         const OR &armor_or = pool_->Or(stack_[top_].armor_or_id);
@@ -119,15 +128,15 @@ namespace monster_avengers {
       return;
     }
 
-    inline const ArmorSet& operator*() const {
+    inline const ArmorSet& operator*() const override {
       return armor_set_;
     }
 
-    inline bool empty() const {
+    inline bool empty() const override {
       return -1 >= top_;
     }
 
-    inline int BaseIndex() const {
+    inline int BaseIndex() const override {
       return (**base_iter_).id;
     }
     
