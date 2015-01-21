@@ -13,10 +13,12 @@ namespace monster_avengers {
                       const std::vector<Effect> &required,
                       const JewelSolver &solver) {
     wprintf(L"---------- Armor Set ----------\n");
+    int defense = 0;
     std::vector<Effect> effects;
     const std::array<int, PART_NUM> &ids = armor_set.ids;
     for (int i = 0; i < PART_NUM; ++i) {
       const Armor armor = data.armor(ids[i]);
+      defense += data.armor(ids[i]).defense;
       wprintf(L"[");
       for (int j = 0; j < 3; ++j) {
         if (j < armor.holes) {
@@ -39,6 +41,7 @@ namespace monster_avengers {
         }
       }
     }
+    wprintf(L"Defense: %d\n", defense);
     for (const Effect &effect : effects) {
       wprintf(L"%ls(%d)  ", 
               data.skill_system(effect.skill_id).name.c_str(),

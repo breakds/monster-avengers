@@ -254,6 +254,53 @@ namespace monster_avengers {
     std::vector<TreeRoot> buffer_;
   };
 
+  class DefenseFilterIterator : public ArmorSetIterator {
+  public:
+    DefenseFilterIterator(ArmorSetIterator *base_iter,
+			  const DataSet *data,
+			  int min_defense)
+      : base_iter_(base_iter), data_(data), min_defense_(min_defense) {
+      Proceed();
+    }
+
+    void operator++() override {
+      ++(*base_iter_);
+      Proceed();
+    }
+    
+    const ArmorSet &operator*() const override {
+      return **base_iter_;
+    }
+
+    bool empty() const override {
+      return base_iter_->empty();
+    }
+
+    int BaseIndex() const override {
+      return base_iter_->BaseIndex();
+    }
+    
+  private:
+    void Proceed() {
+      while (!base_iter_->empty()) {
+	const ArmorSet &armor_set = **base_iter_;
+	int defense = 0;
+	for (int id : armor_set.ids) defense += data_->armor(id).defense;
+	if (defense >= min_defense_) {
+	  break;
+	} else {
+	  ++(*base_iter_);
+	}
+      }
+    }
+
+    ArmorSetIterator *base_iter_;
+    const DataSet *data_;
+    int min_defense_;
+  };
+
+
+
 
   class ArmorUp {
   public:
@@ -281,6 +328,7 @@ namespace monster_avengers {
 	CHECK_SUCCESS(ApplySkillSplitter(query.effects, i));	
       }
       CHECK_SUCCESS(PrepareOutput());
+      CHECK_SUCCESS(ApplyDefenseFilter(query));
       JewelSolver solver(data_, query.effects);
       int count = 0;
       while (count < required_num && !output_iterators_.back()->empty()) {
@@ -408,6 +456,13 @@ namespace monster_avengers {
     Status PrepareOutput() {
       output_iterators_.emplace_back(new ExpansionIterator(iterators_.back().get(), 
 							   &pool_));
+      return Status(SUCCESS);
+    }
+
+    Status ApplyDefenseFilter(const Query &query) {
+      output_iterators_.emplace_back(new DefenseFilterIterator(output_iterators_.back().get(),
+							       &data_,
+							       query.defense));
       return Status(SUCCESS);
     }
     

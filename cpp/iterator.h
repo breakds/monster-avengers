@@ -154,7 +154,6 @@ namespace monster_avengers {
     int top_;
     ArmorSet armor_set_;
   };
-
 }
 
 #endif  // _MONSTER_AVENGERS_ITERATOR_
