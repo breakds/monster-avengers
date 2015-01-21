@@ -41,6 +41,20 @@ namespace monster_avengers {
       return key;
     }
 
+    inline Signature ConstructKey(int i, int j, int k,
+                                  std::vector<int> points) {
+      Signature key = 0;
+      char *bytes = reinterpret_cast<char*>(&key);
+      bytes[0] = i;
+      bytes[1] = j;
+      bytes[1] |= (k << 4);
+      int byte_id = 2;
+      for (int value : points) {
+        bytes[byte_id++] = value;
+      }
+      return key;
+    }
+    
     inline Signature JewelKey(const Jewel &jewel, 
                               const std::vector<int> &skill_ids,
                               const std::vector<Effect> &effects,
@@ -84,12 +98,10 @@ namespace monster_avengers {
 
     inline Signature InverseKey(std::vector<Effect>::const_iterator begin,
                                 std::vector<Effect>::const_iterator end) {
-      union {
-        Signature key;
-        char bytes[sizeof(Signature)];
-      };
       
-      key = 0;
+      Signature key = 0;
+      char *bytes = reinterpret_cast<char*>(&key);
+      
       int byte_id = 2;
       for (auto it = begin; it != end; ++it) {
         bytes[byte_id++] = -it->points;
@@ -97,21 +109,21 @@ namespace monster_avengers {
       return key;
     }
 
+    inline Signature InverseKey(Signature input_key) {
+      Signature key = input_key & 0xffffffffffff0000;
+      char *bytes = reinterpret_cast<char*>(&key);
+      for (int i = 2; i < sizeof(Signature); ++i) {
+        bytes[i] = -bytes[i];
+      }
+      return key;
+    }
+
     inline Signature CombineKey(Signature a, Signature b) {
-      union {
-        Signature key;
-        char bytes[sizeof(Signature)];
-      };
-      union {
-        Signature key_a;
-        char bytes_a[sizeof(Signature)];
-      };
-      union {
-        Signature key_b;
-        char bytes_b[sizeof(Signature)];
-      };
-      key_a = a;
-      key_b = b;
+      Signature key = 0;
+      char *bytes = reinterpret_cast<char*>(&key);
+      char *bytes_a = reinterpret_cast<char*>(&a);
+      char *bytes_b = reinterpret_cast<char*>(&b);
+      
       for (int i = 0; i < sizeof(Signature); ++i) {
         bytes[i] =  bytes_a[i] + bytes_b[i];
       }
@@ -119,21 +131,10 @@ namespace monster_avengers {
     }
 
     inline Signature CombineKeyPoints(Signature a, Signature b) {
-      union {
-        Signature key;
-        char bytes[sizeof(Signature)];
-      };
-      union {
-        Signature key_a;
-        char bytes_a[sizeof(Signature)];
-      };
-      union {
-        Signature key_b;
-        char bytes_b[sizeof(Signature)];
-      };
-      key = 0;
-      key_a = a;
-      key_b = b;
+      Signature key = 0;
+      char *bytes = reinterpret_cast<char*>(&key);
+      char *bytes_a = reinterpret_cast<char*>(&a);
+      char *bytes_b = reinterpret_cast<char*>(&b);
       
       for (int i = 2; i < sizeof(Signature); ++i) {
         bytes[i] = bytes_a[i] + bytes_b[i];
@@ -144,34 +145,20 @@ namespace monster_avengers {
 
     inline Signature AddPoints(Signature input_key, 
                                int effect_id, int points) {
-      union {
-        Signature key;
-        char bytes[sizeof(Signature)];
-      };
-      
-      key = input_key;
+      Signature key = input_key;
+      char *bytes = reinterpret_cast<char*>(&key);
       bytes[2 + effect_id] += points;
-      
       return key;
     }
 
-    inline int GetPoints(Signature input_key, int effect_id) {
-      union {
-        Signature key;
-        char bytes[sizeof(Signature)];
-      };
-      
-      key = input_key;
+    inline int GetPoints(Signature key, int effect_id) {
+      char *bytes = reinterpret_cast<char*>(&key);
       return bytes[2 + effect_id];
     }
 
-    inline std::vector<Effect> KeyEffects(Signature input_key, 
+    inline std::vector<Effect> KeyEffects(Signature key, 
                                           const std::vector<Effect> &required) {
-      union {
-        Signature key;
-        char bytes[sizeof(Signature)];
-      };
-      key = input_key;
+      char *bytes = reinterpret_cast<char*>(&key);
       int byte_id = 2;
       std::vector<Effect> result;
       result.reserve(required.size());
@@ -187,37 +174,26 @@ namespace monster_avengers {
       return KeyEffects(input_key, query.effects);
     }
 
-    inline void KeyHoles(Signature input_key, 
+    inline void KeyHoles(Signature key, 
                          int *one, int *two, int *three) {
-      union {
-        Signature key;
-        char bytes[sizeof(Signature)];
-      };
-      key = input_key;
+      char *bytes = reinterpret_cast<char*>(&key);
       *one = bytes[0];
       *two = bytes[1] & 15;
       *three = bytes[1] >> 4;
     }
 
     inline Signature HolesToKey(int one, int two, int three) {
-      union {
-        Signature key;
-        char bytes[sizeof(Signature)];
-      };
-      key = 0;
+      Signature key = 0;
+      char *bytes = reinterpret_cast<char*>(&key);
       bytes[0] = one;
       bytes[1] = two;
       bytes[1] |= (three << 4);
       return key;
     }
 
-    inline std::vector<int> KeyPointsVec(Signature input_key, 
+    inline std::vector<int> KeyPointsVec(Signature key, 
                                          int size) {
-      union {
-        Signature key;
-        char bytes[sizeof(Signature)];
-      };
-      key = input_key;
+      char *bytes = reinterpret_cast<char*>(&key);
       std::vector<int> result;
       result.reserve(size);
       for (int byte_id = 2; byte_id < 2 + size; ++byte_id) {

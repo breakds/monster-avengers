@@ -22,6 +22,7 @@ namespace monster_avengers {
       : base_iter_(base_iter), pool_(pool), top_(-1) {
       if (!base_iter_->empty()) {
         int or_id = (**base_iter).id;
+        armor_set_.jewel_keys = (**base_iter).jewel_keys;
         while (-1 != or_id) {
           const OR &or_node = pool_->Or(or_id);
           if (ANDS == or_node.tag) {
@@ -31,7 +32,7 @@ namespace monster_avengers {
             stack_[top_].and_id = 0;
             stack_[top_].armor_or_id = and_node.left;
             stack_[top_].armor_seq = 0;
-            armor_set_[top_] = pool_->Or(and_node.left).daughters[0];
+            armor_set_.ids[top_] = pool_->Or(and_node.left).daughters[0];
             or_id = and_node.right;
           } else {
             top_++;
@@ -39,7 +40,7 @@ namespace monster_avengers {
             stack_[top_].and_id = -1;
             stack_[top_].armor_or_id = or_id;
             stack_[top_].armor_seq = 0;
-            armor_set_[top_] = pool_->Or(or_id).daughters[0];
+            armor_set_.ids[top_] = pool_->Or(or_id).daughters[0];
             or_id = -1;
           }
         }
@@ -51,7 +52,7 @@ namespace monster_avengers {
       {
         const OR &armor_or = pool_->Or(stack_[top_].armor_or_id);
         if ((++stack_[top_].armor_seq) < armor_or.daughters.size()) {
-          armor_set_[top_] = armor_or.daughters[stack_[top_].armor_seq];
+          armor_set_.ids[top_] = armor_or.daughters[stack_[top_].armor_seq];
           return;
         } 
       }
@@ -61,7 +62,7 @@ namespace monster_avengers {
       while (0 <= top_) {
         const OR &armor_or = pool_->Or(stack_[top_].armor_or_id);
         if ((++stack_[top_].armor_seq) < armor_or.daughters.size()) {
-          armor_set_[top_] = armor_or.daughters[stack_[top_].armor_seq];
+          armor_set_.ids[top_] = armor_or.daughters[stack_[top_].armor_seq];
           or_id = pool_->OrAnd(stack_[top_].or_id, stack_[top_].and_id).right;
           break;
         }
@@ -71,7 +72,7 @@ namespace monster_avengers {
             pool_->OrAnd(stack_[top_].or_id, stack_[top_].and_id);
           stack_[top_].armor_or_id = and_node.left;
           stack_[top_].armor_seq = 0;
-          armor_set_[top_] = pool_->Or(and_node.left).daughters[0];
+          armor_set_.ids[top_] = pool_->Or(and_node.left).daughters[0];
           or_id = and_node.right;
           break;
         }
@@ -81,7 +82,12 @@ namespace monster_avengers {
       if (-1 >= top_) {
         if (!base_iter_->empty()) {
           ++(*base_iter_);
-          or_id = (**base_iter_).id;
+          if (!base_iter_->empty()) {
+            or_id = (**base_iter_).id;
+            armor_set_.jewel_keys = (**base_iter_).jewel_keys;
+          } else {
+            or_id = -1;
+          }
         } else {
           or_id = -1;
         }
@@ -96,7 +102,7 @@ namespace monster_avengers {
           stack_[top_].and_id = 0;
           stack_[top_].armor_or_id = and_node.left;
           stack_[top_].armor_seq = 0;
-          armor_set_[top_] = pool_->Or(and_node.left).daughters[0];
+          armor_set_.ids[top_] = pool_->Or(and_node.left).daughters[0];
           or_id = and_node.right;
         } else {
           top_++;
@@ -104,7 +110,7 @@ namespace monster_avengers {
           stack_[top_].and_id = -1;
           stack_[top_].armor_or_id = or_id;
           stack_[top_].armor_seq = 0;
-          armor_set_[top_] = pool_->Or(or_id).daughters[0];
+          armor_set_.ids[top_] = pool_->Or(or_id).daughters[0];
           or_id = -1;
         }
       }

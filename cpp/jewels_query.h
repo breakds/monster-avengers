@@ -4,6 +4,7 @@
 #include <array>
 #include <vector>
 #include <unordered_set>
+#include <unordered_map>
 #include "signature.h"
 
 namespace monster_avengers {
@@ -20,7 +21,7 @@ namespace monster_avengers {
                const std::vector<Effect> &effects)
       : jewel_keys_() {
       bool valid = false;
-      for (Jewel jewel : data.Jewels()) {
+      for (Jewel jewel : data.jewels()) {
         Signature key = sig::JewelKey(jewel, skill_ids, 
                                       effects, &valid);
         if (valid) {
@@ -257,6 +258,109 @@ namespace monster_avengers {
                           MAX_ONES>, 4> fixed_buffer_;
     std::array<std::unordered_set<Signature>, 
                MAX_ONES * MAX_TWOS * MAX_THREES> buffer_;
+  };
+
+
+  class JewelSolver {
+  public:
+    JewelSolver(const DataSet &data, 
+                const std::vector<Effect> &effects)
+      : jewel_keys_() {
+      bool valid = false;
+      std::vector<int> skill_ids;
+      for (const Effect &effect : effects) {
+        skill_ids.push_back(effect.skill_id);
+      }
+      
+      for (int i = 0; i < data.jewels().size(); ++i) {
+        const Jewel &jewel = data.jewel(i);
+        Signature key = sig::JewelKey(jewel, skill_ids, 
+                                      effects, &valid);
+        if (valid) {
+          jewel_keys_[jewel.holes].push_back(key);
+          jewel_ids_[jewel.holes].push_back(i);
+        }
+      }
+    }
+
+    std::unordered_map<int, int> Solve(Signature key) const {
+      Signature target = sig::InverseKey(key);
+      int i(0), j(0), k(0);
+      sig::KeyHoles(key, &i, &j, &k);
+      std::vector<int> ids;
+      CHECK(Search(i, j, k, 0, target, &ids));
+      
+      std::unordered_map<int, int> result;
+      for (int id : ids) {
+        auto it = result.find(id);
+        if (result.end() != it) {
+          it->second++;
+        } else {
+          result[id] = 1;
+        }
+      }
+      return result;
+    }
+
+
+  private:
+    bool Search(int i, int scan_id, 
+                Signature key, std::vector<int> *ids) const {
+
+      if (0 == i) {
+        return 0 == key;
+      }
+      
+      for (int seq = scan_id; seq < jewel_ids_.size(); ++seq) {
+        ids->push_back(jewel_ids_[1][seq]);
+        if (Search(i - 1, seq, 
+                   sig::CombineKeyPoints(key, jewel_keys_[1][seq]),
+                   ids)) {
+          return true;
+        }
+        ids->pop_back();
+      }
+      return false;
+    }
+
+    bool Search(int i, int j, int scan_id, 
+                Signature key, std::vector<int> *ids) const {
+      if (0 == j) {
+        return Search(i, 0, key, ids);
+      }
+
+      for (int seq = scan_id; seq < jewel_ids_.size(); ++seq) {
+        ids->push_back(jewel_ids_[2][seq]);
+        if (Search(i, j - 1, seq, 
+                   sig::CombineKeyPoints(key, jewel_keys_[2][seq]),
+                   ids)) {
+          return true;
+        }
+        ids->pop_back();
+      }
+      return false;
+    }
+
+    bool Search(int i, int j, int k, int scan_id, 
+                Signature key, std::vector<int> *ids) const {
+      if (0 == k) {
+        return Search(i, j, 0, key, ids);
+      }
+
+      for (int seq = scan_id; seq < jewel_ids_.size(); ++seq) {
+        ids->push_back(jewel_ids_[3][seq]);
+        if (Search(i, j, k - 1, seq, 
+                   sig::CombineKeyPoints(key, jewel_keys_[3][seq]),
+                   ids)) {
+          return true;
+        }
+        ids->pop_back();
+      }
+      return false;
+    }
+    
+    std::array<std::vector<Signature>, 4> jewel_keys_;
+    std::array<std::vector<int>, 4> jewel_ids_;
   };
 
 }

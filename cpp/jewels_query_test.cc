@@ -1,4 +1,5 @@
 #include <utility>
+#include <unordered_map>
 #include "jewels_query.h"
 
 
@@ -44,6 +45,19 @@ void TestResidual(int one, int two, int three,
   CHECK(std::make_tuple(i, j, k) == std::make_tuple(res_i, res_j, res_k));
 }
 
+void TestJewelSolver(const DataSet &data,
+                     const JewelSolver& solver, 
+                     int i, int j, int k,
+                     int p0, int p1, int p2) {
+  std::unordered_map<int, int> result =
+    std::move(solver.Solve(sig::ConstructKey(i, j, k, {p0, p1, p2})));
+  wprintf(L"----------\n");
+  for (auto &item : result) {
+    wprintf(L"%3d x %ls\n", item.second, 
+            data.jewel(item.first).name.c_str());
+  }
+}
+
 
 int main() {
   std::setlocale(LC_ALL, "en_US.UTF-8");
@@ -76,6 +90,14 @@ int main() {
   TestResidual(2, 2, 1, 4, 2, 0, 1, 0, 0);
   TestResidual(2, 2, 1, 4, 1, 1, 0, 0, 0);
   TestResidual(1, 2, 2, 8, 0, 0, 0, 0, 1);
+
+  // JewelSolver tests
+  JewelSolver solver(data, {{0, 10}, {1, 10}, {2, 10}});
+  TestJewelSolver(data, solver, 2, 0, 0, 0, 0, 0);
+  TestJewelSolver(data, solver, 0, 2, 0, 0, 0, 6);
+  TestJewelSolver(data, solver, 0, 2, 1, 11, -3, 0);
+  TestJewelSolver(data, solver, 0, 4, 1, 10, 0, 3);
+  TestJewelSolver(data, solver, 4, 4, 1, 6, 4, 3);
 
   return 0;
 }

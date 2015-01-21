@@ -222,8 +222,6 @@ namespace monster_avengers {
         }
         
         if (!jewel_candidates.empty()) {
-	  sig::ExplainSignature(node.key,
-				{{46, 10}, {43, 10}, {91, 15}});
           std::vector<int> new_ors = splitter_.Split(root, sub_min);
           for (int or_id : new_ors) {
             buffer_.emplace_back(or_id);
@@ -236,10 +234,6 @@ namespace monster_avengers {
               }
             }
           }
-
-	  char ch;
-	  scanf("%c", &ch);
-
           break;
         }
         
@@ -284,6 +278,7 @@ namespace monster_avengers {
       CHECK_SUCCESS(ApplyJewelFilter(query.effects));
       CHECK_SUCCESS(ApplySkillSplitter(query.effects, 2));
       CHECK_SUCCESS(PrepareOutput());
+      JewelSolver solver(data_, query.effects);
       int i = 0;
       while (i < required_num && !output_->empty()) {
         const OR &or_node = pool_.Or(output_->BaseIndex());
@@ -298,7 +293,7 @@ namespace monster_avengers {
         sig::KeyHoles(or_node.key, &one, &two, &three);
         wprintf(L"O:%d   OO:%d   OOO:%d\n", one, two, three);
 
-        OutputArmorSet(data_, **output_);
+        OutputArmorSet(data_, **output_, query.effects, solver);
         ++i;
         ++(*output_);
       }

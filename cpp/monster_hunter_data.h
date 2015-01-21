@@ -414,8 +414,12 @@ namespace monster_avengers {
       ReadArmors<FEET>(data_folder + "/sabatons.lisp");
     }
 
-    inline const std::vector<Jewel> &Jewels() const {
+    inline const std::vector<Jewel> &jewels() const {
       return jewels_;
+    }
+
+    inline const Jewel &jewel(int id) const {
+      return jewels_[id];
     }
 
     inline const std::vector<int> &ArmorIds(ArmorPart part) const {
