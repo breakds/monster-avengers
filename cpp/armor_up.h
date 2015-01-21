@@ -8,9 +8,10 @@
 
 #include "query.h"
 #include "signature.h"
-#include "search_util.h"
+#include "or_and_tree.h"
 #include "iterator.h"
 #include "jewels_query.h"
+#include "armor_set.h"
 
 namespace monster_avengers {
 

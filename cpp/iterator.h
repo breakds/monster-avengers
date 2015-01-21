@@ -3,7 +3,8 @@
 
 #include <memory>
 #include <array>
-#include "search_util.h"
+#include "or_and_tree.h"
+#include "armor_set.h"
 
 namespace monster_avengers {
 

@@ -64,6 +64,20 @@ namespace monster_avengers {
       return Status(SUCCESS);
     }
 
+    static Status ParseFile(const std::string file_name, Query *query) {
+      std::wifstream input_stream(file_name);
+      if (!input_stream.good()) {
+        Log(ERROR, L"error while opening %s.", file_name.c_str());
+        return Status(FAIL, "error while opening query file.");
+      }
+      std::wstring text = L"";
+      wchar_t buffer;
+      while (input_stream.get(buffer)) {
+        text += buffer;
+      }
+      return Parse(text, query);
+    }
+
     const Query &operator=(const Query &other) {
       effects = other.effects;
       defense = other.defense;
