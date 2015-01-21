@@ -12,14 +12,12 @@ namespace monster_avengers {
                               const std::vector<Effect> &effects,
                               bool *valid) {
       *valid = false;
+
       
-      union {
-        Signature key;
-        char bytes[sizeof(Signature)];
-      };
-
-      key = 0;
-
+      
+      Signature key = 0;
+      char *bytes = reinterpret_cast<char *>(&key);
+      
       if (1 == armor.holes) {
         bytes[0] = 1;
       } else if (2 == armor.holes) {
@@ -48,14 +46,10 @@ namespace monster_avengers {
                               const std::vector<Effect> &effects,
                               bool *valid) {
       *valid = false;
+
+      Signature key = 0;
+      char *bytes = reinterpret_cast<char*>(&key);
       
-      union {
-        Signature key;
-        char bytes[sizeof(Signature)];
-      };
-
-      key = 0;
-
       for (int skill_id : skill_ids) {
         for (const Effect &jewel_effect : jewel.effects) {
           if (skill_id == jewel_effect.skill_id) {

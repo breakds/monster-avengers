@@ -221,9 +221,9 @@ namespace monster_avengers {
           }
         }
         
-        // If there is no valid jewel signatures, we can proceed to
-        // the next tree in the forest.
         if (!jewel_candidates.empty()) {
+	  sig::ExplainSignature(node.key,
+				{{46, 10}, {43, 10}, {91, 15}});
           std::vector<int> new_ors = splitter_.Split(root, sub_min);
           for (int or_id : new_ors) {
             buffer_.emplace_back(or_id);
@@ -237,9 +237,14 @@ namespace monster_avengers {
             }
           }
 
+	  char ch;
+	  scanf("%c", &ch);
+
           break;
         }
         
+        // If there is no valid jewel signatures, we can proceed to
+        // the next tree in the forest.
         ++(*base_iter_);
       }
     }

@@ -25,7 +25,8 @@ namespace monster_avengers {
           wprintf(L"-");
         }
       }
-      wprintf(L"] %ls (%d)\n", armor.name.c_str(), armor_set[i]);
+      wprintf(L"] %s %ls (%d)\n", (MELEE == armor.type) ? "--H" : ")->", 
+	      armor.name.c_str(), armor_set[i]);
       for (const Effect &effect : armor.effects) {
         auto it = std::find_if(effects.begin(), effects.end(),
                                [&effect](const Effect& x) {
