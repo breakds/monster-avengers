@@ -27,8 +27,15 @@ namespace monster_avengers {
           wprintf(L"-");
         }
       }
-      wprintf(L"] %s %ls (%d)\n", (MELEE == armor.type) ? "--H" : ")->", 
-	      armor.name.c_str(), ids[i]);
+      if (GEAR == armor.part) {
+        wprintf(L"] [Rare ??] ??? %ls (%d)\n", 
+                armor.name.c_str(), ids[i]);
+      } else {
+        wprintf(L"] [Rare %02d] %s %ls (%d)\n", 
+                armor.rare,
+                (MELEE == armor.type) ? "--H" : ")->", 
+                armor.name.c_str(), ids[i]);
+      }
       for (const Effect &effect : armor.effects) {
         auto it = std::find_if(effects.begin(), effects.end(),
                                [&effect](const Effect& x) {
