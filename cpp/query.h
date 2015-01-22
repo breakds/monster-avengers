@@ -11,12 +11,14 @@ namespace monster_avengers {
     enum Command {
       SKILL = 0,
       DEFENSE,
-      WEAPON_TYPE
+      WEAPON_TYPE,
+      WEAPON_HOLES
     };
     
     std::vector<Effect> effects;
     int defense;
     WeaponType weapon_type;
+    int weapon_holes;
 
     Query() : effects(), defense(0), weapon_type(MELEE) {}
 
@@ -25,6 +27,7 @@ namespace monster_avengers {
       query->defense = 0;
       query->weapon_type = MELEE;
       query->effects.clear();
+      query->weapon_holes = 0; // by default do not allow weapon holes.
       auto tokenizer = parser::Tokenizer::FromText(query_text);
       parser::Token token;
       Command command;
@@ -54,6 +57,10 @@ namespace monster_avengers {
           break;
         case WEAPON_TYPE:
           status = ReadWeaponType(&tokenizer, &query->weapon_type);
+          if (!status.Success()) return status;
+          break;
+        case WEAPON_HOLES:
+          status = ReadInt(&tokenizer, &query->weapon_holes);
           if (!status.Success()) return status;
           break;
         default:
@@ -97,6 +104,7 @@ namespace monster_avengers {
       } else {
         wprintf(L"weapon_type: RANGE\n");
       }
+      wprintf(L"weapon_holes: %d\n", weapon_holes);
       wprintf(L"defense: %d\n\n", defense);
     }
 
@@ -130,6 +138,9 @@ namespace monster_avengers {
       if (!tokenizer->Next(&token)) {
         return Status(FAIL, "Query: Unexpected end of query.");
       }
+      if (L"weapon-holes" == token.value) {
+
+      }
       if (parser::KEYWORD != token.name) {
         return Status(FAIL, "Query: Syntax Error - expect KEYWORD.");
       }
@@ -139,6 +150,8 @@ namespace monster_avengers {
         *command = DEFENSE;
       } else if (L"weapon-type" == token.value) {
         *command = WEAPON_TYPE;
+      } else if (L"weapon-holes" == token.value) {
+        *command = WEAPON_HOLES;
       } else {
         return Status(FAIL, "Query: Invalid command.");
       }

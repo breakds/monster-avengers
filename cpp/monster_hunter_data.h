@@ -281,6 +281,7 @@ namespace monster_avengers {
     HANDS = 2,
     WAIST = 3,
     FEET = 4,
+    GEAR = 5,
     PART_NUM
   };
 
@@ -412,6 +413,7 @@ namespace monster_avengers {
       ReadArmors<HANDS>(data_folder + "/gloves.lisp");
       ReadArmors<WAIST>(data_folder + "/cuisses.lisp");
       ReadArmors<FEET>(data_folder + "/sabatons.lisp");
+      ReadArmors<GEAR>(data_folder + "/gears.lisp");
     }
 
     inline const std::vector<Jewel> &jewels() const {
@@ -457,6 +459,7 @@ namespace monster_avengers {
       Log(INFO, L" - GLOVES: %lld", armor_indices_by_parts_[HANDS].size());
       Log(INFO, L" - CUISSES: %lld", armor_indices_by_parts_[WAIST].size());
       Log(INFO, L" - SABATONS: %lld", armor_indices_by_parts_[FEET].size());
+      Log(INFO, L" - GEARS: %lld", armor_indices_by_parts_[GEAR].size());
     }
     
   private:
@@ -477,13 +480,14 @@ namespace monster_avengers {
       for (const Armor &armor : armor_list) {
         armors_.push_back(armor);
         armors_.back().part = Part;
-        if (HEAD == Part) {
+        if (HEAD == Part || GEAR == Part) {
           armors_.back().type = BOTH;
         }
         armor_indices_by_parts_[Part].push_back(armors_.size() - 1);
       }
     }
     
+
     std::vector<SkillSystem> skill_systems_;
     std::vector<Jewel> jewels_;
     std::vector<Armor> armors_;

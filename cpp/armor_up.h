@@ -325,7 +325,7 @@ namespace monster_avengers {
       CHECK_SUCCESS(ApplyFoundation(query));
       CHECK_SUCCESS(ApplyJewelFilter(query.effects));
       for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
-	CHECK_SUCCESS(ApplySkillSplitter(query.effects, i));	
+        CHECK_SUCCESS(ApplySkillSplitter(query.effects, i));	
       }
       CHECK_SUCCESS(PrepareOutput());
       CHECK_SUCCESS(ApplyDefenseFilter(query));
@@ -373,6 +373,11 @@ namespace monster_avengers {
         const Armor &armor = data_.armor(id);
         if (armor.type == query.weapon_type || BOTH == armor.type) {
           Signature key = sig::ArmorKey(armor, effects, &valid);
+
+          if (GEAR == part && armor.holes == query.weapon_holes) {
+            valid = true;
+          }
+          
           if (valid) {
             auto it = armor_map.find(key);
             if (armor_map.end() == it) {
