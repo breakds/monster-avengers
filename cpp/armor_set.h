@@ -10,14 +10,15 @@ namespace monster_avengers {
   
   void OutputArmorSet(const DataSet &data, 
                       const ArmorSet &armor_set, 
-                      const std::vector<Effect> &required,
+                      const Query &query,
                       const JewelSolver &solver) {
     wprintf(L"---------- Armor Set ----------\n");
     int defense = 0;
     std::vector<Effect> effects;
     const std::array<int, PART_NUM> &ids = armor_set.ids;
     for (int i = 0; i < PART_NUM; ++i) {
-      const Armor armor = data.armor(ids[i]);
+      const Armor &armor = (ids[i] < data.armors().size()) ?
+        data.armor(ids[i]) : query.amulets[ids[i] - data.armors().size()];
       defense += data.armor(ids[i]).defense;
       wprintf(L"[");
       for (int j = 0; j < 3; ++j) {

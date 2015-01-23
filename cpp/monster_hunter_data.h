@@ -282,6 +282,7 @@ namespace monster_avengers {
     WAIST = 3,
     FEET = 4,
     GEAR = 5,
+    AMULET = 6,
     PART_NUM
   };
 
@@ -293,6 +294,19 @@ namespace monster_avengers {
     int defense;
     int holes;
     std::vector<Effect> effects;
+    
+    Armor() = default;
+
+    static Armor Amulet(int holes, std::vector<Effect> effects) {
+      Armor armor;
+      armor.name = L"Amulet";
+      armor.type = BOTH;
+      armor.rare = 10;
+      armor.defense = 0;
+      armor.holes = holes;
+      armor.effects = std::move(effects);
+      return armor;
+    }
     
     // Constructor from reading Tokenizer.
     explicit Armor(parser::Tokenizer *tokenizer,
@@ -407,13 +421,14 @@ namespace monster_avengers {
       }
 
       // Armors: (including amulet)
-      armor_indices_by_parts_.resize(6);
+      armor_indices_by_parts_.resize(PART_NUM);
       ReadArmors<HEAD>(data_folder + "/helms.lisp");
       ReadArmors<BODY>(data_folder + "/cuirasses.lisp");
       ReadArmors<HANDS>(data_folder + "/gloves.lisp");
       ReadArmors<WAIST>(data_folder + "/cuisses.lisp");
       ReadArmors<FEET>(data_folder + "/sabatons.lisp");
       ReadArmors<GEAR>(data_folder + "/gears.lisp");
+      LoadAmulet();
     }
 
     inline const std::vector<Jewel> &jewels() const {
@@ -460,6 +475,7 @@ namespace monster_avengers {
       Log(INFO, L" - CUISSES: %lld", armor_indices_by_parts_[WAIST].size());
       Log(INFO, L" - SABATONS: %lld", armor_indices_by_parts_[FEET].size());
       Log(INFO, L" - GEARS: %lld", armor_indices_by_parts_[GEAR].size());
+      Log(INFO, L" - AMULETS: %lld", armor_indices_by_parts_[AMULET].size());
     }
     
   private:
@@ -486,8 +502,12 @@ namespace monster_avengers {
         armor_indices_by_parts_[Part].push_back(armors_.size() - 1);
       }
     }
-    
 
+    void LoadAmulet() {
+      armors_.push_back(Armor::Amulet(0, {}));
+      armor_indices_by_parts_[AMULET].push_back(armors_.size() - 1);
+    }
+    
     std::vector<SkillSystem> skill_systems_;
     std::vector<Jewel> jewels_;
     std::vector<Armor> armors_;

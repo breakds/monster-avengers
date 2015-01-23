@@ -344,7 +344,7 @@ namespace monster_avengers {
         sig::KeyHoles(or_node.key, &one, &two, &three);
         wprintf(L"O:%d   OO:%d   OOO:%d\n", one, two, three);
 
-        OutputArmorSet(data_, **output_iterators_.back(), query.effects, solver);
+        OutputArmorSet(data_, **output_iterators_.back(), query, solver);
 	++count;
         ++(*output_iterators_.back());
       }
@@ -377,6 +377,8 @@ namespace monster_avengers {
           if (GEAR == part && armor.holes == query.weapon_holes) {
 	    // Weapon whitelist
             valid = true;
+          } else if (AMULET == part) {
+            valid = true;
           } else if (armor.rare < query.min_rare) {
 	    // Rare blacklist
 	    valid = false;
@@ -384,6 +386,22 @@ namespace monster_avengers {
 	  
           if (valid) {
             auto it = armor_map.find(key);
+            if (armor_map.end() == it) {
+              armor_map[key] = {id};
+            } else {
+              it->second.push_back(id);
+            }
+          }
+        }
+      }
+      
+      // This is only for amulets now
+      if (AMULET == part) {
+        for (int i = 0; i < query.amulets.size(); ++i) {
+          Signature key = sig::ArmorKey(query.amulets[i], effects, &valid);
+          if (valid || query.amulets[i].holes > 0) {
+            auto it = armor_map.find(key);
+            int id = data_.armors().size() + i;
             if (armor_map.end() == it) {
               armor_map[key] = {id};
             } else {

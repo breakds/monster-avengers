@@ -18,19 +18,17 @@ namespace monster_avengers {
       WEAPON_TYPE,
       WEAPON_HOLES,
       MIN_RARE,
+      ADD_AMULET,
     };
 
-    static const std::unordered_map<std::wstring, Command> COMMAND_TRANSLATOR {
-      {L"skill", SKILL}, {L"defense", DEFENSE}, {L"weapon-type", WEAPON_TYPE},
-						  {L"weapon-holes", WEAPON_HOLES}
-						  
-    };
+    static const std::unordered_map<std::wstring, Command> COMMAND_TRANSLATOR;
     
     std::vector<Effect> effects;
     int defense;
     WeaponType weapon_type;
     int weapon_holes;
     int min_rare;
+    std::vector<Armor> amulets;
 
     Query() : effects(), defense(0), weapon_type(MELEE) {}
 
@@ -41,6 +39,7 @@ namespace monster_avengers {
       query->effects.clear();
       query->weapon_holes = 0; // by default do not allow weapon holes.
       query->min_rare = 0; // by default there is no rare limit.
+      query->amulets.clear();
 
       auto tokenizer = parser::Tokenizer::FromText(query_text);
       parser::Token token;
@@ -48,6 +47,10 @@ namespace monster_avengers {
       Status status(SUCCESS);
       int skill_id = 0;
       int skill_points = 0;
+      std::vector<Effect> effects;
+      std::vector<int> nums;
+      int holes;
+
       while (tokenizer.Next(&token)) {
         // Get "("
         if (parser::OPEN_PARENTHESIS != token.name) {
@@ -56,7 +59,7 @@ namespace monster_avengers {
 
         status = ReadCommand(&tokenizer, &command);
         if (!status.Success()) return status;
-        
+
         switch (command) {
         case SKILL:
           status = ReadInt(&tokenizer, &skill_id);
@@ -80,6 +83,17 @@ namespace monster_avengers {
 	case MIN_RARE:
 	  status = ReadInt(&tokenizer, &query->min_rare);
           if (!status.Success()) return status;
+          break;
+        case ADD_AMULET:
+          status = ReadInt(&tokenizer, &holes);
+          if (!status.Success()) return status;
+          nums.clear();
+          effects.clear();
+          nums = parser::ParseList<int>::Do(&tokenizer);
+          for (int i = 0; i < (nums.size() >> 1); ++i) {
+            effects.emplace_back(nums[i << 1], nums[(i << 1) + 1]);
+          }
+          query->amulets.push_back(Armor::Amulet(holes, effects));
           break;
         default:
           return Status(FAIL, "Query: Invalid command.");
@@ -123,7 +137,12 @@ namespace monster_avengers {
         wprintf(L"weapon_type: RANGE\n");
       }
       wprintf(L"weapon_holes: %d\n", weapon_holes);
-      wprintf(L"defense: %d\n\n", defense);
+      wprintf(L"mininum rare: %d\n", min_rare);
+      wprintf(L"defense: %d\n", defense);
+      for (auto &amulet : amulets) {
+        amulet.DebugPrint();
+      }
+      wprintf(L"\n");
     }
 
   private:
@@ -156,22 +175,15 @@ namespace monster_avengers {
       if (!tokenizer->Next(&token)) {
         return Status(FAIL, "Query: Unexpected end of query.");
       }
-      if (L"weapon-holes" == token.value) {
-
-      }
+      
       if (parser::KEYWORD != token.name) {
         return Status(FAIL, "Query: Syntax Error - expect KEYWORD.");
       }
-      if (L"skill" == token.value) {
-        *command = SKILL;
-      } else if (L"defense" == token.value) {
-        *command = DEFENSE;
-      } else if (L"weapon-type" == token.value) {
-        *command = WEAPON_TYPE;
-      } else if (L"weapon-holes" == token.value) {
-        *command = WEAPON_HOLES;
-      } else if (L"rare" == token.value) {
-	*command = MIN_RARE;
+
+      auto it = COMMAND_TRANSLATOR.find(token.value);
+
+      if (COMMAND_TRANSLATOR.end() != it) {
+        *command = it->second;
       } else {
         return Status(FAIL, "Query: Invalid command.");
       }
@@ -197,6 +209,15 @@ namespace monster_avengers {
       return Status(SUCCESS);
     }
   };
+
+  const std::unordered_map<std::wstring, Query::Command> 
+  Query::COMMAND_TRANSLATOR =
+    {{L"skill", SKILL}, 
+     {L"defense", DEFENSE}, 
+     {L"weapon-type", WEAPON_TYPE},
+     {L"weapon-holes", WEAPON_HOLES},
+     {L"rare", MIN_RARE},
+     {L"amulet", ADD_AMULET}};
 }
 
 #endif  // _MONSTER_AVENGERS_QUERY_
