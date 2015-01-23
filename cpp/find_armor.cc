@@ -13,9 +13,7 @@ int main(int argc, char **argv) {
   }
   Query query;
   CHECK_SUCCESS(Query::ParseFile(argv[1], &query));
-  query.DebugPrint();
   ArmorUp armor_up("/home/breakds/pf/projects/monster-avengers/dataset/MH4");
-  armor_up.Search(query, 10);
-  armor_up.Summarize();
+  armor_up.SearchAndOutput(query, 10);
   return 0;
 }

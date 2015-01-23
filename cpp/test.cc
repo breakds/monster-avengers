@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
                              &query));
   query.DebugPrint();
   ArmorUp armor_up("/home/breakds/pf/projects/monster-avengers/dataset/MH4");
-  armor_up.SearchAndOutput(query, 10);
+  armor_up.SearchAndOutput(query);
   armor_up.Summarize();
   return 0;
 }
