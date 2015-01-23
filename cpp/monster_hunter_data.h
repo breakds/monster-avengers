@@ -305,6 +305,7 @@ namespace monster_avengers {
       armor.defense = 0;
       armor.holes = holes;
       armor.effects = std::move(effects);
+      armor.part = AMULET;
       return armor;
     }
     

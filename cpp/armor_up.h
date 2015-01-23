@@ -350,6 +350,24 @@ namespace monster_avengers {
       }
     }
 
+    void SearchAndOutput(const Query &query, int required_num = 10) {
+      CHECK_SUCCESS(ApplyFoundation(query));
+      CHECK_SUCCESS(ApplyJewelFilter(query.effects));
+      for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
+        CHECK_SUCCESS(ApplySkillSplitter(query.effects, i));	
+      }
+      CHECK_SUCCESS(PrepareOutput());
+      CHECK_SUCCESS(ApplyDefenseFilter(query));
+      JewelSolver solver(data_, query.effects);
+      int count = 0;
+      while (count < required_num && !output_iterators_.back()->empty()) {
+        const OR &or_node = pool_.Or(output_iterators_.back()->BaseIndex());
+        PrettyPrintArmorSet(data_, **output_iterators_.back(), query, solver);
+	++count;
+        ++(*output_iterators_.back());
+      }
+    }
+
     // ----- Debug -----
     void Summarize() {
       data_.Summarize();
