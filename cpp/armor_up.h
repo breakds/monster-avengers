@@ -375,9 +375,13 @@ namespace monster_avengers {
           Signature key = sig::ArmorKey(armor, effects, &valid);
 
           if (GEAR == part && armor.holes == query.weapon_holes) {
+	    // Weapon whitelist
             valid = true;
-          }
-          
+          } else if (armor.rare < query.min_rare) {
+	    // Rare blacklist
+	    valid = false;
+	  }
+	  
           if (valid) {
             auto it = armor_map.find(key);
             if (armor_map.end() == it) {

@@ -41,6 +41,8 @@ namespace monster_avengers {
       return key;
     }
 
+    // Construct a signature with hole alignment (i, j, k) and the
+    // given effect points. This is mainly for debug use.
     inline Signature ConstructKey(int i, int j, int k,
                                   std::vector<int> points) {
       Signature key = 0;

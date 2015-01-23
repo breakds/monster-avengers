@@ -1,6 +1,9 @@
 #ifndef _MONSTER_AVENGERS_QUERY_
 #define _MONSTER_AVENGERS_QUERY_
 
+#include <string>
+#include <unordered_map>
+
 #include "helpers.h"
 #include "parser.h"
 #include "monster_hunter_data.h"
@@ -8,17 +11,26 @@
 namespace monster_avengers {
 
   struct Query {
+
     enum Command {
       SKILL = 0,
       DEFENSE,
       WEAPON_TYPE,
-      WEAPON_HOLES
+      WEAPON_HOLES,
+      MIN_RARE,
+    };
+
+    static const std::unordered_map<std::wstring, Command> COMMAND_TRANSLATOR {
+      {L"skill", SKILL}, {L"defense", DEFENSE}, {L"weapon-type", WEAPON_TYPE},
+						  {L"weapon-holes", WEAPON_HOLES}
+						  
     };
     
     std::vector<Effect> effects;
     int defense;
     WeaponType weapon_type;
     int weapon_holes;
+    int min_rare;
 
     Query() : effects(), defense(0), weapon_type(MELEE) {}
 
@@ -28,6 +40,8 @@ namespace monster_avengers {
       query->weapon_type = MELEE;
       query->effects.clear();
       query->weapon_holes = 0; // by default do not allow weapon holes.
+      query->min_rare = 0; // by default there is no rare limit.
+
       auto tokenizer = parser::Tokenizer::FromText(query_text);
       parser::Token token;
       Command command;
@@ -61,6 +75,10 @@ namespace monster_avengers {
           break;
         case WEAPON_HOLES:
           status = ReadInt(&tokenizer, &query->weapon_holes);
+          if (!status.Success()) return status;
+          break;
+	case MIN_RARE:
+	  status = ReadInt(&tokenizer, &query->min_rare);
           if (!status.Success()) return status;
           break;
         default:
@@ -152,6 +170,8 @@ namespace monster_avengers {
         *command = WEAPON_TYPE;
       } else if (L"weapon-holes" == token.value) {
         *command = WEAPON_HOLES;
+      } else if (L"rare" == token.value) {
+	*command = MIN_RARE;
       } else {
         return Status(FAIL, "Query: Invalid command.");
       }
