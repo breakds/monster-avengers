@@ -10,6 +10,7 @@
                  #:stefil)
     :components ((:file "lisp/package")
                  ;; crawler
+                 (:file "lisp/crawler/mh4g-crawler")
                  (:file "lisp/crawler/mh4-crawler")
                  (:file "lisp/crawler/mhp3-crawler")
                  (:file "lisp/crawler/crawler-test")

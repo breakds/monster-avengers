@@ -1,5 +1,15 @@
 ;;;; package.lisp
 
+(defpackage #:breakds.monster-avengers.mh4g-crawler
+  (:nicknames #:mh4g-crawler)
+  (:use #:cl
+        #:swiss-knife
+        #:breakds.html-operation
+        #:breakds.struct-wrapper)
+  (:export #:crawl-skill-system
+           #:crawl-skill-systems
+           #:update-jap-dataset))
+
 (defpackage #:breakds.monster-avengers.mh4-crawler
   (:nicknames #:mh4-crawler)
   (:use #:cl
