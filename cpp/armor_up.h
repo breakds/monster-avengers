@@ -368,6 +368,10 @@ namespace monster_avengers {
       }
     }
 
+    void ListSkills() {
+      data_.PrintSkillSystems();
+    }
+
     // ----- Debug -----
     void Summarize() {
       data_.Summarize();

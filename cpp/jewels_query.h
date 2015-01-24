@@ -289,7 +289,7 @@ namespace monster_avengers {
       sig::KeyHoles(key, &i, &j, &k);
       std::vector<int> ids;
       CHECK(Search(i, j, k, 0, target, &ids));
-      
+
       std::unordered_map<int, int> result;
       for (int id : ids) {
         auto it = result.find(id);
@@ -311,7 +311,7 @@ namespace monster_avengers {
         return 0 == key;
       }
       
-      for (int seq = scan_id; seq < jewel_ids_.size(); ++seq) {
+      for (int seq = scan_id; seq < jewel_ids_[1].size(); ++seq) {
         ids->push_back(jewel_ids_[1][seq]);
         if (Search(i - 1, seq, 
                    sig::CombineKeyPoints(key, jewel_keys_[1][seq]),
@@ -329,7 +329,7 @@ namespace monster_avengers {
         return Search(i, 0, key, ids);
       }
 
-      for (int seq = scan_id; seq < jewel_ids_.size(); ++seq) {
+      for (int seq = scan_id; seq < jewel_ids_[2].size(); ++seq) {
         ids->push_back(jewel_ids_[2][seq]);
         if (Search(i, j - 1, seq, 
                    sig::CombineKeyPoints(key, jewel_keys_[2][seq]),
@@ -347,7 +347,7 @@ namespace monster_avengers {
         return Search(i, j, 0, key, ids);
       }
 
-      for (int seq = scan_id; seq < jewel_ids_.size(); ++seq) {
+      for (int seq = scan_id; seq < jewel_ids_[3].size(); ++seq) {
         ids->push_back(jewel_ids_[3][seq]);
         if (Search(i, j, k - 1, seq, 
                    sig::CombineKeyPoints(key, jewel_keys_[3][seq]),

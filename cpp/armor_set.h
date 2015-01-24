@@ -3,6 +3,8 @@
 
 namespace monster_avengers {
 
+  const int MAX_JEWEL_PLAN = 5;
+
   struct ArmorSet {
     std::array<int, PART_NUM> ids;
     std::vector<Signature> jewel_keys;
@@ -56,6 +58,8 @@ namespace monster_avengers {
               effect.points);
     }
     wprintf(L"\n");
+
+    int plan_count = 0;
     for (const Signature &jewel_key : armor_set.jewel_keys) {
       wprintf(L"Jewel Plan:    ");
       for (auto item : solver.Solve(jewel_key)) {
@@ -63,6 +67,9 @@ namespace monster_avengers {
                 data.jewel(item.first).name.c_str());
       }
       wprintf(L"\n");
+      if (++plan_count >= MAX_JEWEL_PLAN) {
+        break;
+      }
     }
     wprintf(L"\n");
   }
@@ -123,6 +130,7 @@ namespace monster_avengers {
               effect.points);
     }
     wprintf(L"\n");
+    int plan_count = 0;
     for (const Signature &jewel_key : armor_set.jewel_keys) {
       wprintf(L"Jewel Plan:    ");
       for (auto item : solver.Solve(jewel_key)) {
@@ -130,6 +138,9 @@ namespace monster_avengers {
                 data.jewel(item.first).name.c_str());
       }
       wprintf(L"\n");
+      if (++plan_count >= MAX_JEWEL_PLAN) {
+        break;
+      }
     }
     wprintf(L"\n");
   }
