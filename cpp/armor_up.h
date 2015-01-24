@@ -311,9 +311,9 @@ namespace monster_avengers {
     std::vector<int> Foundation(const Query &query) {
       std::vector<int> previous;
       std::vector<int> current;
-      for (ArmorPart part = HEAD; part < PART_NUM; ++part) {
+      for (int part = HEAD; part < PART_NUM; ++part) {
         previous.swap(current);
-        current = std::move(ClassifyArmors(part, query));
+        current = std::move(ClassifyArmors(static_cast<ArmorPart>(part), query));
         if (HEAD != part) {
           current = std::move(MergeForests(current, previous));
         }
