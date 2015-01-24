@@ -221,7 +221,7 @@ namespace monster_avengers {
             }
           }
         }
-        
+
         if (!jewel_candidates.empty()) {
           std::vector<int> new_ors = splitter_.Split(root, sub_min);
           for (int or_id : new_ors) {
@@ -237,7 +237,7 @@ namespace monster_avengers {
           }
           break;
         }
-        
+
         // If there is no valid jewel signatures, we can proceed to
         // the next tree in the forest.
         ++(*base_iter_);
@@ -328,11 +328,10 @@ namespace monster_avengers {
         CHECK_SUCCESS(ApplySkillSplitter(query, i));	
       }
       CHECK_SUCCESS(PrepareOutput());
-      CHECK_SUCCESS(ApplyDefenseFilter(query));
+      // CHECK_SUCCESS(ApplyDefenseFilter(query));
       JewelSolver solver(data_, query.effects);
       int count = 0;
       while (count < required_num && !output_iterators_.back()->empty()) {
-        wprintf(L"or_node: %d\n", output_iterators_.back()->BaseIndex());
         const OR &or_node = pool_.Or(output_iterators_.back()->BaseIndex());
         for (const Effect &effect : sig::KeyEffects(or_node.key, 
                                                     query)) {
@@ -406,6 +405,11 @@ namespace monster_avengers {
 	    // Rare blacklist
 	    valid = false;
 	  }
+
+          // Blacklist filter.
+          if (0 < query.blacklist.count(id)) {
+            valid = false;
+          }
 	  
           if (valid) {
             auto it = armor_map.find(key);

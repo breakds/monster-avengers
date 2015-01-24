@@ -205,9 +205,12 @@ namespace monster_avengers {
           temp_map[armor_points_[armor_id]] = {armor_id};
         }
       }
+
+      // node may be invalid below due to MakeOR<ARMORS>().
+      Signature key = node.key;
       
       for (auto &item : temp_map) {
-        int new_or_id = pool_->MakeOR<ARMORS>(sig::AddPoints(node.key,
+        int new_or_id = pool_->MakeOR<ARMORS>(sig::AddPoints(key,
                                                              effect_id_,
                                                              item.first),
                                               &item.second);
@@ -230,12 +233,15 @@ namespace monster_avengers {
                 &split_right) :
         SplitArmorOr(node.right, &split_right, 
                      sub_min - left_max);
+
+      // Note(breakds), node may already have been invalid as the
+      // above code may trigger reallocation of vector in pool_.
       
-      const OR &left_node = pool_->Or(node.left);
+      Signature left_key = pool_->Or(pool_->And(and_id).left).key;
       for (auto &left_item : split_armors) {
         if (right_max + left_item.first >= sub_min) {
           int left_or_id = 
-            pool_->MakeOR<ARMORS>(sig::AddPoints(left_node.key,
+            pool_->MakeOR<ARMORS>(sig::AddPoints(left_key,
                                                  effect_id_,
                                                  left_item.first),
                                   &left_item.second);
@@ -261,18 +267,12 @@ namespace monster_avengers {
       for (int and_id : pool_->Or(or_id).daughters) {
         SplitAnd(and_id, sub_min, &new_ands);
       }
+
       int result_max = -1000;
       if (!new_ands.empty()) {
-        const OR &node = pool_->Or(or_id);
-        // DEBUG(breakds) {
-        // if (21124 == or_id) {
-        //   for (auto &item : new_ands) {
-        //     wprintf(L"points ~ %d\n", item.first);
-        //   }
-        // }
-        // }
+        Signature key = pool_->Or(or_id).key;
         for (auto &item : new_ands) {
-          result->emplace_back(pool_->MakeOR<ANDS>(sig::AddPoints(node.key, 
+          result->emplace_back(pool_->MakeOR<ANDS>(sig::AddPoints(key,
                                                                   effect_id_,
                                                                   item.first),
                                                    &item.second),

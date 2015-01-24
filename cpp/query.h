@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "helpers.h"
 #include "parser.h"
@@ -19,6 +20,7 @@ namespace monster_avengers {
       WEAPON_HOLES,
       MIN_RARE,
       ADD_AMULET,
+      BLACKLIST,
     };
 
     static const std::unordered_map<std::wstring, Command> COMMAND_TRANSLATOR;
@@ -29,6 +31,7 @@ namespace monster_avengers {
     int weapon_holes;
     int min_rare;
     std::vector<Armor> amulets;
+    std::unordered_set<int> blacklist;
 
     Query() : effects(), defense(0), weapon_type(MELEE) {}
 
@@ -94,6 +97,13 @@ namespace monster_avengers {
             effects.emplace_back(nums[i << 1], nums[(i << 1) + 1]);
           }
           query->amulets.push_back(Armor::Amulet(holes, effects));
+          break;
+        case BLACKLIST:
+          nums.clear();
+          nums = parser::ParseList<int>::Do(&tokenizer);
+          for (int i : nums) {
+            query->blacklist.insert(i);
+          }
           break;
         default:
           return Status(FAIL, "Query: Invalid command.");
@@ -217,7 +227,8 @@ namespace monster_avengers {
      {L"weapon-type", WEAPON_TYPE},
      {L"weapon-holes", WEAPON_HOLES},
      {L"rare", MIN_RARE},
-     {L"amulet", ADD_AMULET}};
+     {L"amulet", ADD_AMULET},
+     {L"blacklist", BLACKLIST}};
 }
 
 #endif  // _MONSTER_AVENGERS_QUERY_

@@ -106,10 +106,10 @@ namespace monster_avengers {
 	}
 	wprintf(L"\n");
       } else {
-        wprintf(L"] [Rare %02d] %s %ls\n",
+        wprintf(L"] [Rare %02d] %s %ls (id: %d)\n",
                 armor.rare,
                 (MELEE == armor.type) ? "--H" : ")->", 
-		armor.name.c_str());
+		armor.name.c_str(), ids[i]);
       }
       for (const Effect &effect : armor.effects) {
         auto it = std::find_if(effects.begin(), effects.end(),
