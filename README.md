@@ -1,6 +1,6 @@
 monster-avengers
 ================
 
-Toolkit for Monster Hunter 4
+This is the Armor Searcher for the video game Monster Hunter seriers.
 
-![alt tag](https://raw.github.com/breakds/monster-avengers/master/docs/screenshot/console.png)
+
