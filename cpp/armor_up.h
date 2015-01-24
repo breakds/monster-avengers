@@ -162,15 +162,15 @@ namespace monster_avengers {
                        const DataSet &data,
                        NodePool *pool,
                        int effect_id,
-                       const std::vector<Effect> &effects)  
+                       const Query &query)
       : base_iter_(base_iter), pool_(pool), 
-        splitter_(data, pool, effect_id, 
-                  effects[effect_id].skill_id),
-        hole_client_(data, effects[effect_id].skill_id, effects),
+        splitter_(data, query, pool, effect_id, 
+                  query.effects[effect_id].skill_id),
+        hole_client_(data, query.effects[effect_id].skill_id, query.effects),
         effect_id_(effect_id),
-        required_points_(effects[effect_id].points),
-        inverse_points_(sig::InverseKey(effects.begin(), 
-                                        effects.begin() + effect_id + 1)) {
+        required_points_(query.effects[effect_id].points),
+        inverse_points_(sig::InverseKey(query.effects.begin(), 
+                                        query.effects.begin() + effect_id + 1)) {
       Proceed();
     }
 
@@ -325,13 +325,14 @@ namespace monster_avengers {
       CHECK_SUCCESS(ApplyFoundation(query));
       CHECK_SUCCESS(ApplyJewelFilter(query.effects));
       for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
-        CHECK_SUCCESS(ApplySkillSplitter(query.effects, i));	
+        CHECK_SUCCESS(ApplySkillSplitter(query, i));	
       }
       CHECK_SUCCESS(PrepareOutput());
       CHECK_SUCCESS(ApplyDefenseFilter(query));
       JewelSolver solver(data_, query.effects);
       int count = 0;
       while (count < required_num && !output_iterators_.back()->empty()) {
+        wprintf(L"or_node: %d\n", output_iterators_.back()->BaseIndex());
         const OR &or_node = pool_.Or(output_iterators_.back()->BaseIndex());
         for (const Effect &effect : sig::KeyEffects(or_node.key, 
                                                     query)) {
@@ -354,7 +355,7 @@ namespace monster_avengers {
       CHECK_SUCCESS(ApplyFoundation(query));
       CHECK_SUCCESS(ApplyJewelFilter(query.effects));
       for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
-        CHECK_SUCCESS(ApplySkillSplitter(query.effects, i));	
+        CHECK_SUCCESS(ApplySkillSplitter(query, i));	
       }
       CHECK_SUCCESS(PrepareOutput());
       CHECK_SUCCESS(ApplyDefenseFilter(query));
@@ -490,14 +491,14 @@ namespace monster_avengers {
       return Status(SUCCESS);
     }
 
-    Status ApplySkillSplitter(const std::vector<Effect> &effects,
+    Status ApplySkillSplitter(const Query &query,
                               int effect_id) {
       TreeIterator *new_iter = 
         new SkillSplitIterator(iterators_.back().get(),
                                data_,
                                &pool_,
                                effect_id,
-                               effects);
+                               query);
       iterators_.emplace_back(new_iter);
       return Status(SUCCESS);
     }

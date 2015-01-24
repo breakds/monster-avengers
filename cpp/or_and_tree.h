@@ -99,13 +99,24 @@ namespace monster_avengers {
   class SkillSplitter {
   public:
     SkillSplitter(const DataSet &data,
+                  const Query &query,
                   NodePool *pool,
                   int effect_id,
                   int skill_id) 
       : pool_(pool), effect_id_(effect_id) {
-      armor_points_.resize(data.armors().size());
+      armor_points_.resize(data.armors().size() + query.amulets.size());
       int i = 0;
       for (const Armor &armor : data.armors()) {
+        armor_points_[i] = 0;
+        for (const Effect &effect : armor.effects) {
+          if (effect.skill_id == skill_id) {
+            armor_points_[i] = effect.points;
+            break;
+          }
+        }
+        i++;
+      }
+      for (const Armor &armor : query.amulets) {
         armor_points_[i] = 0;
         for (const Effect &effect : armor.effects) {
           if (effect.skill_id == skill_id) {
@@ -253,6 +264,13 @@ namespace monster_avengers {
       int result_max = -1000;
       if (!new_ands.empty()) {
         const OR &node = pool_->Or(or_id);
+        // DEBUG(breakds) {
+        // if (21124 == or_id) {
+        //   for (auto &item : new_ands) {
+        //     wprintf(L"points ~ %d\n", item.first);
+        //   }
+        // }
+        // }
         for (auto &item : new_ands) {
           result->emplace_back(pool_->MakeOR<ANDS>(sig::AddPoints(node.key, 
                                                                   effect_id_,
