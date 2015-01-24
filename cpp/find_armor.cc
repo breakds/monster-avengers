@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
   } else {
     Query query;
     CHECK_SUCCESS(Query::ParseFile(argv[2], &query));
-    armor_up.Search(query, 10);
+    armor_up.SearchAndOutput(query, 10);
   }
   return 0;
 }
