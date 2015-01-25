@@ -108,7 +108,14 @@
          :effective-skills (make-list-wrapper "a" #'get-trimmed-content))
        (,(mkstr "body #wrapper #container #contents #data_container table:1 tbody "
                 "tr td #data2 table:3 tbody tr:" second-tr-id " td:3")
-         :effective-points (make-list-wrapper "span" #'get-trimmed-content-int)))
+         :effective-points (make-list-wrapper "span" #'get-trimmed-content-int))
+       (,(mkstr "body #wrapper #container #contents #data_container table:1 tbody "
+                "tr td #data2 table:4 tbody tr:" 
+                (if (string= type "melee")
+                    second-tr-id
+                    (1- second-tr-id))
+                " td:2")
+         :material (make-list-wrapper "a" #'get-trimmed-content)))
      (def-list-wrapper ,(symb 'crawl- (string-upcase type) "-" part-name '-list)
 	 ,(mkstr "body #wrapper #container #contents #data_container table:1 tbody "
                  "tr td #data2 table tbody tr td a")

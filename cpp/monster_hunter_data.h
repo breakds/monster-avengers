@@ -294,6 +294,7 @@ namespace monster_avengers {
     int defense;
     int holes;
     std::vector<Effect> effects;
+    std::vector<std::wstring> material;
     
     Armor() = default;
 
@@ -351,6 +352,8 @@ namespace monster_avengers {
           } else if (L"EFFECTIVE-SKILLS" == token.value) {
             skill_names = 
               std::move(parser::ParseList<std::wstring>::Do(tokenizer));
+          } else if (L"MATERIAL" == token.value) { 
+            material = std::move(parser::ParseList<std::wstring>::Do(tokenizer));
           } else if (L"OBJ" == token.value) {
             CHECK(tokenizer->Expect(parser::TRUE));
           } else {
