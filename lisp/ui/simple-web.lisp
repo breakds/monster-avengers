@@ -857,6 +857,7 @@
   
   #jsx(:div ((class-name "row"))
             (:div ((class-name "col-md-4"))
+                  (:h3 () "MH4G Armor Tools")
                   (:ul ((class-name "list-group"))
                        (:weapon-type-input ((callback (chain this change-weapon-type))))
                        (:weapon-holes-input ((callback (chain this change-weapon-holes))))
@@ -897,7 +898,12 @@
                                   (on-click (@ this send-query)))
                                  (:span ((class-name "glyphicon glyphicon-search") 
                                          (aria-hidden="true">)))
-                                 " Search")))
+                                 " Search"))
+                  (:p () "built with "
+                      (:a ((href "http://getbootstrap.com/")) "Twitter Bootstrap")
+                      " and "
+                      (:a ((href "https://github.com/breakds/realispic")) "realispic")
+                      "."))
             (:div ((class-name "col-md-8"))
                   (:ul ((class-name "list-group"))
                        (chain (local-state query-result)
