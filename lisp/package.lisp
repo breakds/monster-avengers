@@ -119,12 +119,13 @@
 	   #:init))
 
 ;; Webapp
-(defpackage #:breakds.monster-avengers.webapp
-  (:nicknames #:monster-avengers.webapp)
+(defpackage #:breakds.monster-avengers.simple-web
+  (:nicknames #:monster-avengers.simple-web)
   (:use #:cl
         #:parenscript
         #:realispic)
-  (:export #:monster-arsenal))
+  (:export #:armor-tools))
+
   
 
 ;;; ---------- Unit Tests ----------

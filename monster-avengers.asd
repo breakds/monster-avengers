@@ -25,4 +25,4 @@
                  (:file "lisp/engine/emitter-test")
                  (:file "lisp/engine/armor-up-test")
                  ;; webapp
-                 (:file "lisp/webapp/app")))
+                 (:file "lisp/ui/simple-web")))
