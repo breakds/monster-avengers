@@ -368,6 +368,25 @@ namespace monster_avengers {
       }
     }
 
+    void SearchAndLispOut(const Query &query) {
+      CHECK_SUCCESS(ApplyFoundation(query));
+      CHECK_SUCCESS(ApplyJewelFilter(query.effects));
+      for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
+        CHECK_SUCCESS(ApplySkillSplitter(query, i));	
+      }
+      CHECK_SUCCESS(PrepareOutput());
+      CHECK_SUCCESS(ApplyDefenseFilter(query));
+      ArmorSetFormatter formatter("/home/breakds/tmp/query.out", 
+                                  &data_, query);
+      int count = 0;
+      while (count < 10 && !output_iterators_.back()->empty()) {
+        const OR &or_node = pool_.Or(output_iterators_.back()->BaseIndex());
+        formatter.Format(**output_iterators_.back());
+	++count;
+        ++(*output_iterators_.back());
+      }
+    }
+
     void ListSkills() {
       data_.PrintSkillSystems();
     }
