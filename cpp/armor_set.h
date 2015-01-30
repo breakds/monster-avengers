@@ -8,6 +8,7 @@
 #include <iostream>
 #include <memory>
 #include <unordered_map>
+#include <functional>
 
 namespace monster_avengers {
 
@@ -158,6 +159,129 @@ namespace monster_avengers {
     wprintf(L"\n");
   }
 
+  
+  struct LispObject {
+    typedef std::unique_ptr<void, std::function<void(void*)>> DataHolder;
+    typedef std::unordered_map<std::string, LispObject> ObjectHolder;
+
+    enum LispObjectType {
+      LISP_NUM = 0,
+      LISP_STR = 1,
+      LISP_OBJ = 2,
+      LISP_LIST = 3,
+    };
+    LispObjectType type;
+    DataHolder data;
+
+  LispObject() : data(nullptr), type(LISP_OBJ) {}
+
+    LispObject(LispObject &&other) {
+      type = other.type;
+      data = std::move(other.data);
+    }
+
+    LispObject(int x) :
+      type(LISP_NUM), data(new int(x), [](void * content) {
+	  delete static_cast<int*>(content);}) {}
+
+    LispObject(const std::wstring &x) :
+      type(LISP_NUM), data(new std::wstring(x), [](void * content) {
+	  delete static_cast<std::wstring*>(content);}) {}
+    
+    const LispObject &operator=(LispObject &&other) {
+      type = other.type;
+      data = std::move(other.data);
+      return (*this);
+    }
+    
+    static LispObject Number(int x = 0) {
+      return LispObject(x);
+    }
+
+    static LispObject String(const std::wstring &x) {
+      return LispObject(x);
+    }
+
+    static LispObject Object() {
+      LispObject result;
+      result.type = LISP_OBJ;
+      result.data = DataHolder(new ObjectHolder(), [](void * content) {
+	  delete static_cast<ObjectHolder*>(content);});
+      return result;
+    }
+
+    static LispObject List() {
+      LispObject result;
+      result.type = LISP_OBJ;
+      result.data = DataHolder(new std::vector<LispObject>(), [](void * content) {
+	  delete static_cast<std::vector<LispObject>*>(content);});
+      return result;
+    }
+
+    void Set(const std::string name, LispObject &&value) {
+      CHECK(LISP_OBJ == this->type);
+      (*static_cast<ObjectHolder*>(data.get()))[name] = std::move(value);
+    }
+
+    void Push(LispObject &&value) {
+      CHECK(LISP_LIST == this->type);
+      static_cast<std::vector<LispObject>*>(data.get())->emplace_back(std::move(value));
+    }
+
+    LispObject &operator[](const std::string &name) {
+      CHECK(LISP_LIST == this->type);
+      return (*static_cast<ObjectHolder*>(data.get()))[name];
+    }
+
+    LispObject &operator[](int id) {
+      CHECK(LISP_LIST == this->type);
+      return (*static_cast<std::vector<LispObject>*>(data.get()))[id];
+    }
+
+    int Size() const {
+      return static_cast<std::vector<LispObject>*>(data.get())->size();
+    }
+
+    ObjectHolder &GetMap() {
+      return (*static_cast<ObjectHolder*>(data.get()));
+    }
+  };
+
+  std::wostream &operator<<(std::wostream &out, LispObject &lisp_object) {
+    
+    switch (lisp_object.type) {
+    case LispObject::LISP_NUM: 
+      out << *static_cast<int*>(lisp_object.data.get()); 
+      break;
+    case LispObject::LISP_STR: 
+      out << "\"" << *static_cast<std::wstring*>(lisp_object.data.get())
+	  << "\"";
+      break;
+    case LispObject::LISP_LIST:
+      out << "(";
+      for (int i = 0; i < lisp_object.Size(); ++i) {
+	if (i > 0) out << " ";
+	out << lisp_object[i];
+      }
+      out << ")";
+      break;
+    case LispObject::LISP_OBJ:
+      out << "(";
+      int i = 0;
+      for (auto &item : lisp_object.GetMap()) {
+	std::wstring name;
+	name.assign(item.first.begin(), item.first.end());
+	if (i > 0) out << " ";
+	out << ":" << name
+	    << " " << item.second;
+	i++;
+      }
+      out << ")";
+      break;
+    }
+    return out;
+  }
+
   class ArmorSetFormatter {
   public:
     ArmorSetFormatter(const std::string file_name, 
@@ -174,14 +298,15 @@ namespace monster_avengers {
     }
 
     void Format(const ArmorSet &armor_set) {
+      LispObject output = LispObject::Object();
       int defense = 0;
       std::unordered_map<int, int> effects;
-      (*output_stream_) << "(";
       for (int part = 0; part < PART_NUM; ++part) {
         int id = armor_set.ids[part];
         const Armor &armor = (id < data_->armors().size()) ?
           data_->armor(id) : query_.amulets[id - data_->armors().size()];
-        FormatArmor(armor, static_cast<ArmorPart>(PART_NUM - part - 1));
+	output.Set(PartName(static_cast<ArmorPart>(part)),
+		   GetArmorObject(armor, static_cast<ArmorPart>(part), id));
         defense += armor.defense;
         for (const Effect &effect : armor.effects) {
           auto it = effects.find(effect.skill_id);
@@ -193,17 +318,22 @@ namespace monster_avengers {
         }
       }
 
-      (*output_stream_) << " :jewel-plans (";
+      output.Set("defense", defense);
+
+      output.Set("jewel-plans", LispObject::List());
+
       int jewel_plan_count = 0;
       for (const Signature &jewel_key : armor_set.jewel_keys) {
         if (jewel_plan_count < MAX_JEWEL_PLAN) {
+	  LispObject jewel_plan_object = LispObject::Object();
+	  jewel_plan_object.Set("plan", LispObject::List());
           std::unordered_map<int, int> jewel_plan_effects = effects;
-          (*output_stream_) << "(:jewel-plan (";
           for (auto item : solver_.Solve(jewel_key)) {
+	    LispObject plan_object = LispObject::Object();
             const Jewel &jewel = data_->jewel(item.first);
-            (*output_stream_) << "(\""
-                              << jewel.name.c_str()
-                              << "\" " << item.second << ") ";
+	    plan_object.Set("name", jewel.name);
+	    plan_object.Set("quantity", item.second);
+	    jewel_plan_object.Push(std::move(plan_object));
             for (const Effect &effect : jewel.effects) {
               auto it = jewel_plan_effects.find(effect.skill_id);
               if (jewel_plan_effects.end() == it) {
@@ -213,62 +343,62 @@ namespace monster_avengers {
               }
             }
           }
-          (*output_stream_) << ") :active ";
-          FormatActive(jewel_plan_effects);
+	  jewel_plan_object.Set("active", GetActiveObject(jewel_plan_effects));
         }
-        (*output_stream_) << ") ";
         jewel_plan_count++;
       }
-      (*output_stream_) << ") ";
-      (*output_stream_) << " :defense " << defense;
-      (*output_stream_) << ")\n";
+      
+      (*output_stream_) << output << "\n";
     }
     
   private:
-    void FormatArmor(const Armor &armor, ArmorPart part) {
+    std::string PartName(ArmorPart part) {
       switch (part) {
-      case HEAD: (*output_stream_) << ":helm "; break;
-      case BODY: (*output_stream_) << ":body "; break;
-      case HANDS: (*output_stream_) << ":hands "; break;
-      case WAIST: (*output_stream_) << ":waist "; break;
-      case FEET: (*output_stream_) << ":feet "; break;
-      case AMULET: (*output_stream_) << ":amulet "; break;
-      case GEAR: (*output_stream_) << ":gear "; break;
-      default: Log(ERROR, L"FormatArmor: no such armor part %d", part);
+      case HEAD: return "helm"; 
+      case BODY: return "body";
+      case HANDS: return "hands";
+      case WAIST: return "waist";
+      case FEET: return "feet";
+      case AMULET: return "amulet";
+      case GEAR: return "gear";
+      default: Log(ERROR, L"FormatArmor: no such armor part %d", part); exit(-1); break;
       }
-      (*output_stream_) << "(";
-      (*output_stream_) << ":name " << "\"" << armor.name << "\" ";
-      (*output_stream_) << ":holes " << armor.holes << " ";
+    }
+    
+    LispObject GetArmorObject(const Armor &armor, ArmorPart part, int id) {
+      LispObject armor_object = LispObject::Object();
+      armor_object["name"] = armor.name;
+      armor_object["holes"] = armor.holes;
+      armor_object["id"] = id;
       if (AMULET == part) {
-        (*output_stream_) << ":effects ";
-        FormatEffects(armor.effects);
+	armor_object.Set("effects", GetEffectsObject(armor.effects));
       } else if (GEAR != part) {
-        (*output_stream_) << ":material ";
-        FormatMaterial(armor.material);
+	armor_object.Set("material", GetMaterialObject(armor.material));
       }        
-      (*output_stream_) << ") ";
+      return armor_object;
     }
 
-    void FormatEffects(const std::vector<Effect> &effects) {
-      (*output_stream_) << "(";
+    LispObject GetEffectsObject(const std::vector<Effect> &effects) {
+      LispObject result = LispObject::List();
       for (const Effect &effect : effects) {
-        (*output_stream_) << "("
-                         << data_->skill_system(effect.skill_id).name
-                         << " " << effect.points << ")";
+	LispObject effect_object = LispObject::Object();
+	effect_object.Set("name", data_->skill_system(effect.skill_id).name);
+	effect_object.Set("points", effect.points); 
+	result.Push(std::move(effect_object));
       }
-      (*output_stream_) << ") ";
+      return result;
     }
 
-    void FormatMaterial(const std::vector<std::wstring> &material) {
-      (*output_stream_) << "(";
-      for (const std::wstring item : material) {
-        (*output_stream_) << "\"" << item << "\" ";
+    LispObject GetMaterialObject(const std::vector<std::wstring> &material) {
+      LispObject result = LispObject::List();
+      for (const std::wstring &item : material) {
+	result.Push(item);
       }
-      (*output_stream_) << ") ";
+      return result;
     }
 
-    void FormatActive(const std::unordered_map<int, int> &effects) {
-      (*output_stream_) << " (";
+    LispObject GetActiveObject(const std::unordered_map<int, int> &effects) {
+      LispObject active_object = LispObject::List();
       for (auto &effect : effects) {
         const SkillSystem &skill_system = data_->skill_system(effect.first);
         int active_points = 0;
@@ -289,21 +419,11 @@ namespace monster_avengers {
           }
         }
         if (!active_name.empty()) {
-          (*output_stream_) << "\"" << active_name << "\" ";
+	  active_object.Push(active_name);
         }
       }
-      (*output_stream_) << ") ";
+      return active_object;
     }
-
-    int GetDefense(const ArmorSet &armor_set) {
-      int defense = 0;
-      for (int part = 0; part < PART_NUM; ++part) {
-        defense += data_->armor(armor_set.ids[part]).defense;
-      }
-      return defense;
-    }
-
-    
 
     std::unique_ptr<std::wofstream> output_stream_;
     const Query query_;
