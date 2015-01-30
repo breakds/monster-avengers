@@ -185,7 +185,7 @@ namespace monster_avengers {
 	  delete static_cast<int*>(content);}) {}
 
     LispObject(const std::wstring &x) :
-      type(LISP_NUM), data(new std::wstring(x), [](void * content) {
+      type(LISP_STR), data(new std::wstring(x), [](void * content) {
 	  delete static_cast<std::wstring*>(content);}) {}
     
     const LispObject &operator=(LispObject &&other) {
@@ -212,7 +212,7 @@ namespace monster_avengers {
 
     static LispObject List() {
       LispObject result;
-      result.type = LISP_OBJ;
+      result.type = LISP_LIST;
       result.data = DataHolder(new std::vector<LispObject>(), [](void * content) {
 	  delete static_cast<std::vector<LispObject>*>(content);});
       return result;
@@ -229,7 +229,7 @@ namespace monster_avengers {
     }
 
     LispObject &operator[](const std::string &name) {
-      CHECK(LISP_LIST == this->type);
+      CHECK(LISP_OBJ == this->type);
       return (*static_cast<ObjectHolder*>(data.get()))[name];
     }
 
@@ -301,12 +301,13 @@ namespace monster_avengers {
       LispObject output = LispObject::Object();
       int defense = 0;
       std::unordered_map<int, int> effects;
-      for (int part = 0; part < PART_NUM; ++part) {
-        int id = armor_set.ids[part];
+      for (int i = 0; i < PART_NUM; ++i) {
+        ArmorPart part = static_cast<ArmorPart>(PART_NUM - i - 1);
+        int id = armor_set.ids[i];
         const Armor &armor = (id < data_->armors().size()) ?
           data_->armor(id) : query_.amulets[id - data_->armors().size()];
-	output.Set(PartName(static_cast<ArmorPart>(part)),
-		   GetArmorObject(armor, static_cast<ArmorPart>(part), id));
+	output.Set(PartName(part),
+		   GetArmorObject(armor, part, id));
         defense += armor.defense;
         for (const Effect &effect : armor.effects) {
           auto it = effects.find(effect.skill_id);
@@ -333,17 +334,19 @@ namespace monster_avengers {
             const Jewel &jewel = data_->jewel(item.first);
 	    plan_object.Set("name", jewel.name);
 	    plan_object.Set("quantity", item.second);
-	    jewel_plan_object.Push(std::move(plan_object));
+	    jewel_plan_object["plan"].Push(std::move(plan_object));
             for (const Effect &effect : jewel.effects) {
               auto it = jewel_plan_effects.find(effect.skill_id);
               if (jewel_plan_effects.end() == it) {
-                jewel_plan_effects[effect.skill_id] = effect.points;
+                jewel_plan_effects[effect.skill_id] = 
+                  effect.points * item.second;
               } else {
-                it->second += effect.points;
+                it->second += effect.points * item.second;
               }
             }
           }
 	  jewel_plan_object.Set("active", GetActiveObject(jewel_plan_effects));
+          output["jewel-plans"].Push(std::move(jewel_plan_object));
         }
         jewel_plan_count++;
       }
@@ -369,7 +372,7 @@ namespace monster_avengers {
       LispObject armor_object = LispObject::Object();
       armor_object["name"] = armor.name;
       armor_object["holes"] = armor.holes;
-      armor_object["id"] = id;
+      armor_object["id"] = std::to_wstring(id);
       if (AMULET == part) {
 	armor_object.Set("effects", GetEffectsObject(armor.effects));
       } else if (GEAR != part) {
