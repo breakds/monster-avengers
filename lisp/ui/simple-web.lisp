@@ -46,9 +46,13 @@
                  name)))
 
 (def-rpc answer-query (query)
-  (let ((query-file (merge-pathnames "query_cache.lsp"
+  (let ((query-file (merge-pathnames (format nil "query_cache_~a.lsp"
+                                             (hunchentoot:session-id 
+                                              current-session))
                                      *working-dir*))
-        (output-file (merge-pathnames "output.lsp"
+        (output-file (merge-pathnames (format nil "output_~a.lsp"
+                                              (hunchentoot:session-id 
+                                               current-session))
                                       *working-dir*)))
     (with-open-file (output output-file
                             :direction :output
