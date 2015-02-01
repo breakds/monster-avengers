@@ -377,6 +377,7 @@ namespace monster_avengers {
 	armor_object.Set("effects", GetEffectsObject(armor.effects));
       } else if (GEAR != part) {
 	armor_object.Set("material", GetMaterialObject(armor.material));
+	armor_object.Set("rare", armor.rare);
       }        
       return armor_object;
     }
