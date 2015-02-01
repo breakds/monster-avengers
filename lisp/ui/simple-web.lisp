@@ -3,6 +3,10 @@
 (in-package #:monster-avengers.simple-web)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
+  (defparameter *working-dir* "/home/breakds/tmp/")
+  (defparameter *server-binary*
+    (merge-pathnames "cpp/build/serve_query"
+                     (asdf:system-source-directory 'monster-avengers)))
   (defparameter *dataset-path* 
     (merge-pathnames "dataset/MH4G/"
                      (asdf:system-source-directory 'monster-avengers))))
@@ -16,6 +20,37 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (enable-jsx-reader))
+
+(defun json-armor-object (obj)
+  (json "name" (getf obj :name)
+        "holes" (getf obj :holes)
+        "material" (getf obj :material)))
+
+(def-rpc answer-query (query)
+  (let ((query-file (merge-pathnames "query_cache.lsp"
+                                     *working-dir*))
+        (output-file (merge-pathnames "output.lsp"
+                                      *working-dir*)))
+    (with-open-file (cache query-file
+                           :direction :output
+                           :if-exists :supersede)
+      (format cache "~a~%" query))
+    (sb-ext:run-program (namestring *server-binary*)
+                        (list (namestring *dataset-path*) 
+                              (namestring query-file)
+                              (namestring output-file))
+                        :output *standard-output* :wait t)
+    (with-open-file (input output-file
+                           :direction :input)
+      (loop for solution = (read input nil nil)
+         while solution
+         collect (json "gear" (json-armor-object (getf solution :gear))
+                       "head" (json-armor-object (getf solution :head))
+                       "body" (json-armor-object (getf solution :body))
+                       "hands" (json-armor-object (getf solution :hands))
+                       "waist" (json-armor-object (getf solution :waist))
+                       "feet" (json-armor-object (getf solution :feet)))))))
+
 
 (def-global-code skill-systems
   (with-open-file (in (merge-pathnames "skills.lisp"
@@ -95,7 +130,7 @@
                                        (lang-text ("en" "Add")
                                                   ("zh" "添加"))))))))
 
-(def-widget parameter-panel (language)
+(def-widget parameter-panel (language callback)
     ()
   #jsx(:div ((class-name "row"))
             (:div ((class-name "col-md-2"))
@@ -105,7 +140,10 @@
                                    (lang-text ("en" "Weapon Type")
                                               ("zh" "武器类型"))))
                         (:div ((class-name "panel-body"))
-                              (:select ((class-name "form-control"))
+                              (:select ((class-name "form-control")
+                                        (on-click (lambda (e)
+                                                    (funcall callback "weapon-type"
+                                                             (@ e target value)))))
                                        (:option ((value "melee"))
                                                 (lang-text ("en" "Melee")
                                                            ("zh" "近战")))
@@ -119,7 +157,10 @@
                                    (lang-text ("en" "Weapon Holes")
                                               ("zh" "武器孔数"))))
                         (:div ((class-name "panel-body"))
-                              (:select ((class-name "form-control"))
+                              (:select ((class-name "form-control")
+                                        (on-click (lambda (e)
+                                                    (funcall callback "weapon-holes"
+                                                             (@ e target value)))))
                                        (:option ((value "0")) "---")
                                        (:option ((value "1")) "O")
                                        (:option ((value "2")) "OO")
@@ -131,7 +172,10 @@
                                    (lang-text ("en" "Minimum Rare")
                                               ("zh" "稀有度"))))
                         (:div ((class-name "panel-body"))
-                              (:select ((class-name "form-control"))
+                              (:select ((class-name "form-control")
+                                        (on-click (lambda (e)
+                                                    (funcall callback "rare"
+                                                             (@ e target value)))))
                                        (:option ((value "1")) "1")
                                        (:option ((value "2")) "2")
                                        (:option ((value "3")) "3")
@@ -142,6 +186,72 @@
                                        (:option ((value "8")) "8")
                                        (:option ((value "9")) "9")
                                        (:option ((value "10")) "10")))))))
+
+(def-widget armor-display (part name material holes)
+    ()
+  #jsx(:li ((class-name "list-group-item"))
+           (:div ((class-name "input-group"))
+                 (:span ((class-name "input-group-addon"))
+                        (:img ((src (+ "img/" part ".png"))
+                               (:style :height "65%"))))
+                 (:span ((class-name "input-group-addon")
+                         (style :font-family "monospace"
+                                :font-size "130%"))
+                        (funcall (lambda (x) (case x
+                                               (0 "---")
+                                               (1 "o--")
+                                               (2 "oo-")
+                                               (3 "ooo")))
+                                 holes))
+                 (:input ((type "text")
+                          ("data-toggle" "tooltip")
+                          ("data-placement" "left")
+                          (title material)
+                          (style :padding-left "40px")
+                          (class-name "form-control")
+                          (readonly "readonly")
+                          (value name))
+                 (:div ((class-name "input-group-btn"))
+                       (:button ((class-name "btn btn-default"))
+                                (:span ((class-name "glyphicon glyphicon-remove-sign")))))))))
+
+
+(def-widget armor-set-display (language armor-set)
+    ()
+  #jsx(:div ((class-name "panel panel-success"))
+            (:div ((class-name "panel-heading"))
+                  (lang-text ("en" "Armor Set")
+                             ("zh" "配装组合")))
+            (:ul ((class-name "list-group"))
+                 (:armor-display ((part "gear")
+                                  (name (@ armor-set gear name))
+                                  (material "")
+                                  (holes (@ armor-set gear holes))))
+                 (:armor-display ((part "head")
+                                  (name (@ armor-set head name))
+                                  (material (@ armor-set head material))
+                                  (holes (@ armor-set head holes))))
+                 (:armor-display ((part "body")
+                                  (name (@ armor-set body name))
+                                  (material (@ armor-set body material))
+                                  (holes (@ armor-set body holes))))
+                 (:armor-display ((part "hands")
+                                  (name (@ armor-set hands name))
+                                  (material (@ armor-set hands material))
+                                  (holes (@ armor-set hands holes))))
+                 (:armor-display ((part "waist")
+                                  (name (@ armor-set waist name))
+                                  (material (@ armor-set waist material))
+                                  (holes (@ armor-set waist holes))))
+                 (:armor-display ((part "feet")
+                                  (name (@ armor-set feet name))
+                                  (material (@ armor-set feet material))
+                                  (holes (@ armor-set feet holes)))))))
+
+
+
+
+                 
 
 (def-widget title-bar (language callback)
     ()
@@ -163,9 +273,39 @@
 
 (def-widget app-view ()
     ((state (language "en")
-	    (effects (array)))
+            (weapon-type "melee")
+            (weapon-holes 0)
+            (rare 1)
+	    (effects (array))
+            (query-result (array)))
      (switch-language (target) 
                       (chain this (set-state (create language target))))
+     (handle-query ()
+                   (let ((query ""))
+                     (setf query (+ query "(:weapon-type \""
+                                    (local-state weapon-type) "\") "))
+                     (setf query (+ query "(:weapon-holes "
+                                    (local-state weapon-holes) ") "))
+                     (setf query (+ query "(:rare "
+                                    (local-state rare) ") "))
+                     (loop for effect in (local-state effects)
+                        do (setf query (+ query "(:skill "
+                                          (@ effect id) " "
+                                          (@ effect points) ") ")))
+                     (chain console (log query))
+                     (with-rpc (answer-query query)
+                       (chain this (set-state (create query-result
+                                                      rpc-result)))
+                       (chain console (log rpc-result))))
+                   nil)
+     (update-parameters (param value)
+                        (if (= param "weapon-type")
+                            (chain this (set-state (create weapon-type value)))
+                            (if (= param "weapon-holes")
+                                (chain this (set-state (create weapon-holes value)))
+                                (if (= param "rare")
+                                    (chain this (set-state (create rare value))))))
+                        nil)
      (update-effects (skill-id active-id)
 		     (let ((new-effects (local-state effects)))
 		       (setf new-effects
@@ -182,11 +322,21 @@
   #jsx(:div ((style :margin "20px 50px 30px 50px"))
             (:title-bar ((language (@ this state language))
                          (callback (@ this switch-language))))
-            (:parameter-panel ((language (@ this state language))))
+            (:parameter-panel ((language (@ this state language))
+                               (callback (@ this update-parameters))))
             (:div ((class-name "row"))
                   (:div ((class-name "col-md-3"))
                         (:skill-panel ((language (@ this state language))
-				       (change-callback (@ this update-effects))))))))
+				       (change-callback (@ this update-effects))))
+                        (:button ((class-name "btn btn-default")
+                                  (on-click (@ this handle-query)))
+                                 "Search"))
+                  (:div ((class-name "col-md-3 col-md-offset-4"))
+                        (chain (local-state query-result)
+                               (map (lambda (armor-set)
+                                      (:armor-set-display ((language (@ this state language))
+                                                           (armor-set armor-set))))))))))
+
 
 (def-realispic-app (armor-tools :title "Monster Hunter's Arsenal"
                                 :port 16384

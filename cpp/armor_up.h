@@ -368,7 +368,7 @@ namespace monster_avengers {
       }
     }
 
-    void SearchAndLispOut(const Query &query) {
+    void SearchAndLispOut(const Query &query, const std::string output_path) {
       CHECK_SUCCESS(ApplyFoundation(query));
       CHECK_SUCCESS(ApplyJewelFilter(query.effects));
       for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
@@ -376,7 +376,7 @@ namespace monster_avengers {
       }
       CHECK_SUCCESS(PrepareOutput());
       CHECK_SUCCESS(ApplyDefenseFilter(query));
-      ArmorSetFormatter formatter("/home/breakds/tmp/query.out", 
+      ArmorSetFormatter formatter(output_path,
                                   &data_, query);
       int count = 0;
       while (count < 10 && !output_iterators_.back()->empty()) {

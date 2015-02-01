@@ -357,7 +357,7 @@ namespace monster_avengers {
   private:
     std::string PartName(ArmorPart part) {
       switch (part) {
-      case HEAD: return "helm"; 
+      case HEAD: return "head"; 
       case BODY: return "body";
       case HANDS: return "hands";
       case WAIST: return "waist";
