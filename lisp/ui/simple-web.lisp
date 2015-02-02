@@ -569,7 +569,7 @@
                 (:a ((href "https://github.com/breakds/realispic")) "reaLISPic")
                 ", "
                 (:a ((href "http://www.sbcl.org")) "SBCL")
-                "and "
+                " and "
                 (:a ((href "http://getbootstrap.com/")) "Twitter Bootstrap")
                 ".")
             (:p () "Deisgn and artwork by Cassandra Qi.")))
