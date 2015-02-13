@@ -9,12 +9,7 @@ namespace monster_avengers {
 
   namespace sig {
     inline Signature ArmorKey(const Armor &armor, 
-                              const std::vector<Effect> &effects,
-                              bool *valid) {
-      *valid = false;
-
-      
-      
+                              const std::vector<Effect> &effects) {
       Signature key = 0;
       char *bytes = reinterpret_cast<char *>(&key);
       
@@ -31,9 +26,6 @@ namespace monster_avengers {
         for (const Effect &armor_effect : armor.effects) {
           if (effect.skill_id == armor_effect.skill_id) {
             bytes[byte_id] = static_cast<char>(armor_effect.points);
-            if (armor_effect.points > 0) {
-              *valid = true;
-            }
           }
         }
         byte_id++;

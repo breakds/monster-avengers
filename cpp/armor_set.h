@@ -21,15 +21,13 @@ namespace monster_avengers {
   
   void OutputArmorSet(const DataSet &data, 
                       const ArmorSet &armor_set, 
-                      const Query &query,
                       const JewelSolver &solver) {
     wprintf(L"---------- Armor Set ----------\n");
     int defense = 0;
     std::vector<Effect> effects;
     const std::array<int, PART_NUM> &ids = armor_set.ids;
     for (int i = 0; i < PART_NUM; ++i) {
-      const Armor &armor = (ids[i] < data.armors().size()) ?
-        data.armor(ids[i]) : query.amulets[ids[i] - data.armors().size()];
+      const Armor &armor = data.armor(ids[i]);
       defense += data.armor(ids[i]).defense;
       wprintf(L"[");
       for (int j = 0; j < 3; ++j) {
@@ -85,14 +83,12 @@ namespace monster_avengers {
 
   void PrettyPrintArmorSet(const DataSet &data, 
 			   const ArmorSet &armor_set, 
-			   const Query &query,
 			   const JewelSolver &solver) {
     int defense = 0;
     std::vector<Effect> effects;
     const std::array<int, PART_NUM> &ids = armor_set.ids;
     for (int i = 0; i < PART_NUM; ++i) {
-      const Armor &armor = (ids[i] < data.armors().size()) ?
-        data.armor(ids[i]) : query.amulets[ids[i] - data.armors().size()];
+      const Armor &armor = data.armor(ids[i]);
       defense += data.armor(ids[i]).defense;
       wprintf(L"[");
       for (int j = 0; j < 3; ++j) {
@@ -288,7 +284,7 @@ namespace monster_avengers {
                       const DataSet *data,
                       const Query &query)
       : output_stream_(new std::wofstream(file_name)),
-        query_(query), solver_(*data, query.effects), 
+        solver_(*data, query.effects), 
         data_(data) {
       if (!output_stream_->good()) {
         Log(ERROR, L"error while opening %s.", file_name.c_str());
@@ -304,8 +300,7 @@ namespace monster_avengers {
       for (int i = 0; i < PART_NUM; ++i) {
         ArmorPart part = static_cast<ArmorPart>(PART_NUM - i - 1);
         int id = armor_set.ids[i];
-        const Armor &armor = (id < data_->armors().size()) ?
-          data_->armor(id) : query_.amulets[id - data_->armors().size()];
+        const Armor &armor = data_->armor(id);
 	output.Set(PartName(part),
 		   GetArmorObject(armor, part, id));
         defense += armor.defense;
@@ -430,7 +425,6 @@ namespace monster_avengers {
     }
 
     std::unique_ptr<std::wofstream> output_stream_;
-    const Query query_;
     const JewelSolver solver_;
     const DataSet *data_;
   };

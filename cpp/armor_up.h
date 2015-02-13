@@ -322,6 +322,7 @@ namespace monster_avengers {
     }
 
     void Search(const Query &query, int required_num) {
+      InitializeExtraArmors(query);
       CHECK_SUCCESS(ApplyFoundation(query));
       CHECK_SUCCESS(ApplyJewelFilter(query.effects));
       for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
@@ -344,13 +345,14 @@ namespace monster_avengers {
         sig::KeyHoles(or_node.key, &one, &two, &three);
         wprintf(L"O:%d   OO:%d   OOO:%d\n", one, two, three);
 
-        OutputArmorSet(data_, **output_iterators_.back(), query, solver);
+        OutputArmorSet(data_, **output_iterators_.back(), solver);
 	++count;
         ++(*output_iterators_.back());
       }
     }
 
     void SearchAndOutput(const Query &query, int required_num = 10) {
+      InitializeExtraArmors(query);
       CHECK_SUCCESS(ApplyFoundation(query));
       CHECK_SUCCESS(ApplyJewelFilter(query.effects));
       for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
@@ -362,13 +364,14 @@ namespace monster_avengers {
       int count = 0;
       while (count < required_num && !output_iterators_.back()->empty()) {
         const OR &or_node = pool_.Or(output_iterators_.back()->BaseIndex());
-        PrettyPrintArmorSet(data_, **output_iterators_.back(), query, solver);
+        PrettyPrintArmorSet(data_, **output_iterators_.back(), solver);
 	++count;
         ++(*output_iterators_.back());
       }
     }
 
     void SearchAndLispOut(const Query &query, const std::string output_path) {
+      InitializeExtraArmors(query);
       CHECK_SUCCESS(ApplyFoundation(query));
       CHECK_SUCCESS(ApplyJewelFilter(query.effects));
       for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
@@ -399,6 +402,14 @@ namespace monster_avengers {
    } 
 
   private:
+    void InitializeExtraArmors(const Query &query) {
+      data_.ClearExtraArmor();
+      // Amulets
+      for (const Armor &amulet : query.amulets) {
+        data_.AddExtraArmor(AMULET, amulet);
+      }
+    }
+    
     // Returns a vector of newly created or nodes' indices.
     std::vector<int> ClassifyArmors(ArmorPart part,
                                     const Query &query) {
@@ -413,20 +424,16 @@ namespace monster_avengers {
       for (int id : data_.ArmorIds(part)) {
         const Armor &armor = data_.armor(id);
         if (armor.type == query.weapon_type || BOTH == armor.type) {
-          Signature key = sig::ArmorKey(armor, effects, &valid);
-
-          if (GEAR == part && armor.holes == query.weapon_holes) {
-	    // Weapon whitelist
-            valid = true;
-          } else if (AMULET == part) {
-            valid = true;
-          } else if (armor.rare < query.min_rare) {
+          Signature key = sig::ArmorKey(armor, effects);
+          valid = true;
+          
+          if (armor.rare < query.min_rare) {
 	    // Rare blacklist
 	    valid = false;
 	  }
 
-          // Blacklist filter.
           if (0 < query.blacklist.count(id)) {
+            // Blacklist filter.
             valid = false;
           }
 	  
@@ -441,22 +448,6 @@ namespace monster_avengers {
         }
       }
       
-      // This is only for amulets now
-      if (AMULET == part) {
-        for (int i = 0; i < query.amulets.size(); ++i) {
-          Signature key = sig::ArmorKey(query.amulets[i], effects, &valid);
-          if (valid || query.amulets[i].holes > 0) {
-            auto it = armor_map.find(key);
-            int id = data_.armors().size() + i;
-            if (armor_map.end() == it) {
-              armor_map[key] = {id};
-            } else {
-              it->second.push_back(id);
-            }
-          }
-        }
-      }
-
       std::vector<int> forest;
       forest.reserve(armor_map.size());
       for (auto &item : armor_map) {

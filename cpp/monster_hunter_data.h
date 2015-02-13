@@ -433,6 +433,7 @@ namespace monster_avengers {
       ReadArmors<FEET>(data_folder + "/sabatons.lisp");
       ReadArmors<GEAR>(data_folder + "/gears.lisp");
       LoadAmulet();
+      reserved_armor_count_ = static_cast<int>(armors_.size());
     }
 
     inline const std::vector<Jewel> &jewels() const {
@@ -461,6 +462,17 @@ namespace monster_avengers {
 
     inline const SkillSystem &skill_system(int id) const {
       return skill_systems_[id];
+    }
+
+    inline void AddExtraArmor(ArmorPart part, const Armor &armor) {
+      armor_indices_by_parts_[part].push_back(armors_.size());
+      armors_.push_back(armor);
+    }
+
+    inline void ClearExtraArmor() {
+      while (armors_.size() > reserved_armor_count_) {
+        armors_.pop_back();
+      }
     }
 
     void PrintSkillSystems() {
@@ -515,6 +527,7 @@ namespace monster_avengers {
     std::vector<SkillSystem> skill_systems_;
     std::vector<Jewel> jewels_;
     std::vector<Armor> armors_;
+    int reserved_armor_count_;
     std::vector<std::vector<int> > armor_indices_by_parts_;
   };
 
