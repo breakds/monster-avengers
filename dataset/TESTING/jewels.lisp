@@ -1,4 +1,5 @@
 
+
 ((:HOLES 1 :NAME "攻击珠【1】" :EFFECTS
   ((:SKILL-POINT -1 :SKILL-NAME "防御" :OBJ T)
    (:SKILL-POINT 1 :SKILL-NAME "攻击" :OBJ T))

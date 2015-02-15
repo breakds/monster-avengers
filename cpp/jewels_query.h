@@ -306,7 +306,6 @@ namespace monster_avengers {
   private:
     bool Search(int i, int scan_id, 
                 Signature key, std::vector<int> *ids) const {
-
       if (0 == i) {
         return 0 == key;
       }
@@ -328,7 +327,6 @@ namespace monster_avengers {
       if (0 == j) {
         return Search(i, 0, key, ids);
       }
-
       for (int seq = scan_id; seq < jewel_ids_[2].size(); ++seq) {
         ids->push_back(jewel_ids_[2][seq]);
         if (Search(i, j - 1, seq, 

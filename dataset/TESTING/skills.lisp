@@ -6,6 +6,9 @@
   ((:DESCRIPTION "防御力小范围上升" :POINTS 10 :NAME "防御力up" :OBJ T)
    (:DESCRIPTION "防御力大范围上升" :POINTS 15 :NAME "防御力up[中]" :OBJ T)))
  (:SYSTEM-NAME "无敌" :SKILLS
-  ((:DESCRIPTION "刚体，不受任何伤害" :POINTS 10 :NAME "管理员模式" :OBJ T))))
+  ((:DESCRIPTION "刚体，不受任何伤害" :POINTS 10 :NAME "管理员模式" :OBJ T)))
+ (:SYSTEM-NAME "Torso Up" :SKILLS
+  ((:DESCRIPTION "~_~" :POINTS 0 :NAME "~_~" :OBJ T))))
+
 
 

@@ -6,6 +6,7 @@
 #include <string>
 #include <cstdio>
 #include <map>
+#include <unordered_map>
 
 #include "helpers.h"
 #include "parser.h"
@@ -295,6 +296,12 @@ namespace monster_avengers {
     int holes;
     std::vector<Effect> effects;
     std::vector<std::wstring> material;
+    // Whether the armor is created only for being multiplied.
+    bool multiplied;
+    // What is the base armor, in torso up case.
+    int base;
+    // The stuffed jewels
+    std::unordered_map<int, int> jewels;
     
     Armor() = default;
 
@@ -307,12 +314,16 @@ namespace monster_avengers {
       armor.holes = holes;
       armor.effects = std::move(effects);
       armor.part = AMULET;
+      armor.multiplied = false;
+      armor.base = -1;
+      armor.jewels.clear();
       return armor;
     }
     
     // Constructor from reading Tokenizer.
     explicit Armor(parser::Tokenizer *tokenizer,
-                   bool expect_open_paren = true) {
+                   bool expect_open_paren = true) 
+      : multiplied(false), base(-1), jewels() {
       if (expect_open_paren) {
         tokenizer->Expect(parser::OPEN_PARENTHESIS);
       }
@@ -404,15 +415,37 @@ namespace monster_avengers {
   
   class DataSet {
   public:
+    int torso_up_id;
+    
     DataSet(const std::string &data_folder) 
       : skill_systems_(), jewels_(), armors_(),
         armor_indices_by_parts_() {
       // Skills:
+      torso_up_id = -1;
       {
         const std::string path = data_folder + "/skills.lisp";
         auto tokenizer = std::move(parser::Tokenizer::FromFile(path));
         skill_systems_ = 
           std::move(parser::ParseList<SkillSystem>::Do(&tokenizer));
+
+        // Search for torso_up ID. The torso_up skill is the one with
+        // points = 0.
+        for (int id = 0; id < skill_systems_.size(); ++id) {
+          for (const Skill &skill : skill_systems_[id].skills) {
+            if (0 == skill.points) {
+              torso_up_id = id;
+              break;
+            }
+          }
+          if (torso_up_id > 0) {
+            break;
+          }
+        }
+        
+        if (torso_up_id < 0) {
+          Log(ERROR, L"Torso Up not found!\n");
+          exit(-1);
+        }
         UpdateSkillSystemLookUp(skill_systems_);
       }
 
@@ -454,6 +487,18 @@ namespace monster_avengers {
 
     inline const Armor &armor(ArmorPart part, int id) const {
       return armors_[armor_indices_by_parts_[part][id]];
+    }
+
+    inline bool ProvidesTorsoUp(ArmorPart part, int id) const {
+      const Armor &armor = armors_[armor_indices_by_parts_[part][id]];
+      return  1 == armor.effects.size() &&
+        armor.effects[0].skill_id == torso_up_id;
+    }
+
+    inline bool ProvidesTorsoUp(int id) const {
+      const Armor &armor = armors_[id];
+      return  1 == armor.effects.size() &&
+        armor.effects[0].skill_id == torso_up_id;
     }
 
     inline const std::vector<Armor> &armors() const {

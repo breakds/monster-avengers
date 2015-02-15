@@ -66,6 +66,8 @@ int main() {
   std::vector<Effect> required = {Effect(0, 2), Effect(1, 4)};
   HoleClient hole_client(data, required);
 
+  CHECK(hole_client.DFS(0, 0, 0) == hole_client.Query(0, 0, 0));
+  CHECK(hole_client.Query(0, 0, 0).size() == 1); // has all zero signature.
   CHECK(hole_client.DFS(1, 0, 0) == hole_client.Query(1, 0, 0));
   CHECK(hole_client.DFS(2, 0, 0) == hole_client.Query(2, 0, 0));
   CHECK(hole_client.DFS(3, 0, 0) == hole_client.Query(3, 0, 0));

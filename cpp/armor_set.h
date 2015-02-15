@@ -41,10 +41,25 @@ namespace monster_avengers {
         wprintf(L"] [Rare ??] ??? %ls (%d)\n", 
                 armor.name.c_str(), ids[i]);
       } else {
-        wprintf(L"] [Rare %02d] %s %ls (%d)\n", 
-                armor.rare,
-                (MELEE == armor.type) ? "--H" : ")->", 
-                armor.name.c_str(), ids[i]);
+        if (armor.multiplied) {
+          const Armor &base = data.armor(armor.base);
+          wprintf(L"] [Rare %02d] %s %ls (%d) ",
+                  base.rare,
+                  (MELEE == base.type) ? "--H" : ")->", 
+                  base.name.c_str(), armor.base);
+          for (auto item : armor.jewels) {
+            wprintf(L"%d x %ls ", item.second,
+                    data.jewel(item.first).name.c_str());
+          }
+          wprintf(L"\n");
+        } else {
+          wprintf(L"] [Rare %02d] %s %ls (%d) %ls\n", 
+                  armor.rare,
+                  (MELEE == armor.type) ? "--H" : ")->", 
+                  armor.name.c_str(), ids[i],
+                  data.ProvidesTorsoUp(ids[i]) ?
+                  data.skill_system(data.torso_up_id).name.c_str() : L"");
+        }
       }
       for (const Effect &effect : armor.effects) {
         auto it = std::find_if(effects.begin(), effects.end(),

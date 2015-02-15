@@ -84,8 +84,12 @@ namespace monster_avengers {
   struct TreeRoot {
     int id; // OR node id
     std::vector<Signature> jewel_keys;
+    int torso_multiplier;
     
-    TreeRoot(int id_) : id(id_), jewel_keys() {}
+    TreeRoot(int id_) : id(id_), jewel_keys(), torso_multiplier(1) {}
+    TreeRoot(int id_, int multiplier) : 
+      id(id_), jewel_keys(), 
+      torso_multiplier(multiplier) {}
   };
 
   struct TempOr {
@@ -104,20 +108,12 @@ namespace monster_avengers {
                   int effect_id,
                   int skill_id) 
       : pool_(pool), effect_id_(effect_id) {
-      armor_points_.resize(data.armors().size() + query.amulets.size());
+      armor_points_.resize(data.armors().size());
+      torso_up_.resize(data.armors().size());
       int i = 0;
       for (const Armor &armor : data.armors()) {
         armor_points_[i] = 0;
-        for (const Effect &effect : armor.effects) {
-          if (effect.skill_id == skill_id) {
-            armor_points_[i] = effect.points;
-            break;
-          }
-        }
-        i++;
-      }
-      for (const Armor &armor : query.amulets) {
-        armor_points_[i] = 0;
+        torso_up_[i] = armor.multiplied;
         for (const Effect &effect : armor.effects) {
           if (effect.skill_id == skill_id) {
             armor_points_[i] = effect.points;
@@ -129,13 +125,14 @@ namespace monster_avengers {
     }
 
     inline int Max(const TreeRoot &root) const {
-      return MaxOr(root.id);
+      return MaxOr(root.id, root.torso_multiplier);
     }
 
     inline std::vector<int> Split(const TreeRoot &root, int sub_min) {
       std::vector<TempOr> temp_ors;
       std::vector<int> result;
-      SplitOr(root.id, sub_min, &temp_ors);
+      SplitOr(root.id, sub_min, &temp_ors, 
+              root.torso_multiplier);
       for (TempOr &item : temp_ors) {
         result.push_back(item.id);
       }
@@ -145,28 +142,32 @@ namespace monster_avengers {
   private:
     typedef std::unordered_map<int, std::vector<int> > PointsIdListMap;
     
-    int MaxArmorOr(int or_id) const {
+    int MaxArmorOr(int or_id, int multiplier) const {
       int result = -1000;
       for (int armor_id : pool_->Or(or_id).daughters) {
-        if (armor_points_[armor_id] > result) {
-          result = armor_points_[armor_id];
+        int points = armor_points_[armor_id];
+        if (torso_up_[armor_id] && multiplier > 1) {
+          points *= multiplier;
+        }
+        if (points > result) {
+          result = points;
         }
       }
       return result;
     }
 
-    int MaxAnd(int and_id) const {
+    int MaxAnd(int and_id, int multiplier) const {
       const AND &node = pool_->And(and_id);
       const OR &right_node = pool_->Or(node.right);
-      return MaxArmorOr(node.left) + 
-        (ANDS == right_node.tag ? MaxOr(node.right) : 
-         MaxArmorOr(node.right));
+      return MaxArmorOr(node.left, multiplier) + 
+        (ANDS == right_node.tag ? MaxOr(node.right, multiplier) : 
+         MaxArmorOr(node.right, multiplier));
     }
     
-    int MaxOr(int or_id) const {
+    int MaxOr(int or_id, int multiplier) const {
       int result = -1000;
       for (int and_id : pool_->Or(or_id).daughters) {
-        int tmp = MaxAnd(and_id);
+        int tmp = MaxAnd(and_id, multiplier);
         if (tmp > result) {
           result = tmp;
         }
@@ -174,35 +175,45 @@ namespace monster_avengers {
       return result;
     }
 
-    int SplitArmorOr(int or_id, PointsIdListMap *new_armors) {
+    int SplitArmorOr(int or_id, PointsIdListMap *new_armors, 
+                     int multiplier) {
       int result_max = -1000;
       for (int armor_id : pool_->Or(or_id).daughters) {
-        if (armor_points_[armor_id] > result_max) {
-          result_max = armor_points_[armor_id];
+        int points = armor_points_[armor_id];
+        if (torso_up_[armor_id] && multiplier > 1) {
+          points *= multiplier;
         }
-        auto it = new_armors->find(armor_points_[armor_id]);
+        if (points > result_max) {
+          result_max = points;
+        }
+        auto it = new_armors->find(points);
         if (new_armors->end() != it) {
           it->second.push_back(armor_id);
         } else {
-          (*new_armors)[armor_points_[armor_id]] = {armor_id};
+          (*new_armors)[points] = {armor_id};
         }
       }
       return result_max;
     }
 
-    int SplitArmorOr(int or_id, std::vector<TempOr> *new_armors, int sub_min) {
+    int SplitArmorOr(int or_id, std::vector<TempOr> *new_armors, 
+                     int sub_min, int multiplier) {
       PointsIdListMap temp_map;
       int result_max = -1000;
       const OR &node = pool_->Or(or_id);
       for (int armor_id : node.daughters) {
-        if (armor_points_[armor_id] > result_max) {
-          result_max = armor_points_[armor_id];
+        int points = armor_points_[armor_id];
+        if (torso_up_[armor_id] && multiplier > 1) {
+          points *= multiplier;
         }
-        auto it = temp_map.find(armor_points_[armor_id]);
+        if (points > result_max) {
+          result_max = points;
+        }
+        auto it = temp_map.find(points);
         if (temp_map.end() != it) {
           it->second.push_back(armor_id);
         } else {
-          temp_map[armor_points_[armor_id]] = {armor_id};
+          temp_map[points] = {armor_id};
         }
       }
 
@@ -222,17 +233,17 @@ namespace monster_avengers {
 
 
     void SplitAnd(int and_id, int sub_min, 
-                  PointsIdListMap *new_ands) {
+                  PointsIdListMap *new_ands, int multiplier) {
       PointsIdListMap split_armors;
       const AND &node = pool_->And(and_id);
-      int left_max = SplitArmorOr(node.left, &split_armors);
+      int left_max = SplitArmorOr(node.left, &split_armors, multiplier);
       std::vector<TempOr> split_right;
       const OR &right_node = pool_->Or(node.right);
       int right_max = (ANDS == right_node.tag) ?
         SplitOr(node.right, sub_min - left_max,
-                &split_right) :
+                &split_right, multiplier) :
         SplitArmorOr(node.right, &split_right, 
-                     sub_min - left_max);
+                     sub_min - left_max, multiplier);
 
       // Note(breakds), node may already have been invalid as the
       // above code may trigger reallocation of vector in pool_.
@@ -262,10 +273,11 @@ namespace monster_avengers {
       }
     }
 
-    int SplitOr(int or_id, int sub_min, std::vector<TempOr> *result) {
+    int SplitOr(int or_id, int sub_min, 
+                std::vector<TempOr> *result, int multiplier) {
       PointsIdListMap new_ands;
       for (int and_id : pool_->Or(or_id).daughters) {
-        SplitAnd(and_id, sub_min, &new_ands);
+        SplitAnd(and_id, sub_min, &new_ands, multiplier);
       }
 
       int result_max = -1000;
@@ -289,6 +301,7 @@ namespace monster_avengers {
     
     NodePool *pool_;
     std::vector<int> armor_points_;
+    std::vector<bool> torso_up_;
     int effect_id_;
   };
   

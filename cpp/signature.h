@@ -112,6 +112,13 @@ namespace monster_avengers {
       return key;
     }
 
+    inline void KeyMultiplication(Signature *a, int multiplier) {
+      char *bytes = reinterpret_cast<char*>(a);
+      for (int i = 2; i < sizeof(Signature); ++i) {
+        bytes[i] *= multiplier;
+      }
+    }
+
     inline Signature CombineKey(Signature a, Signature b) {
       Signature key = 0;
       char *bytes = reinterpret_cast<char*>(&key);
