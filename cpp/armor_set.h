@@ -312,6 +312,13 @@ namespace monster_avengers {
       LispObject output = LispObject::Object();
       int defense = 0;
       std::unordered_map<int, int> effects;
+      
+      int torso_multiplier = 1;
+      for (int i = HEAD; i < PART_NUM; ++i) {
+        int id = armor_set.ids[i];
+        if (data_->ProvidesTorsoUp(id)) torso_multiplier++;
+      }
+      
       for (int i = 0; i < PART_NUM; ++i) {
         ArmorPart part = static_cast<ArmorPart>(PART_NUM - i - 1);
         int id = armor_set.ids[i];
@@ -322,9 +329,11 @@ namespace monster_avengers {
         for (const Effect &effect : armor.effects) {
           auto it = effects.find(effect.skill_id);
           if (effects.end() == it) {
-            effects[effect.skill_id] = effect.points;
+            effects[effect.skill_id] = static_cast<ArmorPart>(i) == BODY 
+              ? effect.points * torso_multiplier : effect.points;
           } else {
-            it->second += effect.points;
+            it->second += static_cast<ArmorPart>(i) == BODY
+              ? effect.points * torso_multiplier : effect.points;
           }
         }
       }
@@ -383,12 +392,35 @@ namespace monster_avengers {
       armor_object["name"] = armor.name;
       armor_object["holes"] = armor.holes;
       armor_object["id"] = std::to_wstring(id);
+      armor_object.Set("torsoup",
+                       data_->ProvidesTorsoUp(id) ? 
+                       std::wstring(L"true") : 
+                       std::wstring(L"false"));
       if (AMULET == part) {
-	armor_object.Set("effects", GetEffectsObject(armor.effects));
+        armor_object.Set("effects", GetEffectsObject(armor.effects));
       } else if (GEAR != part) {
-	armor_object.Set("material", GetMaterialObject(armor.material));
-	armor_object.Set("rare", armor.rare);
-      }        
+        armor_object.Set("material", GetMaterialObject(armor.material));
+        armor_object.Set("rare", armor.rare);
+      } 
+      
+      if (armor.multiplied) {
+        const Armor &base_armor = data_->armor(armor.base);
+        armor_object["holes"] = base_armor.holes;
+        int stuffed = 0;
+        if (!armor.jewels.empty()) {
+          armor_object.Set("jewels", LispObject::List());
+          for (const auto &item : armor.jewels) {
+            const Jewel &jewel = data_->jewel(item.first);
+            LispObject jewel_object = LispObject::Object();
+            jewel_object.Set("name", jewel.name);
+            jewel_object.Set("quantity", item.second);
+            stuffed += jewel.holes * item.second;
+            armor_object["jewels"].Push(std::move(jewel_object));
+          }
+          armor_object.Set("stuffed", stuffed);
+        }
+      }
+
       return armor_object;
     }
 

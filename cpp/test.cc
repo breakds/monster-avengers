@@ -40,6 +40,7 @@ int main(int argc, char **argv) {
                              L"(:skill 50 10)" 
                              L"(:amulet 2 (39 4 20 5))",
                              &query));
+  
   query.DebugPrint();
   ArmorUp armor_up("/home/breakds/pf/projects/monster-avengers/dataset/MH4G");
   armor_up.Search(query, 10);
