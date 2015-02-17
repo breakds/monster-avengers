@@ -318,7 +318,7 @@ namespace monster_avengers {
         int id = armor_set.ids[i];
         if (data_->ProvidesTorsoUp(id)) torso_multiplier++;
       }
-      
+
       for (int i = 0; i < PART_NUM; ++i) {
         ArmorPart part = static_cast<ArmorPart>(PART_NUM - i - 1);
         int id = armor_set.ids[i];
@@ -327,13 +327,13 @@ namespace monster_avengers {
 		   GetArmorObject(armor, part, id));
         defense += armor.defense;
         for (const Effect &effect : armor.effects) {
+          int points = part == BODY ? 
+            effect.points * torso_multiplier : effect.points;
           auto it = effects.find(effect.skill_id);
           if (effects.end() == it) {
-            effects[effect.skill_id] = static_cast<ArmorPart>(i) == BODY 
-              ? effect.points * torso_multiplier : effect.points;
+            effects[effect.skill_id] = points;
           } else {
-            it->second += static_cast<ArmorPart>(i) == BODY
-              ? effect.points * torso_multiplier : effect.points;
+            it->second += points;
           }
         }
       }
