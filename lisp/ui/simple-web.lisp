@@ -140,6 +140,7 @@
 (def-widget skill-panel (language change-callback effects)
     ((state (selected 0))
      (add-skill ()
+                (chain console (log (local-state selected)))
 		(funcall change-callback (local-state selected) 0)
 		nil)
      (remove-skill (skill-id)
@@ -158,10 +159,13 @@
             (:div ((class-name "panel-body"))
                   (:div ((class-name "input-group"))
                         (:select ((class-name "form-control")
-				  (on-click (lambda (e)
-					      (setf (local-state selected) 
-						    (@ e target value)))))
-				 (chain skill-systems 
+                                  (value (local-state selected))
+				  (on-change (lambda (e)
+                                               (chain this 
+                                                      (set-state (create 
+                                                                  selected
+                                                                  (@ e target value)))))))
+                                 (chain skill-systems 
 					(map (lambda (system id)
 					       (:option ((value id)) (@ system name))))))
                         (:div ((class-name "input-group-btn dropdown"))
