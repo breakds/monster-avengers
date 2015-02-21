@@ -141,8 +141,8 @@ namespace monster_avengers {
         hole_client_(data, query.effects[effect_id].skill_id, query.effects),
         effect_id_(effect_id),
         required_points_(query.effects[effect_id].points),
-        inverse_points_(sig::InverseKey(query.effects.begin(), 
-                                        query.effects.begin() + effect_id + 1)) {
+      inverse_points_(sig::InverseKey(query.effects.begin(), 
+                                      query.effects.begin() + effect_id + 1)) {
       Proceed();
     }
 
@@ -449,7 +449,7 @@ namespace monster_avengers {
       data_.Summarize();
       Log(INFO, L"OR Nodes: %lld\n", pool_.OrSize());
       Log(INFO, L"AND Nodes: %lld\n", pool_.AndSize());
-   } 
+    } 
 
   private:
     void InitializeExtraArmors(const Query &query) {
@@ -499,9 +499,7 @@ namespace monster_avengers {
           new_armor.multiplied = true;
           new_armor.holes = 0;
           new_armor.base = base_id;
-          // DEBUG(breakds) {
-          // new_armor.jewels = solver.Solve(key);
-          // }
+          new_armor.jewels = solver.Solve(key);
           data_.AddExtraArmor(BODY, new_armor);
         }
       }

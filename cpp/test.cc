@@ -44,10 +44,10 @@ int main(int argc, char **argv) {
   CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")"
                              L"(:weapon-holes 2)" 
                              L"(:rare 1)" 
-                             // L"(:skill 113 10)" 
-                             // L"(:skill 119 10)"
-                             // L"(:skill 133 20)"
+                             L"(:skill 119 10)"
+                             L"(:skill 133 20)"
                              L"(:skill 40 15)"
+                             L"(:skill 113 10)" 
                              L"(:amulet 3 (133 5))"
                              L"(:amulet 2 (40 5))",
                              &query));
