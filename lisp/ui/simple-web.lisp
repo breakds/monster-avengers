@@ -3,7 +3,7 @@
 (in-package #:monster-avengers.simple-web)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (defparameter *working-dir* "/home/breakds/tmp/")
+  (defparameter *working-dir* "/tmp/")
   (defparameter *server-binary*
     (merge-pathnames "cpp/build/serve_query"
                      (asdf:system-source-directory 'monster-avengers)))
@@ -617,6 +617,13 @@
             (lang-text ("en" "Your query does not return anything.")
                        ("zh" "没有找到满足条件的配装."))))
 
+(def-widget in-progress-alert (language)
+    ()
+  #jsx(:div ((class-name "alert alert-warning"))
+            (lang-text ("en" "Search in progress ...")
+                       ("zh" "搜索中，请稍候 ..."))))
+
+
 (def-widget info-panel (language)
     ()
   #jsx(:div ()
@@ -824,15 +831,17 @@
                 (if (= (local-state current-page) "result")
                     (:div ((class-name "row"))
                           (:div ((class-name "col-md-6"))
-                                (if (local-state query-fail)
-                                    (:query-fail-alert ((:language (local-state language))))
-                                    (chain (local-state query-result)
-                                           (map (lambda (armor-set)
-                                                  (:armor-set-display 
-                                                   ((language (@ this state language))
-                                                    (blacklist-callback (@ this append-blacklist))
-                                                    (filter-callback (@ this handle-query))
-                                                    (armor-set armor-set)))))))))
+                                (cond ((local-state query-fail)
+                                       (:query-fail-alert ((:language (local-state language)))))
+                                      ((local-state in-progress)
+                                       (:in-progress-alert ((:language (local-state language)))))
+                                      (t (chain (local-state query-result)
+                                                (map (lambda (armor-set)
+                                                       (:armor-set-display 
+                                                        ((language (@ this state language))
+                                                         (blacklist-callback (@ this append-blacklist))
+                                                         (filter-callback (@ this handle-query))
+                                                         (armor-set armor-set))))))))))
                     (:div ((class-name "row"))
                           (:div ((class-name "col-md-6"))
                                 (:help-panel ((language (local-state language))))))))))
