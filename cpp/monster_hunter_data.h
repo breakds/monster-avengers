@@ -526,6 +526,33 @@ namespace monster_avengers {
       }
     }
 
+    double EffectScore(const Effect &effect) {
+      int armor_count = 0;
+      for (int i = 0; i < reserved_armor_count_; ++i) {
+        for (const Effect &armor_effect : armors_[i].effects) {
+          if (armor_effect.skill_id == effect.skill_id) {
+            armor_count++;
+            break;
+          }
+        }
+      }
+
+      double jewel_index = 0;
+      for (const Jewel &jewel : jewels_) {
+        for (const Effect &jewel_effect : jewel.effects) {
+          if (jewel_effect.skill_id == effect.skill_id) {
+            jewel_index += 
+              static_cast<double>(jewel_effect.points) / jewel.holes *
+              std::exp(-jewel.holes * 0.1);
+
+          }
+        }
+      }
+      
+      return std::exp(0.1 * jewel_index - 0.3 * effect.points)
+        * armor_count;
+    }
+
     void Summarize() {
       Log(INFO, L"Skill Systems: %lld", skill_systems_.size());
       Log(INFO, L"Jewels: %lld", jewels_.size());

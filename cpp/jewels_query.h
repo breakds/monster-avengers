@@ -21,7 +21,8 @@ namespace monster_avengers {
                const std::vector<Effect> &effects)
       : jewel_keys_() {
       bool valid = false;
-      for (Jewel jewel : data.jewels()) {
+
+      for (const Jewel &jewel : data.jewels()) {
         Signature key = sig::JewelKey(jewel, skill_ids, 
                                       effects, &valid);
         if (valid) {

@@ -344,7 +344,9 @@ namespace monster_avengers {
       return result;
     }
 
-    void Search(const Query &query, int required_num) {
+    void Search(const Query &input_query, int required_num) {
+      Query query = OptimizeQuery(input_query);
+      query.DebugPrint();
       InitializeExtraArmors(query);
       CHECK_SUCCESS(ApplyFoundation(query));
       CHECK_SUCCESS(ApplyJewelFilter(query.effects));
@@ -373,7 +375,8 @@ namespace monster_avengers {
       }
     }
 
-    void SearchAndOutput(const Query &query, int required_num = 10) {
+    void SearchAndOutput(const Query &input_query, int required_num = 10) {
+      Query query = OptimizeQuery(input_query);
       InitializeExtraArmors(query);
       CHECK_SUCCESS(ApplyFoundation(query));
       CHECK_SUCCESS(ApplyJewelFilter(query.effects));
@@ -392,7 +395,8 @@ namespace monster_avengers {
       }
     }
 
-    void SearchAndLispOut(const Query &query, const std::string output_path) {
+    void SearchAndLispOut(const Query &input_query, const std::string output_path) {
+      Query query = OptimizeQuery(input_query);
       InitializeExtraArmors(query);
       CHECK_SUCCESS(ApplyFoundation(query));
       CHECK_SUCCESS(ApplyJewelFilter(query.effects));
@@ -410,6 +414,30 @@ namespace monster_avengers {
 	++count;
         ++(*output_iterators_.back());
       }
+    }
+
+    Query OptimizeQuery(const Query &query) {
+      std::vector<double> scores;
+      std::vector<int> indices;
+      for (int i = 0; i < query.effects.size(); ++i) {
+        const Effect &effect = query.effects[i];
+        indices.push_back(i);
+        scores.push_back(data_.EffectScore(effect));
+        wprintf(L"%ls: %.5lf\n", 
+                data_.skill_system(effect.skill_id).name.c_str(),
+                scores.back());
+      }
+
+      std::sort(indices.begin(), indices.end(), 
+                [&scores](int a, int b) {
+                  return scores[a] < scores[b];
+                });
+      Query optimized = query;
+      optimized.effects.clear();
+      for (int i = 0; i < query.effects.size(); ++i) {
+        optimized.effects.push_back(query.effects[indices[i]]);
+      }
+      return optimized;
     }
 
     void ListSkills() {
@@ -471,7 +499,9 @@ namespace monster_avengers {
           new_armor.multiplied = true;
           new_armor.holes = 0;
           new_armor.base = base_id;
-          new_armor.jewels = solver.Solve(key);
+          // DEBUG(breakds) {
+          // new_armor.jewels = solver.Solve(key);
+          // }
           data_.AddExtraArmor(BODY, new_armor);
         }
       }
@@ -484,7 +514,8 @@ namespace monster_avengers {
       std::unordered_map<Signature, std::vector<int> > armor_map;
 
       std::vector<Effect> effects;
-      for (int i = 0; i < FOUNDATION_NUM; ++i) {
+      int query_size = query.effects.size();
+      for (int i = 0; i < std::min(query_size, FOUNDATION_NUM); ++i) {
         effects.push_back(query.effects[i]);
       }
       
@@ -595,7 +626,9 @@ namespace monster_avengers {
 
     Status ApplyJewelFilter(const std::vector<Effect> &effects) {
       std::vector<int> skill_ids;
-      for (int i = 0; i < FOUNDATION_NUM; ++i) {
+      int actual_size = std::min(static_cast<int>(effects.size()),
+                                 FOUNDATION_NUM);
+      for (int i = 0; i < actual_size; ++i) {
         skill_ids.push_back(effects[i].skill_id);
       }
       TreeIterator *new_iter = 
