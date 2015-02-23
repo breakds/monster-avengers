@@ -150,31 +150,31 @@
 
 ;;; ---------- Exported Utilities ----------
 
-(defun get-jap-file-name (file-name)
+(defun get-dataset-file-name (file-name)
   (ensure-directories-exist
    (merge-pathnames (format nil "dataset/MH4G/~a" file-name)
                     (asdf:system-source-directory 'monster-avengers))))
 
 (defparameter *skills-file* 
-  (get-jap-file-name "skills.lisp"))
+  (get-dataset-file-name "skills-4g.lisp"))
 
 (defparameter *jewels-file* 
-  (get-jap-file-name "jewels.lisp"))
+  (get-dataset-file-name "jewels-4g.lisp"))
 
 (defparameter *helms-file* 
-  (get-jap-file-name "helms.lisp"))
+  (get-dataset-file-name "helms-4g.lisp"))
 
 (defparameter *cuirasses-file* 
-  (get-jap-file-name "cuirasses.lisp"))
+  (get-dataset-file-name "cuirasses-4g.lisp"))
 
 (defparameter *gloves-file* 
-  (get-jap-file-name "gloves.lisp"))
+  (get-dataset-file-name "gloves-4g.lisp"))
 
 (defparameter *cuisses-file* 
-  (get-jap-file-name "cuisses.lisp"))
+  (get-dataset-file-name "cuisses-4g.lisp"))
 
 (defparameter *sabatons-file* 
-  (get-jap-file-name "sabatons.lisp"))
+  (get-dataset-file-name "sabatons-4g.lisp"))
 
 (defun update-jap-dataset (&key (force-refresh nil))
   (labels ((load-or-crawl (crawler file-name uri)

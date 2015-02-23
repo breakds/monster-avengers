@@ -101,7 +101,7 @@
 
 
 (def-global-code skill-systems
-  (with-open-file (in (merge-pathnames "skills.lisp"
+  (with-open-file (in (merge-pathnames "skills-4g.lisp"
                                        *dataset-path*)
                       :direction :input)
     `(array 

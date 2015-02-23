@@ -13,6 +13,7 @@
                  (:file "lisp/crawler/mh4g-crawler")
                  (:file "lisp/crawler/mh4-crawler")
                  (:file "lisp/crawler/mhp3-crawler")
+                 (:file "lisp/crawler/wikia-mh4u-extender")
                  (:file "lisp/crawler/crawler-test")
                  ;; Engine
                  (:file "lisp/engine/eva-list")
