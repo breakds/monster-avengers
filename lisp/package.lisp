@@ -1,5 +1,10 @@
 ;;;; package.lisp
 
+(defpackage #:breakds.monster-avengers.mh4gu-converter
+  (:nicknames #:mh4gu-converter)
+  (:use #:cl #:swiss-knife)
+  (:export #:update-dataset))
+
 (defpackage #:breakds.monster-avengers.mh4g-crawler
   (:nicknames #:mh4g-crawler)
   (:use #:cl

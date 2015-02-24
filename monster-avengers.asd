@@ -7,8 +7,11 @@
                  #:bordeaux-threads
                  #:hunchentoot
                  #:realispic
+                 #:sqlite
                  #:stefil)
     :components ((:file "lisp/package")
+                 ;; converter
+                 (:file "lisp/converter/mh4gu")
                  ;; crawler
                  (:file "lisp/crawler/mh4g-crawler")
                  (:file "lisp/crawler/mh4-crawler")
