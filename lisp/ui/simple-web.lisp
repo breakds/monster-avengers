@@ -13,10 +13,16 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defpsmacro lang-text (&rest lang-text-pairs)
-    `(funcall (lambda (language)
-                (case language
-                  ,@lang-text-pairs))
-              (@ this props language))))
+    `((chain (lambda ()
+               (case (@ this props language)
+                 ,@lang-text-pairs))
+             (bind this)))))
+
+                           
+    ;; `(funcall (@ (lambda (language)
+    ;;                (case language
+    ;;                  ,@lang-text-pairs))
+    ;;           (@ this props language))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (enable-jsx-reader))
@@ -101,25 +107,28 @@
 
 
 (def-global-code skill-systems
-  (with-open-file (in (merge-pathnames "skills-4g.lisp"
+  (with-open-file (in (merge-pathnames "skills.lisp"
                                        *dataset-path*)
                       :direction :input)
     `(array 
       ,@(loop for skill-system in (read in)
            collect `(create :name ,(getf skill-system :system-name)
+                            en-name ,(getf skill-system :en-name)
 			    :skills (array ,@(loop for skill in (getf skill-system 
 								      :skills)
 						when (> (getf skill :points) 0)
 						collect `(create :name ,(getf skill :name)
+                                                                 en-name ,(getf skill :en-name)
 								 :points ,(getf skill :points)))))))))
 
-(def-widget skill-item (effect update-callback destructor)
+(def-widget skill-item (language effect update-callback destructor)
     ()
-  #jsx(with-slots (name skills) (aref skill-systems (@ effect id))
+  #jsx(with-slots (en-name name skills) (aref skill-systems (@ effect id))
 	(:li ((class-name "list-group-item"))
 	     (:div ((class-name "row"))
 		   (:div ((class-name "col-md-4"))
-			 name)
+                         (lang-text ("zh" name)
+                                    ("en" en-name)))
 		   (:div ((class-name "col-md-6"))
 			 (:select ((class-name "form-control")
                                    (value (@ effect active))
@@ -130,7 +139,8 @@
 				  (chain skills 
 					 (map (lambda (skill id)
 						(:option ((value id))
-							 (@ skill name)))))))
+							 (lang-text ("zh" (@ skill name))
+                                                                    ("en" (@ skill en-name)))))))))
 		   (:div ((class-name "col-md-2"))
 			 (:button ((class-name "btn btn-default")
 				   (on-click (lambda () 
@@ -140,7 +150,6 @@
 (def-widget skill-panel (language change-callback effects)
     ((state (selected 0))
      (add-skill ()
-                (chain console (log (local-state selected)))
 		(funcall change-callback (local-state selected) 0)
 		nil)
      (remove-skill (skill-id)
@@ -154,6 +163,7 @@
 		 (chain effects
 			(map (lambda (effect) 
 			       (:skill-item ((effect effect)
+                                             (:language language)
 					     (update-callback change-callback)
 					     (destructor (@ this remove-skill))))))))
             (:div ((class-name "panel-body"))
@@ -167,7 +177,9 @@
                                                                   (@ e target value)))))))
                                  (chain skill-systems 
 					(map (lambda (system id)
-					       (:option ((value id)) (@ system name))))))
+					       (:option ((value id)) 
+                                                        (lang-text ("zh" (@ system name))
+                                                                   ("en" (@ system en-name))))))))
                         (:div ((class-name "input-group-btn dropdown"))
                               (:button ((class-name "btn btn-default")
 					(on-click (@ this add-skill)))
@@ -317,7 +329,7 @@
                                         (skill-points (local-state skill-points-b))
                                         (slot-id "b")
                                         (:callback (@ this handle-change))))
-                  (:label () (lang-text ("en" "Holes")
+                  (:label () (lang-text ("en" "Slots")
                                         ("zh" "护石孔数")))
                   (:select ((class-name "form-control")
                             (value (local-state holes))
@@ -542,7 +554,7 @@
                   (:div ((class-name "panel panel-default"))
                         (:div ((class-name "panel-heading"))
                               (:h3 ((class-name "panel-title"))
-                                   (lang-text ("en" "Weapon Holes")
+                                   (lang-text ("en" "Weapon Slots")
                                               ("zh" "武器孔数"))))
                         (:div ((class-name "panel-body"))
                               (:select ((class-name "form-control")
@@ -692,8 +704,10 @@
                                            ("zh" "查看/过滤 搜索结果")))))))
 
 
-(def-widget app-view ()
-    ((state (language "zh")
+(def-widget app-view (default-language)
+    ((state (language (if default-language
+                          default-language
+                          "zh"))
             (weapon-type "melee")
             (weapon-holes 0)
             (rare 1)
@@ -849,7 +863,8 @@
 
                    
 
-(def-realispic-app (armor-tools :title "Monster Hunter's Arsenal"
+(def-realispic-app (armor-tools (lang) 
+                                :title "Monster Hunter's Arsenal"
                                 :port 16384
                                 :css ("https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.2/css/bootstrap.min.css")
                                 :libs ("http://fb.me/react-0.12.2.min.js"
@@ -857,7 +872,8 @@
                                        "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.2/js/bootstrap.min.js")
                                 :document-base (merge-pathnames "assets/"
                                                                 (asdf:system-source-directory 'monster-avengers)))
-  #jsx(:app-view))
+  #jsx(:app-view ((default-language lang))))
+
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (disable-jsx-reader))
