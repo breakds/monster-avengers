@@ -480,6 +480,7 @@ namespace monster_avengers {
       max_defense = other.max_defense;
       holes = other.holes;
       effects = other.effects;
+      material = other.material;
       multiplied = other.multiplied;
       base = other.base;
       jewels = other.jewels;
@@ -649,7 +650,6 @@ namespace monster_avengers {
         int i = 0;
         for (const Armor &armor : armors_) {
           armor_indices_by_parts_[armor.part].push_back(i++);
-          if (i < 10) armor.DebugPrint();
         }
         reserved_armor_count_ = static_cast<int>(armors_.size());
       }
