@@ -254,7 +254,7 @@ namespace monster_avengers {
       while (!base_iter_->empty()) {
 	const ArmorSet &armor_set = **base_iter_;
 	int defense = 0;
-	for (int id : armor_set.ids) defense += data_->armor(id).defense;
+	for (int id : armor_set.ids) defense += data_->armor(id).max_defense;
 	if (defense >= min_defense_) {
 	  break;
 	} else {

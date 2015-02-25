@@ -209,8 +209,21 @@ namespace monster_avengers {
         if (L'"' == buffer_) {
           result->name = STRING;
           result->value = L"";
-          while (!end_of_file_ && L'"' != GetChar()) {
-            result->value += buffer_;
+          bool escape = false;
+          while (!end_of_file_) {
+            if ('"' == GetChar() && !escape) {
+              break;
+            }
+            if (L'\\' == buffer_) {
+              escape = true;
+            } else {
+              escape = false;
+              if ('"' == buffer_) {
+                result->value += '|';
+              } else {
+                result->value += buffer_;
+              }
+            }
           }
           if (L'"' != buffer_) {
             Log(ERROR, L"Invalid String.");

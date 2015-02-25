@@ -28,7 +28,7 @@ namespace monster_avengers {
     const std::array<int, PART_NUM> &ids = armor_set.ids;
     for (int i = 0; i < PART_NUM; ++i) {
       const Armor &armor = data.armor(ids[i]);
-      defense += data.armor(ids[i]).defense;
+      defense += data.armor(ids[i]).max_defense;
       wprintf(L"[");
       for (int j = 0; j < 3; ++j) {
         if (j < armor.holes) {
@@ -104,7 +104,7 @@ namespace monster_avengers {
     const std::array<int, PART_NUM> &ids = armor_set.ids;
     for (int i = 0; i < PART_NUM; ++i) {
       const Armor &armor = data.armor(ids[i]);
-      defense += data.armor(ids[i]).defense;
+      defense += data.armor(ids[i]).max_defense;
       wprintf(L"[");
       for (int j = 0; j < 3; ++j) {
         if (j < armor.holes) {
@@ -131,9 +131,9 @@ namespace monster_avengers {
                 (MELEE == armor.type) ? "--H" : ")->", 
 		armor.name.c_str(), ids[i]);
 
-        for (const std::wstring &material_name : armor.material) {
-          wprintf(L"  %ls", material_name.c_str());
-        }
+        // for (const std::wstring &material_name : armor.material) {
+        //   wprintf(L"  %ls", material_name.c_str());
+        // }
         wprintf(L"\n");
       }
       for (const Effect &effect : armor.effects) {
@@ -325,7 +325,7 @@ namespace monster_avengers {
         const Armor &armor = data_->armor(id);
 	output.Set(PartName(part),
 		   GetArmorObject(armor, part, id));
-        defense += armor.defense;
+        defense += armor.max_defense;
         for (const Effect &effect : armor.effects) {
           int points = part == BODY ? 
             effect.points * torso_multiplier : effect.points;
@@ -351,7 +351,7 @@ namespace monster_avengers {
           for (auto item : solver_.Solve(jewel_key)) {
 	    LispObject plan_object = LispObject::Object();
             const Jewel &jewel = data_->jewel(item.first);
-	    plan_object.Set("name", jewel.name);
+	    plan_object.Set("name", jewel.name.jp);
 	    plan_object.Set("quantity", item.second);
 	    jewel_plan_object["plan"].Push(std::move(plan_object));
             for (const Effect &effect : jewel.effects) {
@@ -389,7 +389,7 @@ namespace monster_avengers {
     
     LispObject GetArmorObject(const Armor &armor, ArmorPart part, int id) {
       LispObject armor_object = LispObject::Object();
-      armor_object["name"] = armor.name;
+      armor_object["name"] = armor.name.jp;
       armor_object["holes"] = armor.holes;
       armor_object["id"] = std::to_wstring(id);
       armor_object.Set("torsoup",
@@ -399,7 +399,7 @@ namespace monster_avengers {
       if (AMULET == part) {
         armor_object.Set("effects", GetEffectsObject(armor.effects));
       } else if (GEAR != part) {
-        armor_object.Set("material", GetMaterialObject(armor.material));
+        // armor_object.Set("material", GetMaterialObject(armor.material));
         armor_object.Set("rare", armor.rare);
       } 
       
@@ -412,7 +412,7 @@ namespace monster_avengers {
           for (const auto &item : armor.jewels) {
             const Jewel &jewel = data_->jewel(item.first);
             LispObject jewel_object = LispObject::Object();
-            jewel_object.Set("name", jewel.name);
+            // jewel_object.Set("name", jewel.name);
             jewel_object.Set("quantity", item.second);
             stuffed += jewel.holes * item.second;
             armor_object["jewels"].Push(std::move(jewel_object));
@@ -428,7 +428,7 @@ namespace monster_avengers {
       LispObject result = LispObject::List();
       for (const Effect &effect : effects) {
 	LispObject effect_object = LispObject::Object();
-	effect_object.Set("name", data_->skill_system(effect.skill_id).name);
+	effect_object.Set("name", data_->skill_system(effect.skill_id).name.jp);
 	effect_object.Set("points", effect.points); 
 	result.Push(std::move(effect_object));
       }
@@ -455,12 +455,12 @@ namespace monster_avengers {
               if (effect.second >= skill.points && 
                   skill.points > active_points) {
                 active_points = skill.points;
-                active_name = skill.name;
+                active_name = skill.name.jp;
               }
             } else if (effect.second <= skill.points && 
                        skill.points < active_points) {
               active_points = skill.points;
-              active_name = skill.name;
+              active_name = skill.name.jp;
             }
           }
         }

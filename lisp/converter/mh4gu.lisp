@@ -88,6 +88,23 @@
     (format t "[ ok ] ~a jewels written to jewels.lisp~%"
             (length jewels))))
 
+(defun update-items (database)
+    (let* ((query-result (sqlite:execute-to-list
+                         database
+                         (mkstr "SELECT _id, name, jpn_name "
+                                "FROM items "
+                                "ORDER BY _id")))
+           (items (loop for (id item-en item-jp) in query-result
+                    collect (list :obj t
+                                  :name `(:obj t :en ,item-en :jp ,item-jp)
+                                  :id (1- id)))))
+      (with-open-file (out (get-dataset-file "items.lisp")
+                           :direction :output
+                           :if-exists :supersede)
+        (write items :stream out))
+      (format t "[ ok ] ~a items written to items.lisp~%"
+              (length items))))
+
 (defun update-armors (database)
   (let ((query-result (sqlite:execute-to-list
                        database
@@ -103,6 +120,13 @@
                               "INNER JOIN item_to_skill_tree "
                               "ON item_to_skill_tree.item_id = items._id "
                               "ORDER BY items.name")))
+        (materials (sqlite:execute-to-list
+                    database
+                    (mkstr "SELECT items.name, component_item_id "
+                           "FROM armor "
+                           "INNER JOIN items ON items._id = armor._id "
+                           "INNER JOIN components ON items._id = created_item_id "
+                           "ORDER BY items.name")))
         armors)
     (loop 
        for previous-armor = "" then armor-en
@@ -118,9 +142,11 @@
                     (getf (car armors) :effects))
               (push (list :obj t
                           :name `(:obj t :en ,armor-en :jp ,armor-jp)
-                          :par part
+                          :part part
                           :gender gender
-                          :type type
+                          :type (if (string= part "Head")
+                                    "BOTH"
+                                    type)
                           :slots slots
                           :rare rare
                           :min-defense min-defense
@@ -131,10 +157,35 @@
                                             :dragon dragon
                                             :water water
                                             :ice ice)
+                          :material (loop while (equal (caar materials) armor-en)
+                                       collect (1- (cadar materials))
+                                       do (pop materials))
                           :effects (list (list :obj t 
                                                :skill-id (1- skill-system-id)
                                                :points points)))
                     armors)))
+    (loop for slots below 4
+       do (push (list :obj t
+                      :name (case slots
+                              (0 '(:obj t :en "No Slot Weapon" :jp "无孔武器"))
+                              (1 '(:obj t :en "Single Slot Weapon" :jp "单孔武器"))
+                              (2 '(:obj t :en "Dual Slot Weapon" :jp "双孔武器"))
+                              (3 '(:obj t :en "Triple Slot Weapon" :jp "三孔武器")))
+                      :part "gear"
+                      :gender "BOTH"
+                      :type "BOTH"
+                      :slots slots
+                      :rare 10
+                      :min-defense 0
+                      :max-defense 0
+                      :resistence (list :obj t 
+                                        :fire 0
+                                        :thunder 0
+                                        :dragon 0
+                                        :water 0
+                                        :ice 0)
+                      :effects nil)
+                armors))
     (with-open-file (out (get-dataset-file "armors.lisp")
                          :direction :output
                          :if-exists :supersede)
@@ -144,6 +195,7 @@
 
 (defun update-dataset ()
   (sqlite:with-open-database (database *database-path*)
+    (update-items database)
     (update-skills database)
     (update-jewels database)
     (update-armors database)))
