@@ -612,7 +612,6 @@ namespace monster_avengers {
         auto tokenizer = std::move(parser::Tokenizer::FromFile(path));
         skill_systems_ = 
           std::move(parser::ParseList<SkillSystem>::Do(&tokenizer));
-        PrintSkillSystems();
       }
 
       // ---------- Jewels ----------
@@ -645,10 +644,6 @@ namespace monster_avengers {
           armor_indices_by_parts_[armor.part].push_back(i++);
         }
         reserved_armor_count_ = static_cast<int>(armors_.size());
-        
-        for (int j = 0; j < armor_indices_by_parts_[GEAR].size(); ++j) {
-          armors_[armor_indices_by_parts_[GEAR][j]].DebugPrint();
-        }
       }
     }
 

@@ -351,7 +351,7 @@ namespace monster_avengers {
           for (auto item : solver_.Solve(jewel_key)) {
 	    LispObject plan_object = LispObject::Object();
             const Jewel &jewel = data_->jewel(item.first);
-	    plan_object.Set("name", jewel.name.jp);
+	    plan_object.Set("name", GetLanguageText(jewel.name));
 	    plan_object.Set("quantity", item.second);
 	    jewel_plan_object["plan"].Push(std::move(plan_object));
             for (const Effect &effect : jewel.effects) {
@@ -387,9 +387,16 @@ namespace monster_avengers {
       }
     }
     
+    LispObject GetLanguageText(const LanguageText &text) {
+      LispObject result = LispObject::Object();
+      result["en"] = text.en;
+      result["jp"] = text.jp;
+      return result;
+    }
+    
     LispObject GetArmorObject(const Armor &armor, ArmorPart part, int id) {
       LispObject armor_object = LispObject::Object();
-      armor_object["name"] = armor.name.jp;
+      armor_object["name"] = GetLanguageText(armor.name);
       armor_object["holes"] = armor.holes;
       armor_object["id"] = std::to_wstring(id);
       armor_object.Set("torsoup",
@@ -412,7 +419,7 @@ namespace monster_avengers {
           for (const auto &item : armor.jewels) {
             const Jewel &jewel = data_->jewel(item.first);
             LispObject jewel_object = LispObject::Object();
-            // jewel_object.Set("name", jewel.name);
+            jewel_object.Set("name", GetLanguageText(jewel.name));
             jewel_object.Set("quantity", item.second);
             stuffed += jewel.holes * item.second;
             armor_object["jewels"].Push(std::move(jewel_object));
@@ -428,7 +435,8 @@ namespace monster_avengers {
       LispObject result = LispObject::List();
       for (const Effect &effect : effects) {
 	LispObject effect_object = LispObject::Object();
-	effect_object.Set("name", data_->skill_system(effect.skill_id).name.jp);
+	effect_object.Set("name", 
+                          GetLanguageText(data_->skill_system(effect.skill_id).name));
 	effect_object.Set("points", effect.points); 
 	result.Push(std::move(effect_object));
       }
@@ -448,24 +456,24 @@ namespace monster_avengers {
       for (auto &effect : effects) {
         const SkillSystem &skill_system = data_->skill_system(effect.first);
         int active_points = 0;
-        std::wstring active_name = L"";
+        LispObject active_name;
         if (effect.second > 0) {
           for (const Skill &skill : skill_system.skills) {
             if (effect.second > 0) {
               if (effect.second >= skill.points && 
                   skill.points > active_points) {
                 active_points = skill.points;
-                active_name = skill.name.jp;
+                active_name = GetLanguageText(skill.name);
               }
             } else if (effect.second <= skill.points && 
                        skill.points < active_points) {
               active_points = skill.points;
-              active_name = skill.name.jp;
+              active_name = GetLanguageText(skill.name);
             }
           }
         }
-        if (!active_name.empty()) {
-	  active_object.Push(active_name);
+        if (0 != active_points) {
+	  active_object.Push(std::move(active_name));
         }
       }
       return active_object;

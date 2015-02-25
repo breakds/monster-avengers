@@ -27,8 +27,13 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (enable-jsx-reader))
 
+(defun json-name-object (name-obj)
+  (json "en" (getf (getf name-obj :name) :en)
+        "jp" (getf (getf name-obj :name) :jp)))
+
 (defun json-armor-object (obj)
-  (json "name" (getf obj :name)
+  (json "name" (josn "en" (getf (getf obj :name) :en)
+                     "jp" (getf (getf obj :name) :jp))
         "id" (getf obj :id)
         "holes" (getf obj :holes)
         "rare" (if (getf obj :rare)
