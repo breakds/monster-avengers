@@ -324,7 +324,7 @@ namespace monster_avengers {
         int id = armor_set.ids[i];
         const Armor &armor = data_->armor(id);
 	output.Set(PartName(part),
-		   GetArmorObject(armor, part, id));
+		   GetArmorObject(data_, armor, part, id));
         defense += armor.max_defense;
         for (const Effect &effect : armor.effects) {
           int points = part == BODY ? 
@@ -394,7 +394,8 @@ namespace monster_avengers {
       return result;
     }
     
-    LispObject GetArmorObject(const Armor &armor, ArmorPart part, int id) {
+    LispObject GetArmorObject(const DataSet *data, const Armor &armor, 
+                              ArmorPart part, int id) {
       LispObject armor_object = LispObject::Object();
       armor_object["name"] = GetLanguageText(armor.name);
       armor_object["holes"] = armor.holes;
@@ -406,7 +407,8 @@ namespace monster_avengers {
       if (AMULET == part) {
         armor_object.Set("effects", GetEffectsObject(armor.effects));
       } else if (GEAR != part) {
-        // armor_object.Set("material", GetMaterialObject(armor.material));
+        armor_object.Set("material", 
+                         GetMaterialObject(data, armor.material));
         armor_object.Set("rare", armor.rare);
       } 
       
@@ -443,10 +445,11 @@ namespace monster_avengers {
       return result;
     }
 
-    LispObject GetMaterialObject(const std::vector<std::wstring> &material) {
+    LispObject GetMaterialObject(const DataSet *data, 
+                                 const std::vector<int> &material) {
       LispObject result = LispObject::List();
-      for (const std::wstring &item : material) {
-	result.Push(item);
+      for (const int &item_id : material) {
+	result.Push(GetLanguageText(data->ItemName(item_id)));
       }
       return result;
     }

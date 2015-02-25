@@ -592,6 +592,13 @@ namespace monster_avengers {
       }
       for (int i = 0; i < indent + 2; ++i) wprintf(L" ");
       wprintf(L"]\n");
+      wprintf(L"material: [\n");
+      for (const int &id : material) {
+        for (int i = 0; i < indent + 4; ++i) wprintf(L" ");
+        wprintf(L"%d\n", id);
+      }
+      for (int i = 0; i < indent + 2; ++i) wprintf(L" ");
+      wprintf(L"]\n");
       for (int i = 0; i < indent; ++i) wprintf(L" ");
       wprintf(L"};\n");
     }
@@ -642,6 +649,7 @@ namespace monster_avengers {
         int i = 0;
         for (const Armor &armor : armors_) {
           armor_indices_by_parts_[armor.part].push_back(i++);
+          if (i < 10) armor.DebugPrint();
         }
         reserved_armor_count_ = static_cast<int>(armors_.size());
       }
@@ -661,6 +669,10 @@ namespace monster_avengers {
 
     inline const Armor &armor(int id) const {
       return armors_[id];
+    }
+
+    inline const LanguageText &ItemName(int id) const {
+      return items_[id].name;
     }
 
     inline const Armor &armor(ArmorPart part, int id) const {

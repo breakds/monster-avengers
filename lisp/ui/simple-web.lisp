@@ -32,8 +32,7 @@
         "jp" (getf (getf name-obj :name) :jp)))
 
 (defun json-armor-object (obj)
-  (json "name" (josn "en" (getf (getf obj :name) :en)
-                     "jp" (getf (getf obj :name) :jp))
+  (json "name" (json-name-object (get obj :name))
         "id" (getf obj :id)
         "holes" (getf obj :holes)
         "rare" (if (getf obj :rare)
@@ -45,28 +44,32 @@
                       0)
         "jewels" (if (getf obj :jewels)
                      (loop for jewel-plan in (getf obj :jewels)
-                        collect (json "name" (getf jewel-plan :name)
+                        collect (json "name" (json-name-object 
+                                              (getf jewel-plan :name))
                                       "num" (getf jewel-plan :quantity)))
                      nil)
-        "material" (getf obj :material)))
+        "material" (mapcar #'json-name-object (getf obj :material))))
 
 (defun json-amulet-object (obj)
-  (json "holes" (getf obj :holes)
-        "id" (getf obj :id)
-        "material" ""
-        "rare" "??"
-        "torsoup" "false"
-        "stuffed" 0
-        "jewels" nil
-        "name" (let ((name ""))
-                 (loop for effect in (getf obj :effects)
-                    do (setf name (concatenate 'string name 
-                                               (getf effect :name)
-                                               (if (> (getf effect :points) 0)
-                                                   " +" " ")
-                                               (format nil "~a" (getf effect :points))
-                                               "   ")))
-                 name)))
+  (labels ((amulet-name (language obj)
+             (let ((name ""))
+               (loop for effect in (getf obj :effects)
+                  do (setf name (concatenate 'string name 
+                                             (getf (getf effect :name) language)
+                                             (if (> (getf effect :points) 0)
+                                                 " +" " ")
+                                             (format nil "~a" (getf effect :points))
+                                             "   ")))
+               name)))
+    (json "holes" (getf obj :holes)
+          "id" (getf obj :id)
+          "material" ""
+          "rare" "??"
+          "torsoup" "false"
+          "stuffed" 0
+          "jewels" nil
+          "name" (json "en" (amulet-name :en obj)
+                       "jp" (amulet-name :jp obj)))))
 
 (def-rpc answer-query (query)
   (let ((query-file (merge-pathnames (format nil "query_cache_~a.lsp"
@@ -104,10 +107,12 @@
                        "defense" (getf solution :defense)
                        "jewelPlans" 
                        (loop for jewel-plan in (getf solution :jewel-plans)
-                          collect (json "active" (getf jewel-plan :active)
+                          collect (json "active" (loop for active in (getf jewel-plan :active)
+                                                    collect (json-name-object active))
                                         "plan" (loop for jewel in 
                                                     (getf jewel-plan :plan)
-                                                  collect (json "name" (getf jewel :name)
+                                                  collect (json "name" (json-name-object 
+                                                                        (getf jewel :name))
                                                                 "num" (getf jewel :quantity))))))))))
 
 
