@@ -6,7 +6,7 @@
 #include <unordered_set>
 
 #include "helpers.h"
-#include "parser.h"
+#include "lisp/parser.h"
 #include "monster_hunter_data.h"
 
 namespace monster_avengers {

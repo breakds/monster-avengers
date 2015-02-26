@@ -9,7 +9,7 @@
 #include <unordered_map>
 
 #include "helpers.h"
-#include "parser.h"
+#include "lisp/parser.h"
 
 
 namespace monster_avengers {
