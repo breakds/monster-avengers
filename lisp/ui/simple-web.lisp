@@ -8,7 +8,7 @@
     (merge-pathnames "cpp/build/serve_query"
                      (asdf:system-source-directory 'monster-avengers)))
   (defparameter *dataset-path* 
-    (merge-pathnames "dataset/MH4G/"
+    (merge-pathnames "dataset/MH4GU/"
                      (asdf:system-source-directory 'monster-avengers))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -19,20 +19,15 @@
              (bind this)))))
 
                            
-    ;; `(funcall (@ (lambda (language)
-    ;;                (case language
-    ;;                  ,@lang-text-pairs))
-    ;;           (@ this props language))))
-
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (enable-jsx-reader))
 
 (defun json-name-object (name-obj)
-  (json "en" (getf (getf name-obj :name) :en)
-        "jp" (getf (getf name-obj :name) :jp)))
+  (json "en" (getf name-obj :en)
+        "jp" (getf name-obj :jp)))
 
 (defun json-armor-object (obj)
-  (json "name" (json-name-object (get obj :name))
+  (json "name" (json-name-object (getf obj :name))
         "id" (getf obj :id)
         "holes" (getf obj :holes)
         "rare" (if (getf obj :rare)
@@ -122,23 +117,26 @@
                       :direction :input)
     `(array 
       ,@(loop for skill-system in (read in)
-           collect `(create :name ,(getf skill-system :system-name)
-                            en-name ,(getf skill-system :en-name)
-			    :skills (array ,@(loop for skill in (getf skill-system 
-								      :skills)
+           collect `(create :name (create :en ,(getf (getf skill-system :name) :en)
+                                          :jp ,(getf (getf skill-system :name) :jp))
+			    :skills (array ,@(loop for skill in (sort (copy-list (getf skill-system 
+                                                                                       :skills))
+                                                                      #2`,(< (getf x1 :points)
+                                                                             (getf x2 :points)))
 						when (> (getf skill :points) 0)
-						collect `(create :name ,(getf skill :name)
-                                                                 en-name ,(getf skill :en-name)
+						collect `(create :name 
+                                                                 (create :en ,(getf (getf skill :name) :en)
+                                                                         :jp ,(getf (getf skill :name) :jp))
 								 :points ,(getf skill :points)))))))))
 
 (def-widget skill-item (language effect update-callback destructor)
     ()
-  #jsx(with-slots (en-name name skills) (aref skill-systems (@ effect id))
+  #jsx(with-slots (name skills) (aref skill-systems (@ effect id))
 	(:li ((class-name "list-group-item"))
 	     (:div ((class-name "row"))
 		   (:div ((class-name "col-md-4"))
-                         (lang-text ("zh" name)
-                                    ("en" en-name)))
+                         (lang-text ("zh" (@ name jp))
+                                    ("en" (@ name en))))
 		   (:div ((class-name "col-md-6"))
 			 (:select ((class-name "form-control")
                                    (value (@ effect active))
@@ -149,8 +147,8 @@
 				  (chain skills 
 					 (map (lambda (skill id)
 						(:option ((value id))
-							 (lang-text ("zh" (@ skill name))
-                                                                    ("en" (@ skill en-name)))))))))
+							 (lang-text ("zh" (@ skill name jp))
+                                                                    ("en" (@ skill name en)))))))))
 		   (:div ((class-name "col-md-2"))
 			 (:button ((class-name "btn btn-default")
 				   (on-click (lambda () 
@@ -186,10 +184,12 @@
                                                                   selected
                                                                   (@ e target value)))))))
                                  (chain skill-systems 
+                                        (filter (lambda (skill id)
+                                                  (> id 0)))
 					(map (lambda (system id)
-					       (:option ((value id)) 
-                                                        (lang-text ("zh" (@ system name))
-                                                                   ("en" (@ system en-name))))))))
+					       (:option ((value (1+ id)))
+                                                        (lang-text ("zh" (@ system name jp))
+                                                                   ("en" (@ system name en))))))))
                         (:div ((class-name "input-group-btn dropdown"))
                               (:button ((class-name "btn btn-default")
 					(on-click (@ this add-skill)))
@@ -210,8 +210,12 @@
                            (:option ((value "-1")) (lang-text ("en" "Blank")
                                                               ("zh" "无技能")))
                            (chain skill-systems 
+                                  (filter (lambda (skill id)
+                                            (> id 0)))
                                   (map (lambda (system id)
-                                         (:option ((value id)) (@ system name)))))))
+                                         (:option ((value (1+ id)))
+                                                  (lang-text ("zh" (@ system name jp))
+                                                             ("en" (@ system name en)))))))))
             (:div ((class-name "form-group"))
                   (:select ((class-name "form-control")
                             (value skill-points)
@@ -242,9 +246,14 @@
                  (:div ((class-name "col-md-4"))
                          (when (> (@ amulet length) 1)
                            (let ((content ""))
-                             (setf content (+ content (@ (aref skill-systems 
-                                                               (aref amulet 1))
-                                                         name)))
+                             (setf content 
+                                   (+ content 
+                                      (lang-text ("zh" (@ (aref skill-systems
+                                                                (aref amulet 1))
+                                                          name jp))
+                                                 ("en" (@ (aref skill-systems
+                                                                (aref amulet 1))
+                                                          name en)))))
                              (let ((points (aref amulet 2)))
                                (setf content (+ content (if (> points 0) 
                                                             (+ " +" points)
@@ -253,9 +262,13 @@
                  (:div ((class-name "col-md-4"))
                        (let ((content ""))
                          (when (> (@ amulet length) 3)
-                           (setf content (+ content (@ (aref skill-systems 
-                                                             (aref amulet 3))
-                                                       name)))
+                           (setf content (+ content 
+                                            (lang-text ("zh" (@ (aref skill-systems
+                                                                      (aref amulet 3))
+                                                                name jp))
+                                                       ("en" (@ (aref skill-systems
+                                                                      (aref amulet 3))
+                                                                name en)))))
                            (let ((points (aref amulet 4)))
                              (setf content (+ content (if (> points 0) 
                                                           (+ " +" points)
@@ -397,19 +410,27 @@
                 (:button ((class-name "btn btn-default btn-xs")
                           ("data-toggle" "collapse")
                           ("data-placement" "left")
-                          (title (@ armor material))
+                          (title (if (and (@ armor material)
+                                          (> (@ armor material length) 0))
+                                     (lang-text ("zh" (chain armor material
+                                                             (map (lambda (x) (@ x jp)))))
+                                                ("en" (chain armor material
+                                                             (map (lambda (x) (@ x en))))))
+                                     ""))
                           (on-click (lambda () 
                                       (let ((original (local-state expanded)))
                                         (chain this (set-state 
                                                      (create expanded (not original))))))))
-                         (if (= "" (@ armor name))
+                         (if (= "" (@ armor name en))
                              "----------"
-                             (@ armor name)))
+                             (lang-text ("zh" (@ armor name jp))
+                                        ("en" (@ armor name en)))))
                 (when (and (local-state expanded)
                            (!= part "gear")
                            (!= part "amulet"))
                   (:div ((style :margin-top "3px"))
-                        (:div () (@ armor name))
+                        (:div () (lang-text ("zh" (@ armor name jp))
+                                            ("en" (@ armor name en))))
                         (:div ()
                               (lang-text ("en" "Filter this out: ")
                                          ("zh" "过滤掉包含此装备的配装: "))
@@ -423,10 +444,12 @@
                               (occupied (@ armor stuffed)))))
            (:td ((style :text-align "center"))
                 (if (= "true" (@ armor torsoup))
-                    "胴系统倍加"
+                    (lang-text ("zh" "胴系统倍加")
+                               ("en" "Torso Up"))
                     (chain (@ armor jewels)
                            (map (lambda (jewel)
-                                  (+ (@ jewel name)
+                                  (+ (lang-text ("zh" (@ jewel name jp))
+                                                ("en" (@ jewel name en)))
                                      " x "
                                      (@ jewel num))))
                            (join ", "))))))
@@ -525,11 +548,18 @@
                                                           (:a () (1+ id))))))))))
                   (:p () (let ((content (lang-text ("en" "Active: ")
                                                    ("zh" "发动技能: ")))
-                               (skills (@ (aref (@ armor-set jewel-plans)
-                                                (local-state jewel-plan-id))
-                                          active)))
+                               (skills (lang-text ("zh" (chain (aref (@ armor-set jewel-plans)
+                                                                     (local-state jewel-plan-id))
+                                                               active
+                                                               (map (lambda (x) (@ x jp)))))
+                                                  ("en" (chain (aref (@ armor-set jewel-plans)
+                                                                     (local-state jewel-plan-id))
+                                                               active
+                                                               (map (lambda (x) (@ x en))))))))
                            (loop for skill in skills
-                              do (setf content (+ content skill "  |  ")))
+                              do (setf content (+ content 
+                                                  skill
+                                                  "  |  ")))
                            content))
                   (:div () (let ((plan (@ (aref (@ armor-set jewel-plans)
                                                 (local-state jewel-plan-id))
@@ -537,7 +567,10 @@
                              (chain plan 
                                     (map (lambda (x)
                                            (:div () (:span ((class-name "label label-warning"))
-                                                           (@ x name) " x " (@ x num)))))))))))
+                                                           (lang-text ("zh" (@ x name jp))
+                                                                      ("en" (@ x name en)))
+                                                           " x " 
+                                                           (@ x num)))))))))))
 
 (def-widget parameter-panel (language weapon-type weapon-holes rare callback)
     ()
@@ -607,7 +640,7 @@
             (:div ((class-name "fill row"))
                   (:div ((class-name "col-md-6"))
                         (:div ((class-name "page-header"))
-                              (:h1 () (lang-text ("en" "MH4G Armor Tool")
+                              (:h1 () (lang-text ("en" "Monster Hunter 4 Ultimate Armor Set Search")
                                                  ("zh" "怪物猎人4G 配装器")))))
                   (:div ((class-name "col-md-2 col-md-offset-4"))
                         (:select ((class-name "form-control")
@@ -658,10 +691,11 @@
                 " and "
                 (:a ((href "http://getbootstrap.com/")) "Twitter Bootstrap")
                 ".")
-            (:p () "Credit to "
-                (:a ((href "http://wiki.mh4g.org/"))
-                    "wiki.mh4g.org")
-                " for armor data.")
+            (:p () "Credit to the project "
+                (:a ((href "https://github.com/kamegami13/MonsterHunter4UDatabase"))
+                    "MonsterHunter4UDatabase")
+                (+ " for armor, skills and jewels data. "
+                   "Without their effort I could not have accomplished this."))
             (:p () "Deisgn and artwork by Cassandra Qi.")))
 
 (def-widget help-item (language name title)

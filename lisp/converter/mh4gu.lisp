@@ -108,7 +108,7 @@
 (defun update-armors (database)
   (let ((query-result (sqlite:execute-to-list
                        database
-                       (mkstr "SELECT items.name, items.jpn_name, armor.slot, "
+                       (mkstr "SELECT items._id, items.name, items.jpn_name, armor.slot, "
                               "armor.num_slots, "
                               "items.rarity, armor.hunter_type, armor.gender, "
                               "armor.defense, armor.max_defense, "
@@ -120,17 +120,21 @@
                               "INNER JOIN item_to_skill_tree "
                               "ON item_to_skill_tree.item_id = items._id "
                               "ORDER BY items.name")))
-        (materials (sqlite:execute-to-list
-                    database
-                    (mkstr "SELECT items.name, component_item_id "
-                           "FROM armor "
-                           "INNER JOIN items ON items._id = armor._id "
-                           "INNER JOIN components ON items._id = created_item_id "
-                           "ORDER BY items.name")))
+        (material-result (sqlite:execute-to-list
+                          database
+                          (mkstr "SELECT items._id, component_item_id "
+                                 "FROM armor "
+                                 "INNER JOIN items ON items._id = armor._id "
+                                 "INNER JOIN components ON items._id = created_item_id "
+                                 "ORDER BY items._id")))
+        (materials (make-hash-table))
         armors)
+    (loop for row in material-result
+       do (push (second row) 
+                (gethash (car row) materials nil)))
     (loop 
        for previous-armor = "" then armor-en
-       for (armor-en armor-jp part slots rare type gender
+       for (armor-id armor-en armor-jp part slots rare type gender
                      min-defense max-defense
                      fire thunder dragon water ice
                      skill-system-id points)
@@ -157,9 +161,7 @@
                                             :dragon dragon
                                             :water water
                                             :ice ice)
-                          :material (loop while (equal (caar materials) armor-en)
-                                       collect (1- (cadar materials))
-                                       do (pop materials))
+                          :material (gethash armor-id materials)
                           :effects (list (list :obj t 
                                                :skill-id (1- skill-system-id)
                                                :points points)))
