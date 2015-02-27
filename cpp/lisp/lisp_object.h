@@ -21,10 +21,7 @@ namespace monster_avengers {
 
   LispObject() : data(nullptr), type(LISP_OBJ) {}
 
-    LispObject(LispObject &&other) {
-      type = other.type;
-      data = std::move(other.data);
-    }
+    LispObject(LispObject &&other) = default;
 
     LispObject(int x) :
       type(LISP_NUM), data(new int(x), [](void * content) {
