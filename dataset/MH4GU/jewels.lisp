@@ -2,22 +2,12 @@
   ((:OBJ T :SKILL-ID 22 :POINTS 1) (:OBJ T :SKILL-ID 21 :POINTS -1)))
  (:OBJ T :NAME (:OBJ T :EN "Absorber Jewel 3" :JP "抑反珠【３】") :SLOTS 3 :EFFECTS
   ((:OBJ T :SKILL-ID 22 :POINTS 4) (:OBJ T :SKILL-ID 21 :POINTS -2)))
- (:OBJ T :NAME (:OBJ T :EN "Aegis Jwl 2" :JP "盾持珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 11 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "Aegis Jwl 3" :JP "盾持珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 11 :POINTS 4)))
  (:OBJ T :NAME (:OBJ T :EN "Alarm Jewel 1" :JP "防盗珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 123 :POINTS 2)))
  (:OBJ T :NAME (:OBJ T :EN "Antidote Jewel 1" :JP "耐毒珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 120 :POINTS -1) (:OBJ T :SKILL-ID 117 :POINTS 1)))
  (:OBJ T :NAME (:OBJ T :EN "Antidote Jewel 2" :JP "耐毒珠【２】") :SLOTS 2 :EFFECTS
   ((:OBJ T :SKILL-ID 120 :POINTS -1) (:OBJ T :SKILL-ID 117 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "Arcane Jwl 1" :JP "秘伝珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 139 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Arcane Jwl 2" :JP "秘伝珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 139 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "Arcane Jwl 3" :JP "秘伝珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 139 :POINTS 5)))
  (:OBJ T :NAME (:OBJ T :EN "Artillery Jwl 1" :JP "砲術珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 37 :POINTS 2)))
  (:OBJ T :NAME (:OBJ T :EN "Artisan Jewel 3" :JP "名匠珠【３】") :SLOTS 3 :EFFECTS
@@ -30,12 +20,6 @@
   ((:OBJ T :SKILL-ID 31 :POINTS -1) (:OBJ T :SKILL-ID 30 :POINTS 3)))
  (:OBJ T :NAME (:OBJ T :EN "Attack Jewel 3" :JP "攻撃珠【３】") :SLOTS 3 :EFFECTS
   ((:OBJ T :SKILL-ID 31 :POINTS -1) (:OBJ T :SKILL-ID 30 :POINTS 5)))
- (:OBJ T :NAME (:OBJ T :EN "Avid Jwl 1" :JP "強欲珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 15 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Avid Jwl 2" :JP "強欲珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 15 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "Avid Jwl 3" :JP "強欲珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 15 :POINTS 6)))
  (:OBJ T :NAME (:OBJ T :EN "Biology Jewel 1" :JP "菌学珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 124 :POINTS -1) (:OBJ T :SKILL-ID 5 :POINTS 1)))
  (:OBJ T :NAME (:OBJ T :EN "BlastPlus Jwl 1" :JP "加爆珠【１】") :SLOTS 1 :EFFECTS
@@ -54,22 +38,6 @@
   ((:OBJ T :SKILL-ID 81 :POINTS -1) (:OBJ T :SKILL-ID 80 :POINTS 3)))
  (:OBJ T :NAME (:OBJ T :EN "Bombardier Jwl 1" :JP "爆師珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 46 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Brawn Jwl 1" :JP "剛腕珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 141 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Brawn Jwl 2" :JP "剛腕珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 141 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "Brawn Jwl 3" :JP "剛腕珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 141 :POINTS 5)))
- (:OBJ T :NAME (:OBJ T :EN "Broad Jwl 2" :JP "増幅珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 13 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "Broad Jwl 3" :JP "増幅珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 13 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "Calm Jwl 1" :JP "射手珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 2 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Calm Jwl 2" :JP "射手珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 2 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "Calm Jwl 3" :JP "射手珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 2 :POINTS 3)))
  (:OBJ T :NAME (:OBJ T :EN "Capacity Jewel 2" :JP "装填珠【２】") :SLOTS 2 :EFFECTS
   ((:OBJ T :SKILL-ID 56 :POINTS 1) (:OBJ T :SKILL-ID 21 :POINTS -1)))
  (:OBJ T :NAME (:OBJ T :EN "Capacity Jewel 3" :JP "装填珠【３】") :SLOTS 3 :EFFECTS
@@ -106,12 +74,6 @@
   ((:OBJ T :SKILL-ID 129 :POINTS 1) (:OBJ T :SKILL-ID 30 :POINTS -1)))
  (:OBJ T :NAME (:OBJ T :EN "CritElementJwl 2" :JP "属会珠【２】") :SLOTS 2 :EFFECTS
   ((:OBJ T :SKILL-ID 129 :POINTS 3) (:OBJ T :SKILL-ID 30 :POINTS -1)))
- (:OBJ T :NAME (:OBJ T :EN "Cutting Jwl 1" :JP "斬術珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 136 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Cutting Jwl 2" :JP "斬術珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 136 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "Cutting Jwl 3" :JP "斬術珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 136 :POINTS 5)))
  (:OBJ T :NAME (:OBJ T :EN "Def Lock Jewel 1" :JP "耐防珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 61 :POINTS 2)))
  (:OBJ T :NAME (:OBJ T :EN "Defense Jewel 1" :JP "防御珠【１】") :SLOTS 1 :EFFECTS
@@ -200,12 +162,6 @@
   ((:OBJ T :SKILL-ID 81 :POINTS 3) (:OBJ T :SKILL-ID 78 :POINTS -1)))
  (:OBJ T :NAME (:OBJ T :EN "Fungiform Jewel 1" :JP "茸好珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 132 :POINTS 2) (:OBJ T :SKILL-ID 96 :POINTS -1)))
- (:OBJ T :NAME (:OBJ T :EN "Furtive Jwl 1" :JP "裏業珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 143 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Furtive Jwl 2" :JP "裏業珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 143 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "Furtive Jwl 3" :JP "裏業珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 143 :POINTS 5)))
  (:OBJ T :NAME (:OBJ T :EN "Gambit Jewel 1" :JP "抜打珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 41 :POINTS -1) (:OBJ T :SKILL-ID 20 :POINTS 1)))
  (:OBJ T :NAME (:OBJ T :EN "Gambit Jewel 3" :JP "抜打珠【３】") :SLOTS 3 :EFFECTS
@@ -222,52 +178,18 @@
   ((:OBJ T :SKILL-ID 102 :POINTS -1) (:OBJ T :SKILL-ID 55 :POINTS 1)))
  (:OBJ T :NAME (:OBJ T :EN "Guts Jewel 2" :JP "根性珠【２】") :SLOTS 2 :EFFECTS
   ((:OBJ T :SKILL-ID 102 :POINTS -1) (:OBJ T :SKILL-ID 55 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "Hale Jwl 1" :JP "状耐珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 3 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Hale Jwl 2" :JP "状耐珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 3 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "Hale Jwl 3" :JP "状耐珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 3 :POINTS 3)))
  (:OBJ T :NAME (:OBJ T :EN "Handicraft Jwl 2" :JP "匠珠【２】") :SLOTS 2 :EFFECTS
   ((:OBJ T :SKILL-ID 41 :POINTS -1) (:OBJ T :SKILL-ID 18 :POINTS 1)))
  (:OBJ T :NAME (:OBJ T :EN "Handicraft Jwl 3" :JP "匠珠【３】") :SLOTS 3 :EFFECTS
   ((:OBJ T :SKILL-ID 41 :POINTS -2) (:OBJ T :SKILL-ID 18 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Hardy Jwl 1" :JP "頑強珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 8 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Hardy Jwl 2" :JP "頑強珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 8 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "Hardy Jwl 3" :JP "頑強珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 8 :POINTS 4)))
  (:OBJ T :NAME (:OBJ T :EN "Heat Res Jewel 1" :JP "耐暑珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 105 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Honed Jwl 1" :JP "刀匠珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 1 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Honed Jwl 2" :JP "刀匠珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 1 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "Honed Jwl 3" :JP "刀匠珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 1 :POINTS 3)))
  (:OBJ T :NAME (:OBJ T :EN "Honeybee Jewel 1" :JP "蜜集珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 116 :POINTS 1) (:OBJ T :SKILL-ID 111 :POINTS -1)))
  (:OBJ T :NAME (:OBJ T :EN "Hungerless Jwl 1" :JP "無食珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 113 :POINTS 2)))
  (:OBJ T :NAME (:OBJ T :EN "Ice Res Jewel 1" :JP "耐氷珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 87 :POINTS 1) (:OBJ T :SKILL-ID 84 :POINTS -1)))
- (:OBJ T :NAME (:OBJ T :EN "Impactful Jwl 1" :JP "剛撃珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 9 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Impactful Jwl 2" :JP "剛撃珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 9 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "Impactful Jwl 3" :JP "剛撃珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 9 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "Intense Jwl 2" :JP "一心珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 10 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "Intense Jwl 3" :JP "一心珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 10 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "Ire Jwl 1" :JP "怒珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 4 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Ire Jwl 2" :JP "怒珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 4 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "Ire Jwl 3" :JP "怒珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 4 :POINTS 3)))
  (:OBJ T :NAME (:OBJ T :EN "Ironwall Jewel 1" :JP "鉄壁珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 98 :POINTS -1) (:OBJ T :SKILL-ID 42 :POINTS 1)))
  (:OBJ T :NAME (:OBJ T :EN "Ironwall Jewel 2" :JP "鉄壁珠【２】") :SLOTS 2 :EFFECTS
@@ -300,12 +222,6 @@
   ((:OBJ T :SKILL-ID 5 :POINTS 2)))
  (:OBJ T :NAME (:OBJ T :EN "Morale Jewel 1" :JP "名采配珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 108 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Nimble Jwl 1" :JP "回術珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 6 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Nimble Jwl 2" :JP "回術珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 6 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "Nimble Jwl 3" :JP "回術珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 6 :POINTS 4)))
  (:OBJ T :NAME (:OBJ T :EN "Ninja Jewel 1" :JP "忍脚珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 124 :POINTS 2)))
  (:OBJ T :NAME (:OBJ T :EN "Nul-Dragon Jwl 1" :JP "制龍珠【１】") :SLOTS 1 :EFFECTS
@@ -454,16 +370,6 @@
   ((:OBJ T :SKILL-ID 80 :POINTS -1) (:OBJ T :SKILL-ID 79 :POINTS 1)))
  (:OBJ T :NAME (:OBJ T :EN "Stream Jewel 2" :JP "流水珠【２】") :SLOTS 2 :EFFECTS
   ((:OBJ T :SKILL-ID 80 :POINTS -1) (:OBJ T :SKILL-ID 79 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "Supplicant Jwl 1" :JP "祈願珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 142 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Supplicant Jwl 2" :JP "祈願珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 142 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "Supplicant Jwl 3" :JP "祈願珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 142 :POINTS 5)))
- (:OBJ T :NAME (:OBJ T :EN "Tactful Jwl 2" :JP "潔癖珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 12 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "Tactful Jwl 3" :JP "潔癖珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 12 :POINTS 4)))
  (:OBJ T :NAME (:OBJ T :EN "Tectonic Jewel 1" :JP "抗震珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 122 :POINTS 2)))
  (:OBJ T :NAME (:OBJ T :EN "Tenderizer Jwl 1" :JP "痛撃珠【１】") :SLOTS 1 :EFFECTS
@@ -486,82 +392,8 @@
   ((:OBJ T :SKILL-ID 115 :POINTS 2)))
  (:OBJ T :NAME (:OBJ T :EN "Trekker Jewel 1" :JP "抗粘珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 121 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Trove Jwl 1" :JP "護収珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 14 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Trove Jwl 2" :JP "護収珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 14 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "Trove Jwl 3" :JP "護収珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 14 :POINTS 6)))
- (:OBJ T :NAME (:OBJ T :EN "True Aegis Jwl 2" :JP "盾持真珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 11 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "True Aegis Jwl 3" :JP "盾持真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 11 :POINTS 5)))
- (:OBJ T :NAME (:OBJ T :EN "True Arcane Jwl 3" :JP "秘伝真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 139 :POINTS 6)))
- (:OBJ T :NAME (:OBJ T :EN "True Avid Jwl 1" :JP "強欲真珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 15 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "True Avid Jwl 2" :JP "強欲真珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 15 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "True Brawn Jwl 3" :JP "剛腕真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 141 :POINTS 6)))
- (:OBJ T :NAME (:OBJ T :EN "True Broad Jwl 2" :JP "増幅真珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 13 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "True Broad Jwl 3" :JP "増幅真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 13 :POINTS 5)))
- (:OBJ T :NAME (:OBJ T :EN "True Calm Jwl 2" :JP "射手真珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 2 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "True Calm Jwl 3" :JP "射手真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 2 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "True Hale Jwl 2" :JP "状耐真珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 3 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "True Hale Jwl 3" :JP "状耐真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 3 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "True Hardy Jwl 1" :JP "頑強真珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 8 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "True Hardy Jwl 3" :JP "頑強真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 8 :POINTS 5)))
- (:OBJ T :NAME (:OBJ T :EN "True Honed Jwl 2" :JP "刀匠真珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 1 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "True Honed Jwl 3" :JP "刀匠真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 1 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "True Ire Jwl 2" :JP "怒真珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 4 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "True Ire Jwl 3" :JP "怒真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 4 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "True Nimble Jwl 1" :JP "回術真珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 6 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "True Nimble Jwl 3" :JP "回術真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 6 :POINTS 5)))
- (:OBJ T :NAME (:OBJ T :EN "True Trove Jwl 1" :JP "護収真珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 14 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "True Trove Jwl 2" :JP "護収真珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 14 :POINTS 4)))
  (:OBJ T :NAME (:OBJ T :EN "TrueCatalystJwl 3" :JP "真覚醒珠【３】") :SLOTS 3 :EFFECTS
   ((:OBJ T :SKILL-ID 47 :POINTS -2) (:OBJ T :SKILL-ID 16 :POINTS 3)))
- (:OBJ T :NAME (:OBJ T :EN "TrueCuttingJwl 3" :JP "斬術真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 136 :POINTS 6)))
- (:OBJ T :NAME (:OBJ T :EN "TrueFurtiveJwl 3" :JP "裏業真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 143 :POINTS 6)))
- (:OBJ T :NAME (:OBJ T :EN "TrueImpactfulJwl3" :JP "剛撃真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 9 :POINTS 5)))
- (:OBJ T :NAME (:OBJ T :EN "TrueIntenseJwl 2" :JP "一心真珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 10 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "TrueIntenseJwl 3" :JP "一心真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 10 :POINTS 5)))
- (:OBJ T :NAME (:OBJ T :EN "TrueTactfulJwl 2" :JP "潔癖真珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 12 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "TrueTactfulJwl 3" :JP "潔癖真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 12 :POINTS 5)))
- (:OBJ T :NAME (:OBJ T :EN "TrueWithdrawnJwl3" :JP "居合真珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 7 :POINTS 5)))
- (:OBJ T :NAME (:OBJ T :EN "UltimateCalmJwl 3" :JP "射手極珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 2 :POINTS 5)))
- (:OBJ T :NAME (:OBJ T :EN "UltimateHaleJwl 3" :JP "状耐極珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 3 :POINTS 5)))
- (:OBJ T :NAME (:OBJ T :EN "UltimateHonedJwl3" :JP "刀匠極珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 1 :POINTS 5)))
- (:OBJ T :NAME (:OBJ T :EN "UltimateIreJwl 3" :JP "怒極珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 4 :POINTS 5)))
  (:OBJ T :NAME (:OBJ T :EN "Vitality Jewel 1" :JP "体力珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 39 :POINTS 2)))
  (:OBJ T :NAME (:OBJ T :EN "Water Res Jwl 1" :JP "耐水珠【１】") :SLOTS 1 :EFFECTS
@@ -569,10 +401,4 @@
  (:OBJ T :NAME (:OBJ T :EN "Wind Res Jewel 1" :JP "防風珠【１】") :SLOTS 1 :EFFECTS
   ((:OBJ T :SKILL-ID 100 :POINTS 1) (:OBJ T :SKILL-ID 34 :POINTS -1)))
  (:OBJ T :NAME (:OBJ T :EN "Wind Res Jewel 2" :JP "防風珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 100 :POINTS 3) (:OBJ T :SKILL-ID 34 :POINTS -1)))
- (:OBJ T :NAME (:OBJ T :EN "Withdrawn Jwl 1" :JP "居合珠【１】") :SLOTS 1 :EFFECTS
-  ((:OBJ T :SKILL-ID 7 :POINTS 2)))
- (:OBJ T :NAME (:OBJ T :EN "Withdrawn Jwl 2" :JP "居合珠【２】") :SLOTS 2 :EFFECTS
-  ((:OBJ T :SKILL-ID 7 :POINTS 4)))
- (:OBJ T :NAME (:OBJ T :EN "Withdrawn Jwl 3" :JP "居合珠【３】") :SLOTS 3 :EFFECTS
-  ((:OBJ T :SKILL-ID 7 :POINTS 4))))
+  ((:OBJ T :SKILL-ID 100 :POINTS 3) (:OBJ T :SKILL-ID 34 :POINTS -1))))

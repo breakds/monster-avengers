@@ -281,6 +281,9 @@ namespace monster_avengers {
       armor_object["name"] = GetLanguageText(armor.name);
       armor_object["holes"] = armor.holes;
       armor_object["id"] = std::to_wstring(id);
+      armor_object["max-defense"] = armor.max_defense;
+      armor_object["min-defense"] = armor.min_defense;
+      armor_object.Set("resistence", armor.resistence.ToObject());
       armor_object.Set("torsoup",
                        data_->ProvidesTorsoUp(id) ? 
                        std::wstring(L"true") : 

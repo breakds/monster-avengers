@@ -63,6 +63,16 @@ namespace monster_avengers {
       object.AssignSlotTo("WATER", &water);
       object.AssignSlotTo("ICE", &ice);
     }
+
+    lisp::Object ToObject() const {
+      lisp::Object result = lisp::Object::Struct();
+      result["fire"] = fire;
+      result["thunder"] = thunder;
+      result["dragon"] = dragon;
+      result["water"] = water;
+      result["ice"] = ice;
+      return result;
+    }
   };
 
   struct Armor {
@@ -113,6 +123,7 @@ namespace monster_avengers {
       rare = other.rare;
       min_defense = other.min_defense;
       max_defense = other.max_defense;
+      resistence = other.resistence;
       holes = other.holes;
       effects = other.effects;
       material = other.material;

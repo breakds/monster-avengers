@@ -68,6 +68,7 @@
                                                                    ("en" (@ system name en))))))))
                         (:div ((class-name "input-group-btn dropdown"))
                               (:button ((class-name "btn btn-default")
+                                        (disabled (>= (@ effects length) 5))
 					(on-click (@ this add-skill)))
                                        (lang-text ("en" "Add")
                                                   ("zh" "添加"))))))))

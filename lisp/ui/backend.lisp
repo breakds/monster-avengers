@@ -11,6 +11,13 @@
   (json "en" (getf name-obj :en)
         "jp" (getf name-obj :jp)))
 
+(defun json-resistence (obj)
+  (json "fire" (getf obj :fire)
+        "thunder" (getf obj :thunder)
+        "dragon" (getf obj :dragon)
+        "water" (getf obj :water)
+        "ice" (getf obj :ice)))
+
 (defun json-armor-object (obj)
   (json "name" (json-name-object (getf obj :name))
         "id" (getf obj :id)
@@ -22,6 +29,9 @@
         "stuffed" (if (getf obj :stuffed)
                       (getf obj :stuffed)
                       0)
+        "maxDef" (getf obj :max-defense)
+        "minDef" (getf obj :min-defense)
+        "resistence" (json-resistence (getf obj :resistence))
         "jewels" (if (getf obj :jewels)
                      (loop for jewel-plan in (getf obj :jewels)
                         collect (json "name" (json-name-object 

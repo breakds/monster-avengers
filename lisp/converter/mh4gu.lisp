@@ -64,6 +64,7 @@
                               "INNER JOIN items ON decorations._id = items._id "
                               "INNER JOIN item_to_skill_tree "
                               "ON item_to_skill_tree.item_id = items._id "
+                              "WHERE items._id < 1774 "
                               "ORDER BY items.name")))
         jewels)
     (loop 

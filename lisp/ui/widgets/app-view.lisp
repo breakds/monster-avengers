@@ -207,7 +207,8 @@
                                       (t (chain (local-state query-result)
                                                 (map (lambda (armor-set)
                                                        (:armor-set-display 
-                                                        ((language (@ this state language))
+                                                        ((language (local-state language))
+                                                         (weapon (local-state weapon-type))
                                                          (blacklist-callback (@ this append-blacklist))
                                                          (filter-callback (@ this handle-query))
                                                          (armor-set armor-set))))))))))

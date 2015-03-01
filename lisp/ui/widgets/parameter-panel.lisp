@@ -21,10 +21,10 @@
                                                      (funcall callback "weapon-type"
                                                               (@ e target value)))))
                                        (:option ((value "melee"))
-                                                (lang-text ("en" "Melee")
+                                                (lang-text ("en" "Blademaster")
                                                            ("zh" "近战")))
                                        (:option ((value "range")) 
-                                                (lang-text ("en" "Range")
+                                                (lang-text ("en" "Gunner")
                                                            ("zh" "远程")))))))
             (:div ((class-name "col-md-2"))
                   (:div ((class-name "panel panel-default"))
