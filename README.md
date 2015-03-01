@@ -15,6 +15,26 @@ monster-avengers is such a tool to efficiently find the right armor combinations
 6. supports filtering on the search result to exclude certain armor pieces.
 7. communicates with a simple lisp-based query language.
 
+It also comes with a web based UI.
+
+## The Webapp
+
+There is currently one instance of this tool running on a server with very limited computational resource. You can find it at [http://mh4u.breakds.org](http://mh4u.breakds.org).
+
+## Codebase
+
+For those who is interested in either the algorithm or the implementaion, you can find a brief description below. Note that the code is still not very well documented yet, and I am working on adding the comments and documentations to the code as much as possible with the limited time budget.
+
+The code is mainly divided into 2 parts:
+
+1. [cpp/](https://github.com/breakds/monster-avengers/tree/master/cpp) A C++ implementation of the search algorithm, where we have
+  * [lisp/](https://github.com/breakds/monster-avengers/tree/master/cpp/lisp) provides the parser and reader of lisp objects, in which format query and database entries are stored.
+  * [data/](https://github.com/breakds/monster-avengers/tree/master/cpp/data) defines the data structs that are involved, e.g. the skills, the armors, the jewels ,etc.
+  * [core/](https://github.com/breakds/monster-avengers/tree/master/cpp/core) implements the search algorithm, where you can find the member method `ArmorUp::Search` is the main entry point to the algorithm.
+2. [lisp/ui](https://github.com/breakds/monster-avengers/tree/master/lisp/ui) implements the web based UI for this armor search tool. This webapp is written in Common Lisp based on the web framework [reaLispic](https://github.com/breakds/realispic). Specifically,
+  * [widgets/](https://github.com/breakds/monster-avengers/tree/master/lisp/ui/widgets) contains the definitions of all the widgets in the web. The code should be very straightforward if you are familiar with [React.js](http://facebook.github.io/react/).
+  * [backend.lisp](https://github.com/breakds/monster-avengers/tree/master/lisp/ui/backend.lisp) defines the RPC that talks to the C++ backend to handle queries. This is a super naive implementation that does the message passing via files on disk. 
+
 
 
 
