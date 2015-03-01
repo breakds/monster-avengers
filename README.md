@@ -51,9 +51,24 @@ There are currently some limitations in the current implementations, and I will 
   * This is going to be replaced by a real RPC framework.
 5. The webapp does not store any information to personalization features, such as personal armor sets library, personal amulets library, etc.
   * To be honest, I am not experienced enough to implement this efficiently and securely. Will add those features in the future, but with no promise.
+6. Hunter progress options.
+  * I think it is a good idea to filter out armors based the player's progress. I am lacking the data to implement this feature.
 
 ## Acknoledgement
 
+1. Credit to the project [MonsterHunter4UDatabase](https://github.com/kamegami13/MonsterHunter4UDatabase), where all the data (armors, skills and decorations) are from their database. Completing the database requires a lot of work and without their effort, I would not have accomplished this.
+2. Credit to Cassandra Qi, my wife and my Monster Hunter game partner, for working on the art and design of the UI.
+3. Thanks to my friends who inspired me, encouraged me, disccussed the ideas with me and helped with the tests:
+  * Frank Xiao Lin
+  * Zommie Dev
+  * Hui Guo
+  * [KIRANICO](http://kiranico.com/en/mh4u)
+  * Epona Yunlu Guo
+  * Wybaby
+
+## License
+
+All the code in this project is under the MIT License.
 
 
 
