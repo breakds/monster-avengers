@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
                              L"(:amulet 3 (38 5))"
                              L"(:amulet 2 (25 5))",
                              &query));
-Hi Zo                
+  
   query.DebugPrint();
   Timer timer;
   timer.Tic();
