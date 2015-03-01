@@ -49,7 +49,7 @@ Now, you can either run `make` to build the binary `serve_query`, or `ccmake .` 
 
 
 To run the web server that serves the UI, you need a lisp implementation (e.g. [SBCL](http://kiranico.com/en/mh4u)), and [quicklisp](http://www.quicklisp.org/). After having them configured, you can place the project folder (or a symbolic link to the folder) under `quicklisp/local-projects`, and start `sbcl`. At the Common Lisp top-level, run
-````
+````lisp
 (ql:quickload 'monster-avengers)
 (monster-avengers.simple-web:armor-tools :start)
 ````
