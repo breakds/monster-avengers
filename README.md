@@ -31,10 +31,28 @@ The code is mainly divided into 2 parts:
   * [lisp/](https://github.com/breakds/monster-avengers/tree/master/cpp/lisp) provides the parser and reader of lisp objects, in which format query and database entries are stored.
   * [data/](https://github.com/breakds/monster-avengers/tree/master/cpp/data) defines the data structs that are involved, e.g. the skills, the armors, the jewels ,etc.
   * [core/](https://github.com/breakds/monster-avengers/tree/master/cpp/core) implements the search algorithm, where you can find the member method `ArmorUp::Search` is the main entry point to the algorithm.
-2. [lisp/ui](https://github.com/breakds/monster-avengers/tree/master/lisp/ui) implements the web based UI for this armor search tool. This webapp is written in Common Lisp based on the web framework [reaLispic](https://github.com/breakds/realispic). Specifically,
+2. [lisp/ui/](https://github.com/breakds/monster-avengers/tree/master/lisp/ui) implements the web based UI for this armor search tool. This webapp is written in Common Lisp based on the web framework [reaLispic](https://github.com/breakds/realispic). Specifically,
   * [widgets/](https://github.com/breakds/monster-avengers/tree/master/lisp/ui/widgets) contains the definitions of all the widgets in the web. The code should be very straightforward if you are familiar with [React.js](http://facebook.github.io/react/).
   * [backend.lisp](https://github.com/breakds/monster-avengers/tree/master/lisp/ui/backend.lisp) defines the RPC that talks to the C++ backend to handle queries. This is a super naive implementation that does the message passing via files on disk. 
 
+## Limitations and Futrue Work
+
+There are currently some limitations in the current implementations, and I will work on improve over them. Those that I am aware of are:
+
+1. At most 5 skills are supported in the current implementation of the search algorithm. 
+  * This is not a limitation on the algorithm, as theoretically adding more skills does not introduce any eficiency penalty. This is due to, however, I have not yet found a good way to encode 128-bit integers (std::bitset maybe) in C++.
+2. The webapp does not support custom guild armors.
+  * The algorithm supports guild armors, of course.
+  * I am a terribly bad designer and I cannot think of a way to add such options to the page, without making it look very complicated. 
+  * This functionality will be added soon.
+3. There does not exist a report that details the algorithm.
+  * Working on it.
+4. The communication between backend and web server are file-based
+  * This is going to be replaced by a real RPC framework.
+5. The webapp does not store any information to personalization features, such as personal armor sets library, personal amulets library, etc.
+  * To be honest, I am not experienced enough to implement this efficiently and securely. Will add those features in the future, but with no promise.
+
+## Acknoledgement
 
 
 
