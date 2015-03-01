@@ -52,6 +52,10 @@
                 " and "
                 (:a ((href "http://getbootstrap.com/")) "Twitter Bootstrap")
                 ".")
+            (:p () "Source code can be found "
+                (:a ((href "https://github.com/breakds/monster-avengers/"))
+                    "here")
+                ".")
             (:p () "Credit to the project "
                 (:a ((href "https://github.com/kamegami13/MonsterHunter4UDatabase"))
                     "MonsterHunter4UDatabase")
