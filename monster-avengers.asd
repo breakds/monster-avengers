@@ -29,4 +29,12 @@
                  (:file "lisp/engine/emitter-test")
                  (:file "lisp/engine/armor-up-test")
                  ;; webapp
+                 (:file "lisp/ui/init")
+                 (:file "lisp/ui/backend")
+                 (:file "lisp/ui/widgets/skill-panel")
+                 (:file "lisp/ui/widgets/amulet-panel")
+                 (:file "lisp/ui/widgets/armor-set")
+                 (:file "lisp/ui/widgets/parameter-panel")
+                 (:file "lisp/ui/widgets/help-panel")
+                 (:file "lisp/ui/widgets/app-view")
                  (:file "lisp/ui/simple-web")))
