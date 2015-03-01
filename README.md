@@ -48,6 +48,18 @@ cmake ..
 Now, you can either run `make` to build the binary `serve_query`, or `ccmake .` to configure the Makefile generation. You can toggle the build type to be `RELEASE` to build a much more efficient binary.
 
 
+To run the web server that serves the UI, you need a lisp implementation (e.g. [SBCL](http://kiranico.com/en/mh4u)), and [quicklisp](http://www.quicklisp.org/). After having them configured, you can place the project folder (or a symbolic link to the folder) under `quicklisp/local-projects`, and start `sbcl`. At the Common Lisp top-level, run
+````
+(ql:quickload 'monster-avengers)
+(monster-avengers.simple-web:armor-tools :start)
+````
+
+to start the web server. You should now be able to access the web app locally at `localhost:16384/app?lang=en`. Note that this project depends on several of other projects, which should be downloaded at placed at `quicklisp/local-projects`:
+* [basicl](https://github.com/breakds/basicl)
+* [stefil](https://github.com/breakds/stefil)
+* [reaLispic](https://github.com/breakds/realispic)
+* [struct-wrapper](https://github.com/breakds/struct-wrapper)
+
 ## Limitations and Futrue Work
 
 There are currently some limitations in the current implementations, and I will work on improve over them. Those that I am aware of are:
@@ -81,7 +93,7 @@ There are currently some limitations in the current implementations, and I will 
 
 ## License
 
-All the code in this project is under the MIT License.
+All the codes in this project are under the MIT License.
 
 
 
