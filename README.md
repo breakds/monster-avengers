@@ -34,6 +34,19 @@ The code is mainly divided into 2 parts:
 2. [lisp/ui/](https://github.com/breakds/monster-avengers/tree/master/lisp/ui) implements the web based UI for this armor search tool. This webapp is written in Common Lisp based on the web framework [reaLispic](https://github.com/breakds/realispic). Specifically,
   * [widgets/](https://github.com/breakds/monster-avengers/tree/master/lisp/ui/widgets) contains the definitions of all the widgets in the web. The code should be very straightforward if you are familiar with [React.js](http://facebook.github.io/react/).
   * [backend.lisp](https://github.com/breakds/monster-avengers/tree/master/lisp/ui/backend.lisp) defines the RPC that talks to the C++ backend to handle queries. This is a super naive implementation that does the message passing via files on disk. 
+ 
+### Build and Run
+
+The C++ code is managed by CMake. To build the C++ binary:
+````
+cd cpp/
+mkdir build
+cd build
+cmake ..
+````
+
+Now, you can either run `make` to build the binary `serve_query`, or `ccmake .` to configure the Makefile generation. You can toggle the build type to be `RELEASE` to build a much more efficient binary.
+
 
 ## Limitations and Futrue Work
 
