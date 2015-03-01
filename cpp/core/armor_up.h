@@ -6,12 +6,12 @@
 #include <unordered_map>
 #include <vector>
 
-#include "query.h"
-#include "signature.h"
+#include "utils/query.h"
+#include "utils/signature.h"
 #include "or_and_tree.h"
 #include "iterator.h"
 #include "jewels_query.h"
-#include "armor_set.h"
+#include "utils/armor_set.h"
 
 namespace monster_avengers {
 

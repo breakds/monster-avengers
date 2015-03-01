@@ -14,16 +14,21 @@ MESSAGE(STATUS "GCC:                    ${CMAKE_CXX_COMPILER}")
 
 include_directories("~/pf/projects" ".")
 
-# option (BUILD_UNITTEST "build executables in purpose of unittest." ON)
+option (BUILD_TESTS "build executables in purpose of unittest." ON)
 
-SET(CMAKE_CXX_FLAGS "${OPENCV_FLAGS} --std=c++0x")
+SET(CMAKE_CXX_FLAGS "${OPENCV_FLAGS} -std=c++11")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -DNDEBUG -O3")
 SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
 SET(CMAKE_CXX_FLAGS_GPROF "-O1 -pg")
 
-ADD_EXECUTABLE(test test.cc)
-ADD_EXECUTABLE(find_armor find_armor.cc)
+
+IF(BUILD_TESTS)
+  ADD_EXECUTABLE(test core/test.cc)
+  ADD_EXECUTABLE(find_armor core/find_armor.cc)
+  ADD_EXECUTABLE(jewels_query_test core/jewels_query_test.cc)
+  ADD_EXECUTABLE(signature_test utils/signature_test.cc)
+ENDIF(BUILD_TESTS)
+
 ADD_EXECUTABLE(serve_query serve_query.cc)
-ADD_EXECUTABLE(jewels_query_test jewels_query_test.cc)
-ADD_EXECUTABLE(signature_test signature_test.cc)
+
 

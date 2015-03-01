@@ -1,7 +1,7 @@
-#include "monster_hunter_data.h"
-#include "query.h"
-#include "armor_up.h"
-#include "timer.h"
+#include "data/data_set.h"
+#include "utils/query.h"
+#include "core/armor_up.h"
+#include "aux/timer.h"
 
 using namespace monster_avengers;
 
@@ -52,7 +52,6 @@ int main(int argc, char **argv) {
   //                            L"(:amulet 2 (25 5))",
   //                            &query));
                 
-  
   query.DebugPrint();
   Timer timer;
   timer.Tic();
@@ -64,5 +63,6 @@ int main(int argc, char **argv) {
   armor_up.Summarize();
   wprintf(L"Initialization: %.4lf seconds.\n", init_duration);
   wprintf(L"Computation: %.4lf seconds.\n", duration);
+
   return 0;
 }

@@ -190,7 +190,7 @@ namespace monster_avengers {
     }
 
     void Format(const ArmorSet &armor_set) {
-      LispObject output = LispObject::Object();
+      lisp::Object output = lisp::Object::Struct();
       int defense = 0;
       std::unordered_map<int, int> effects;
       
@@ -221,16 +221,16 @@ namespace monster_avengers {
 
       output.Set("defense", defense);
 
-      output.Set("jewel-plans", LispObject::List());
+      output.Set("jewel-plans", lisp::Object::List());
 
       int jewel_plan_count = 0;
       for (const Signature &jewel_key : armor_set.jewel_keys) {
         if (jewel_plan_count < MAX_JEWEL_PLAN) {
-	  LispObject jewel_plan_object = LispObject::Object();
-	  jewel_plan_object.Set("plan", LispObject::List());
+	  lisp::Object jewel_plan_object = lisp::Object::Struct();
+	  jewel_plan_object.Set("plan", lisp::Object::List());
           std::unordered_map<int, int> jewel_plan_effects = effects;
           for (auto item : solver_.Solve(jewel_key)) {
-	    LispObject plan_object = LispObject::Object();
+	    lisp::Object plan_object = lisp::Object::Struct();
             const Jewel &jewel = data_->jewel(item.first);
 	    plan_object.Set("name", GetLanguageText(jewel.name));
 	    plan_object.Set("quantity", item.second);
@@ -268,16 +268,16 @@ namespace monster_avengers {
       }
     }
     
-    LispObject GetLanguageText(const LanguageText &text) {
-      LispObject result = LispObject::Object();
+    lisp::Object GetLanguageText(const LanguageText &text) {
+      lisp::Object result = lisp::Object::Struct();
       result["en"] = text.en;
       result["jp"] = text.jp;
       return result;
     }
     
-    LispObject GetArmorObject(const DataSet *data, const Armor &armor, 
+    lisp::Object GetArmorObject(const DataSet *data, const Armor &armor, 
                               ArmorPart part, int id) {
-      LispObject armor_object = LispObject::Object();
+      lisp::Object armor_object = lisp::Object::Struct();
       armor_object["name"] = GetLanguageText(armor.name);
       armor_object["holes"] = armor.holes;
       armor_object["id"] = std::to_wstring(id);
@@ -298,10 +298,10 @@ namespace monster_avengers {
         armor_object["holes"] = base_armor.holes;
         int stuffed = 0;
         if (!armor.jewels.empty()) {
-          armor_object.Set("jewels", LispObject::List());
+          armor_object.Set("jewels", lisp::Object::List());
           for (const auto &item : armor.jewels) {
             const Jewel &jewel = data_->jewel(item.first);
-            LispObject jewel_object = LispObject::Object();
+            lisp::Object jewel_object = lisp::Object::Struct();
             jewel_object.Set("name", GetLanguageText(jewel.name));
             jewel_object.Set("quantity", item.second);
             stuffed += jewel.holes * item.second;
@@ -314,10 +314,10 @@ namespace monster_avengers {
       return armor_object;
     }
 
-    LispObject GetEffectsObject(const std::vector<Effect> &effects) {
-      LispObject result = LispObject::List();
+    lisp::Object GetEffectsObject(const std::vector<Effect> &effects) {
+      lisp::Object result = lisp::Object::List();
       for (const Effect &effect : effects) {
-	LispObject effect_object = LispObject::Object();
+	lisp::Object effect_object = lisp::Object::Struct();
 	effect_object.Set("name", 
                           GetLanguageText(data_->skill_system(effect.skill_id).name));
 	effect_object.Set("points", effect.points); 
@@ -326,21 +326,21 @@ namespace monster_avengers {
       return result;
     }
 
-    LispObject GetMaterialObject(const DataSet *data, 
+    lisp::Object GetMaterialObject(const DataSet *data, 
                                  const std::vector<int> &material) {
-      LispObject result = LispObject::List();
+      lisp::Object result = lisp::Object::List();
       for (const int &item_id : material) {
 	result.Push(GetLanguageText(data->ItemName(item_id)));
       }
       return result;
     }
 
-    LispObject GetActiveObject(const std::unordered_map<int, int> &effects) {
-      LispObject active_object = LispObject::List();
+    lisp::Object GetActiveObject(const std::unordered_map<int, int> &effects) {
+      lisp::Object active_object = lisp::Object::List();
       for (auto &effect : effects) {
         const SkillSystem &skill_system = data_->skill_system(effect.first);
         int active_points = 0;
-        LispObject active_name;
+        lisp::Object active_name;
         if (effect.second > 0) {
           for (const Skill &skill : skill_system.skills) {
             if (effect.second > 0) {

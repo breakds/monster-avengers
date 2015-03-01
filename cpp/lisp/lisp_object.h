@@ -1,129 +1,303 @@
 #ifndef _MONSTER_AVENGERS_LISP_OBJ_
 #define _MONSTER_AVENGERS_LISP_OBJ_
 
+#include <string>
+#include <locale>
+#include <cwchar>
+#include <iostream>
+#include <sstream>
+#include <iosfwd>
+#include <fstream>
+#include <memory>
 #include <vector>
 #include <unordered_map>
+#include <initializer_list>
+
+#include "aux/helpers.h"
 
 namespace monster_avengers {
 
-  struct LispObject {
-    typedef std::unique_ptr<void, std::function<void(void*)>> DataHolder;
-    typedef std::unordered_map<std::string, LispObject> ObjectHolder;
+  namespace lisp {
 
-    enum LispObjectType {
-      LISP_NUM = 0,
-      LISP_STR = 1,
-      LISP_OBJ = 2,
-      LISP_LIST = 3,
+    namespace {
+      std::string CoerceUTF8ToAscii(const std::wstring input) {
+        std::string result;
+        result.reserve(input.size());
+        for (const wchar_t wide_char : input) {
+          result += static_cast<char>(wide_char);
+        }
+        return result;
+      }
+    }  // namespace
+
+    struct Object;
+
+    std::wostream &operator<<(std::wostream &out, const Object &lisp_object);
+
+    struct Object {
+      typedef std::unique_ptr<void, std::function<void(void*)>> DataHolder;
+      typedef std::unordered_map<std::string, Object> ObjectHolder;
+
+      enum ObjectType {
+        LISP_NUM = 0,
+        LISP_STR = 1,
+        LISP_OBJ = 2,
+        LISP_LIST = 3,
+        LISP_NIL = 4
+      };
+      ObjectType type;
+      DataHolder data;
+
+      Object() : data(nullptr), type(LISP_OBJ) {}
+
+      Object(Object &&other) = default;
+
+      Object(int x) :
+        type(LISP_NUM), data(new int(x), [](void * content) {
+            delete static_cast<int*>(content);}) {}
+
+      Object(const std::wstring &x) :
+        type(LISP_STR), data(new std::wstring(x), [](void * content) {
+            delete static_cast<std::wstring*>(content);}) {}
+    
+      const Object &operator=(Object &&other) {
+        type = other.type;
+        data = std::move(other.data);
+        return (*this);
+      }
+    
+      static Object Number(int x = 0) {
+        return Object(x);
+      }
+
+      static Object String(const std::wstring &x) {
+        return Object(x);
+      }
+
+      static Object Struct() {
+        Object result;
+        result.type = LISP_OBJ;
+        result.data = DataHolder(new ObjectHolder(), [](void * content) {
+            delete static_cast<ObjectHolder*>(content);});
+        return result;
+      }
+
+      static Object List() {
+        Object result;
+        result.type = LISP_LIST;
+        result.data = DataHolder(new std::vector<Object>(), [](void * content) {
+            delete static_cast<std::vector<Object>*>(content);});
+        return result;
+      }
+
+      static Object Nil() {
+        Object result;
+        result.type = LISP_NIL;
+        return result;
+      }
+
+      bool IsNil() {
+        return LISP_NIL == type;
+      }
+
+      void Set(const std::string name, Object &&value) {
+        CHECK(LISP_OBJ == this->type);
+        (*static_cast<ObjectHolder*>(data.get()))[name] = std::move(value);
+      }
+
+      void Push(Object &&value) {
+        CHECK(LISP_LIST == this->type);
+        static_cast<std::vector<Object>*>(data.get())->emplace_back(std::move(value));
+      }
+
+      
+      inline void TypeCheck(ObjectType expected) const {
+        if (type != expected) {
+          Log(WARNING, L"%d expected but %d is given.",
+              expected,
+              type);
+        }
+      }
+      
+      void AssignSlotTo(const std::string &slot,
+                        int *output,
+                        int default_value = 0) const {
+        TypeCheck(LISP_OBJ);
+        const ObjectHolder &children = GetMap();
+        auto it = children.find(slot);
+        if (children.end() == it) {
+          *output = default_value;
+        } else {
+          it->second.TypeCheck(LISP_NUM);
+          *output = *static_cast<int*>(it->second.data.get());
+        }
+      }
+
+      void AssignSlotTo(const std::string &slot,
+                        std::wstring *output,
+                        std::wstring default_value = L"") const {
+        TypeCheck(LISP_OBJ);
+        const ObjectHolder &children = GetMap();
+        auto it = children.find(slot);
+        if (children.end() == it) {
+          *output = default_value;
+        } else {
+          it->second.TypeCheck(LISP_STR);
+          *output = *static_cast<std::wstring*>(it->second.data.get());
+        }
+      }
+
+      template <typename TargetType>
+      void AssignSlotTo(const std::string &slot,
+                        TargetType *output) const {
+        TypeCheck(LISP_OBJ);
+        const ObjectHolder &children = GetMap();
+        auto it = children.find(slot);
+        if (children.end() == it) {
+          Log(ERROR, L"No slot \"%s\" found in the following object:", 
+              slot.c_str());
+          std::wcout << (*this) << L"\n";
+          exit(-1);
+        } else {
+          it->second.TypeCheck(LISP_OBJ);
+          *output = TargetType(it->second);
+        }
+      }
+
+      template <typename ElementType>
+      void AppendSlotTo(const std::string &slot,
+                        std::vector<ElementType> *output) const {
+        TypeCheck(LISP_OBJ);
+        const ObjectHolder &children = GetMap();
+        auto it = children.find(slot);
+        if (children.end() != it) {
+          for (int i = 0; i < it->second.Size(); ++i) {
+            output->emplace_back(it->second[i]);
+          }
+        }
+      }
+
+      void AppendSlotTo(const std::string &slot,
+                        std::vector<int> *output) const {
+        TypeCheck(LISP_OBJ);
+        const ObjectHolder &children = GetMap();
+        auto it = children.find(slot);
+        if (children.end() != it) {
+          for (int i = 0; i < it->second.Size(); ++i) {
+            output->emplace_back(*static_cast<int*>(it->second[i].data.get()));
+          }
+        }
+      }
+      
+      Object &operator[](const std::string &name) {
+        CHECK(LISP_OBJ == this->type);
+        return (*static_cast<ObjectHolder*>(data.get()))[name];
+      }
+
+      const Object &operator[](const std::string &name) const {
+        CHECK(LISP_OBJ == this->type);
+        return (*static_cast<ObjectHolder*>(data.get()))[name];
+      }
+
+      Object &operator[](int id) {
+        CHECK(LISP_LIST == this->type);
+        return (*static_cast<std::vector<Object>*>(data.get()))[id];
+      }
+
+      const Object &operator[](int id) const {
+        CHECK(LISP_LIST == this->type);
+        return (*static_cast<std::vector<Object>*>(data.get()))[id];
+      }
+
+      int Size() const {
+        return static_cast<std::vector<Object>*>(data.get())->size();
+      }
+
+      ObjectHolder &GetMap() {
+        return (*static_cast<ObjectHolder*>(data.get()));
+      }
+
+      const ObjectHolder &GetMap() const {
+        return (*static_cast<ObjectHolder*>(data.get()));
+      }
     };
-    LispObjectType type;
-    DataHolder data;
 
-  LispObject() : data(nullptr), type(LISP_OBJ) {}
-
-    LispObject(LispObject &&other) = default;
-
-    LispObject(int x) :
-      type(LISP_NUM), data(new int(x), [](void * content) {
-	  delete static_cast<int*>(content);}) {}
-
-    LispObject(const std::wstring &x) :
-      type(LISP_STR), data(new std::wstring(x), [](void * content) {
-	  delete static_cast<std::wstring*>(content);}) {}
+        std::wostream &operator<<(std::wostream &out, const Object &lisp_object) {
     
-    const LispObject &operator=(LispObject &&other) {
-      type = other.type;
-      data = std::move(other.data);
-      return (*this);
-    }
-    
-    static LispObject Number(int x = 0) {
-      return LispObject(x);
-    }
-
-    static LispObject String(const std::wstring &x) {
-      return LispObject(x);
-    }
-
-    static LispObject Object() {
-      LispObject result;
-      result.type = LISP_OBJ;
-      result.data = DataHolder(new ObjectHolder(), [](void * content) {
-	  delete static_cast<ObjectHolder*>(content);});
-      return result;
-    }
-
-    static LispObject List() {
-      LispObject result;
-      result.type = LISP_LIST;
-      result.data = DataHolder(new std::vector<LispObject>(), [](void * content) {
-	  delete static_cast<std::vector<LispObject>*>(content);});
-      return result;
-    }
-
-    void Set(const std::string name, LispObject &&value) {
-      CHECK(LISP_OBJ == this->type);
-      (*static_cast<ObjectHolder*>(data.get()))[name] = std::move(value);
-    }
-
-    void Push(LispObject &&value) {
-      CHECK(LISP_LIST == this->type);
-      static_cast<std::vector<LispObject>*>(data.get())->emplace_back(std::move(value));
-    }
-
-    LispObject &operator[](const std::string &name) {
-      CHECK(LISP_OBJ == this->type);
-      return (*static_cast<ObjectHolder*>(data.get()))[name];
-    }
-
-    LispObject &operator[](int id) {
-      CHECK(LISP_LIST == this->type);
-      return (*static_cast<std::vector<LispObject>*>(data.get()))[id];
-    }
-
-    int Size() const {
-      return static_cast<std::vector<LispObject>*>(data.get())->size();
-    }
-
-    ObjectHolder &GetMap() {
-      return (*static_cast<ObjectHolder*>(data.get()));
-    }
-  };
-
-  std::wostream &operator<<(std::wostream &out, LispObject &lisp_object) {
-    
-    switch (lisp_object.type) {
-    case LispObject::LISP_NUM: 
-      out << *static_cast<int*>(lisp_object.data.get()); 
-      break;
-    case LispObject::LISP_STR: 
-      out << "\"" << *static_cast<std::wstring*>(lisp_object.data.get())
-	  << "\"";
-      break;
-    case LispObject::LISP_LIST:
-      out << "(";
-      for (int i = 0; i < lisp_object.Size(); ++i) {
-	if (i > 0) out << " ";
-	out << lisp_object[i];
+      switch (lisp_object.type) {
+      case Object::LISP_NIL:
+        out << "NIL";
+        break;
+      case Object::LISP_NUM: 
+        out << *static_cast<int*>(lisp_object.data.get()); 
+        break;
+      case Object::LISP_STR: 
+        out << "\"" << *static_cast<std::wstring*>(lisp_object.data.get())
+            << "\"";
+        break;
+      case Object::LISP_LIST:
+        out << "(";
+        for (int i = 0; i < lisp_object.Size(); ++i) {
+          if (i > 0) out << " ";
+          out << lisp_object[i];
+        }
+        out << ")";
+        break;
+      case Object::LISP_OBJ:
+        out << "(";
+        int i = 0;
+        for (auto &item : lisp_object.GetMap()) {
+          std::wstring name;
+          name.assign(item.first.begin(), item.first.end());
+          if (i > 0) out << " ";
+          out << ":" << name
+              << " " << item.second;
+          i++;
+        }
+        out << ")";
+        break;
       }
-      out << ")";
-      break;
-    case LispObject::LISP_OBJ:
-      out << "(";
-      int i = 0;
-      for (auto &item : lisp_object.GetMap()) {
-	std::wstring name;
-	name.assign(item.first.begin(), item.first.end());
-	if (i > 0) out << " ";
-	out << ":" << name
-	    << " " << item.second;
-	i++;
-      }
-      out << ")";
-      break;
+      return out;
     }
-    return out;
-  }
-}
+    
+    template <typename EnumType>
+    class EnumConverter {
+    public:
+      typedef std::unordered_map<std::wstring, EnumType> TableType;
+      EnumConverter(TableType table, 
+                    EnumType default_value) 
+        : table_(std::move(table)), 
+          default_(new EnumType(default_value)) {}
+
+      EnumConverter(TableType table) 
+        : table_(std::move(table)),
+          default_(nullptr) {}
+
+      EnumType operator()(const Object &object, const std::string slot) {
+        std::wstring buffer;
+        object.AssignSlotTo(slot, &buffer);
+        auto it = table_.find(buffer);
+        if (table_.end() == it) {
+          if (default_) {
+            return *default_;
+          } else {
+            Log(ERROR, L"\"%ls\" does not translate to a known enum value.",
+                buffer.c_str());
+            exit(-1);
+          }
+        } else {
+          return it->second;
+        }
+      }
+
+    private:
+      TableType table_;
+      std::unique_ptr<EnumType> default_;
+    };
+
+  }  // namespace lisp
+
+}  // namespace monster_avengers
+
 
 #endif  // _MONSTER_AVENGERS_LISP_OBJ_

@@ -1,6 +1,6 @@
 #include <utility>
 #include <unordered_map>
-#include "jewels_query.h"
+#include "core/jewels_query.h"
 
 
 using namespace monster_avengers;

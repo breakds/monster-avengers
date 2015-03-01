@@ -5,7 +5,7 @@
 #include <vector>
 #include <array>
 #include <unordered_map>
-#include "monster_hunter_data.h"
+#include "data/data_set.h"
 #include "jewels_query.h"
 
 namespace monster_avengers {

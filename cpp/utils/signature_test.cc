@@ -1,5 +1,5 @@
-#include "signature.h"
-#include "helpers.h"
+#include "utils/signature.h"
+#include "aux/helpers.h"
 
 using namespace monster_avengers;
 

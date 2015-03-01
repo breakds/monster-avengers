@@ -1,7 +1,7 @@
-#include "monster_hunter_data.h"
-#include "query.h"
-#include "armor_up.h"
-#include "helpers.h"
+#include "data/data_set.h"
+#include "utils/query.h"
+#include "core/armor_up.h"
+#include "aux/helpers.h"
 
 using namespace monster_avengers;
 

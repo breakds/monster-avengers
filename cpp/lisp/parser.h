@@ -12,12 +12,11 @@
 #include <iostream>
 #include <type_traits>
 
-#include "lisp_object.h"
-#include "helpers.h"
+#include "aux/helpers.h"
 
 namespace monster_avengers {
   
-  namespace parser {
+  namespace lisp {
     
     enum TokenName {
       OPEN_PARENTHESIS = 0, // (
@@ -291,97 +290,15 @@ namespace monster_avengers {
       bool end_of_file_;
     };
 
-    class LispObjectReader {
-    public:
-      LispObjectReader(Tokenizer * tokenizer)
-    	: tokenizer_(tokenizer) {}
-      
-      LispObject Read() {
-	// Feeding ReadObject with INVALID_TOKEN indicates ReadObject
-	// to not epxect a cached token.
-	return ReadObject(Token {INVALID_TOKEN, L""});
-      }
-
-    private:
-      LispObject ReadObject(Token cache) {
-
-    	Token token;
-
-    	// Get the first token, so that we can decide the type of the
-    	// resulting LispObject.
-    	if (INVALID_TOKEN == token.name) {
-    	  token.Acquire(std::move(cache));
-    	} else {
-    	  tokenizer_->Next(&token);
-    	}
-
-    	switch (token.name) {
-    	case NUMBER:
-    	  return LispObject::Number(std::stoi(token.value));
-    	case STRING:
-    	  return LispObject::String(token.value);
-    	default:
-    	  CHECK(OPEN_PARENTHESIS == token.name);
-    	  // Based on the second token, we will decide whether it is
-    	  // an object or a list.
-    	  CHECK(tokenizer_->Next(&token));
-    	  if (KEYWORD == token.name) {
-    	    // If we are getting a keyword, it must be an object. We
-    	    // do not epxect list with a keyword as the first element.
-
-	    // The LispObject that will be returned as result.
-    	    LispObject result = LispObject::Object();
-
-	    // The characters we are reading into token are utf-8
-	    // wchars. We need a converter to convert the wchar
-	    // strings to normal strings for keys.
-	    std::wstring_convert<std::codecvt_utf8<wchar_T>> converter;
-	    
-    	    std::string key = converter.to_bytes(token.value);
-
-	    bool complete = false;
-    	    while (!complete) {
-	      result[key] = ReadObject(Token {INVALID_TOKEN, L""});
-	      
-	      CHECK(tokenizer_->Next(&token));
-	      if (CLOSE_PARENTHESIS == token.name) {
-		complete = true;
-	      } else {
-		CHECK(KEYWORD == token.name);
-		key = converter.to_bytes(token.value);
-	      }
-    	    }
-	    return result;
-    	  } else {  // if (KEYWORD == token.name)
-	    // Now we are pretty sure it is a list.
-	    LispObject result = LispObject::List();
-	    result.Push(ReadObject(token));
-	    while (true) {
-	      CHECK(tokenizer_->Next(&token));
-	      if (CLOSE_PARENTHESIS == token.name) {
-		break;
-	      } 
-	      
-	      result.Push(ReadObject(token));
-	    }
-	    
-	    return result;
-	  }  // if (KEYWORD == token.name)
-    	}
-      }
-      
-      Tokenizer *tokenizer_;
-    };
-
     template <typename Parsable>
     struct ParseList {
-      static std::vector<Parsable> Do(parser::Tokenizer *tokenizer,
+      static std::vector<Parsable> Do(lisp::Tokenizer *tokenizer,
                                       bool expect_open_paren = true) {
         if (expect_open_paren) {
-          parser::TokenName token_name = tokenizer->ExpectOpenParenOrNil();
+          lisp::TokenName token_name = tokenizer->ExpectOpenParenOrNil();
           if (NIL == token_name) return std::vector<Parsable>();
         }
-        parser::Token token;
+        lisp::Token token;
         bool complete = false;
         std::vector<Parsable> result;
       
@@ -405,13 +322,13 @@ namespace monster_avengers {
 
     template <>
     struct ParseList<int> {
-      static std::vector<int> Do(parser::Tokenizer *tokenizer,
+      static std::vector<int> Do(lisp::Tokenizer *tokenizer,
                                  bool expect_open_paren = true) {
         if (expect_open_paren) {
-          parser::TokenName token_name = tokenizer->ExpectOpenParenOrNil();
+          lisp::TokenName token_name = tokenizer->ExpectOpenParenOrNil();
           if (NIL == token_name) return std::vector<int>();
         }
-        parser::Token token;
+        lisp::Token token;
         bool complete = false;
         std::vector<int> result;
 
@@ -435,13 +352,13 @@ namespace monster_avengers {
 
     template <>
     struct ParseList<std::wstring> {
-      static std::vector<std::wstring> Do(parser::Tokenizer *tokenizer,
+      static std::vector<std::wstring> Do(lisp::Tokenizer *tokenizer,
                                           bool expect_open_paren = true) {
         if (expect_open_paren) {
-          parser::TokenName token_name = tokenizer->ExpectOpenParenOrNil();
+          lisp::TokenName token_name = tokenizer->ExpectOpenParenOrNil();
           if (NIL == token_name) return std::vector<std::wstring>();
         }
-        parser::Token token;
+        lisp::Token token;
         bool complete = false;
         std::vector<std::wstring> result;
 

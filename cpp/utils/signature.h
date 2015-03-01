@@ -1,8 +1,8 @@
 #ifndef _MONSTER_AVENGERS_SIGNATURE_
 #define _MONSTER_AVENGERS_SIGNATURE_
 
-#include "monster_hunter_data.h"
-#include "query.h"
+#include "data/data_set.h"
+#include "utils/query.h"
 
 namespace monster_avengers {
   typedef uint64_t Signature;

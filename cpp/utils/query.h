@@ -5,9 +5,9 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "helpers.h"
+#include "aux/helpers.h"
 #include "lisp/parser.h"
-#include "monster_hunter_data.h"
+#include "data/data_set.h"
 
 namespace monster_avengers {
 
@@ -44,8 +44,8 @@ namespace monster_avengers {
       query->min_rare = 0; // by default there is no rare limit.
       query->amulets.clear();
 
-      auto tokenizer = parser::Tokenizer::FromText(query_text);
-      parser::Token token;
+      auto tokenizer = lisp::Tokenizer::FromText(query_text);
+      lisp::Token token;
       Command command;
       Status status(SUCCESS);
       int skill_id = 0;
@@ -56,7 +56,7 @@ namespace monster_avengers {
 
       while (tokenizer.Next(&token)) {
         // Get "("
-        if (parser::OPEN_PARENTHESIS != token.name) {
+        if (lisp::OPEN_PARENTHESIS != token.name) {
           return Status(FAIL, "Query: Syntax Error - expect '('.");
         }
 
@@ -92,7 +92,7 @@ namespace monster_avengers {
           if (!status.Success()) return status;
           nums.clear();
           effects.clear();
-          nums = parser::ParseList<int>::Do(&tokenizer);
+          nums = lisp::ParseList<int>::Do(&tokenizer);
           for (int i = 0; i < (nums.size() >> 1); ++i) {
             effects.emplace_back(nums[i << 1], nums[(i << 1) + 1]);
           }
@@ -100,7 +100,7 @@ namespace monster_avengers {
           break;
         case BLACKLIST:
           nums.clear();
-          nums = parser::ParseList<int>::Do(&tokenizer);
+          nums = lisp::ParseList<int>::Do(&tokenizer);
           for (int i : nums) {
             query->blacklist.insert(i);
           }
@@ -156,37 +156,37 @@ namespace monster_avengers {
     }
 
   private:
-    static Status ReadInt(parser::Tokenizer *tokenizer, int *number) {
-      parser::Token token;
+    static Status ReadInt(lisp::Tokenizer *tokenizer, int *number) {
+      lisp::Token token;
       if (!tokenizer->Next(&token)) {
         return Status(FAIL, "Query: Unexpected end of query.");
       }
-      if (parser::NUMBER != token.name) {
+      if (lisp::NUMBER != token.name) {
         return Status(FAIL, "Query: Syntax Error - expect NUMBER.");
       }
       *number = std::stoi(token.value);
       return Status(SUCCESS);
     }
     
-    static Status ExpectCloseParen(parser::Tokenizer *tokenizer) {
-      parser::Token token;
+    static Status ExpectCloseParen(lisp::Tokenizer *tokenizer) {
+      lisp::Token token;
       if (!tokenizer->Next(&token)) {
         return Status(FAIL, "Query: Unexpected end of query.");
       }
-      if (parser::CLOSE_PARENTHESIS != token.name) {
+      if (lisp::CLOSE_PARENTHESIS != token.name) {
         return Status(FAIL, "Query: Syntax Error - "
                       "expect CLOSE_PARENTHESIS.");
       }
       return Status(SUCCESS);
     }
 
-    static Status ReadCommand(parser::Tokenizer *tokenizer, Command *command) {
-      parser::Token token;
+    static Status ReadCommand(lisp::Tokenizer *tokenizer, Command *command) {
+      lisp::Token token;
       if (!tokenizer->Next(&token)) {
         return Status(FAIL, "Query: Unexpected end of query.");
       }
       
-      if (parser::KEYWORD != token.name) {
+      if (lisp::KEYWORD != token.name) {
         return Status(FAIL, "Query: Syntax Error - expect KEYWORD.");
       }
 
@@ -200,13 +200,13 @@ namespace monster_avengers {
       return Status(SUCCESS);
     }
 
-    static Status ReadWeaponType(parser::Tokenizer *tokenizer, 
+    static Status ReadWeaponType(lisp::Tokenizer *tokenizer, 
                                  WeaponType *type) {
-      parser::Token token;
+      lisp::Token token;
       if (!tokenizer->Next(&token)) {
         return Status(FAIL, "Query: Unexpected end of query.");
       }
-      if (parser::STRING != token.name) {
+      if (lisp::STRING != token.name) {
         return Status(FAIL, "Query: Syntax Error - expect STRING.");
       }
       if (L"melee" == token.value) {
