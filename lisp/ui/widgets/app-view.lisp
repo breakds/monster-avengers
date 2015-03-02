@@ -69,7 +69,8 @@
                           "zh"))
             (weapon-type "melee")
             (weapon-holes 0)
-            (rare 1)
+            (min-rare 1)
+            (max-rare 10)
             (current-page "search")
             (amulets (array))
             (effects (array))
@@ -92,7 +93,9 @@
                      (setf query (+ query "(:weapon-holes "
                                     (local-state weapon-holes) ") "))
                      (setf query (+ query "(:rare "
-                                    (local-state rare) ") "))
+                                    (local-state min-rare) ") "))
+                     (setf query (+ query "(:max-rare "
+                                    (local-state max-rare) ") "))
                      (loop for effect in (local-state effects)
                         do (setf query (+ query "(:skill "
                                           (@ effect id) " "
@@ -134,8 +137,10 @@
                             (chain this (set-state (create weapon-type value)))
                             (if (= param "weapon-holes")
                                 (chain this (set-state (create weapon-holes value)))
-                                (if (= param "rare")
-                                    (chain this (set-state (create rare value))))))
+                                (if (= param "min-rare")
+                                    (chain this (set-state (create min-rare value)))
+                                    (if (= param "max-rare")
+                                        (chain this (set-state (create max-rare value)))))))
                         nil)
      (update-amulets (new-amulets)
                      (chain this (set-state (create amulets new-amulets)))
@@ -177,7 +182,8 @@
                       (:parameter-panel ((language (@ this state language))
                                          (weapon-type (local-state weapon-type))
                                          (weapon-holes (local-state weapon-holes))
-                                         (rare (local-state rare))
+                                         (min-rare (local-state min-rare))
+                                         (max-rare (local-state max-rare))
                                          (callback (@ this update-parameters))))
                       (:div ((class-name "row"))
                             (:div ((class-name "col-md-3"))

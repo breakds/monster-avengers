@@ -537,7 +537,10 @@ namespace monster_avengers {
           }
 
           // Rare blacklist
-          valid &= armor.rare >= query.min_rare;
+          if (GEAR != part && AMULET != part) {
+            valid &= armor.rare >= query.min_rare;
+            valid &= armor.rare <= query.max_rare;
+          }
           
           // Blacklist filter
           valid &= 0 == query.blacklist.count(id);
@@ -576,6 +579,7 @@ namespace monster_avengers {
         if (data_.ProvidesTorsoUp(part, i) && 
             // Rare blacklist
             armor.rare >= query.min_rare &&
+            armor.rare <= query.max_rare &&
             // Blacklist filter
             0 == query.blacklist.count(data_.ArmorIds(part)[i])) {
           armor_ids.push_back(data_.ArmorIds(part)[i]);
