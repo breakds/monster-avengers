@@ -144,8 +144,8 @@
 		     (let ((new-effects (local-state effects)))
 		       (setf new-effects
 			     (chain new-effects (filter (lambda (e i a) 
-							  (!= (@ e id)
-							      skill-id)))))
+							  (not (= (@ e id)
+                                                                  skill-id))))))
 		       (when (> active-id -1)
 			 (let ((points (@ (aref (@ (aref skill-systems skill-id) skills)
 						active-id) points)))

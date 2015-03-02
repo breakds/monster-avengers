@@ -7,6 +7,7 @@
 
 (def-realispic-app (armor-tools (lang) 
                                 :title "Monster Hunter's Arsenal"
+                                :icon "img/hammer.png"
                                 :port 16384
                                 :css ("https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.2/css/bootstrap.min.css")
                                 :libs ("http://fb.me/react-0.12.2.min.js"
