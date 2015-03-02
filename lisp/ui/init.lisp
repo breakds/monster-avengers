@@ -28,6 +28,7 @@
       ,@(loop for skill-system in (read in)
            collect `(create :name (create :en ,(getf (getf skill-system :name) :en)
                                           :jp ,(getf (getf skill-system :name) :jp))
+                            :id ,(getf skill-system :id)
 			    :skills (array ,@(loop for skill in (sort (copy-list (getf skill-system 
                                                                                        :skills))
                                                                       #2`,(< (getf x1 :points)

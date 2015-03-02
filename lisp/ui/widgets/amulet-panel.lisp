@@ -21,8 +21,11 @@
                            (chain skill-systems 
                                   (filter (lambda (skill id)
                                             (> id 0)))
+                                  (sort (lambda (x y)
+                                          (if (< (@ x name en) (@ y name en))
+                                              -1 1)))
                                   (map (lambda (system id)
-                                         (:option ((value (1+ id)))
+                                         (:option ((value (@ system id)))
                                                   (lang-text ("zh" (@ system name jp))
                                                              ("en" (@ system name en)))))))))
             (:div ((class-name "form-group"))

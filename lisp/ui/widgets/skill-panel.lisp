@@ -32,7 +32,7 @@
 				  (:span ((class-name "glyphicon glyphicon-remove")))))))))
 
 (def-widget skill-panel (language change-callback effects)
-    ((state (selected 1))
+    ((state (selected 13))
      (add-skill ()
 		(funcall change-callback (local-state selected) 0)
 		nil)
@@ -62,8 +62,11 @@
                                  (chain skill-systems 
                                         (filter (lambda (skill id)
                                                   (> id 0)))
+                                        (sort (lambda (x y)
+                                                (if (< (@ x name en) (@ y name en))
+                                                    -1 1)))
 					(map (lambda (system id)
-					       (:option ((value (1+ id)))
+					       (:option ((value (@ system id)))
                                                         (lang-text ("zh" (@ system name jp))
                                                                    ("en" (@ system name en))))))))
                         (:div ((class-name "input-group-btn dropdown"))
