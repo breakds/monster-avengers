@@ -61,6 +61,12 @@
           "name" (json "en" (amulet-name :en obj)
                        "jp" (amulet-name :jp obj)))))
 
+(defun json-summary (obj)
+  (loop for effects in obj
+     collect (json "name" (json-name-object (getf effects :name))
+                   "points" (getf effects :points)
+                   "active" (json-name-object (getf effects :active)))))
+
 ;;; ---------- RPC ----------
 
 (def-rpc answer-query (query)
@@ -99,8 +105,7 @@
                        "defense" (getf solution :defense)
                        "jewelPlans" 
                        (loop for jewel-plan in (getf solution :jewel-plans)
-                          collect (json "active" (loop for active in (getf jewel-plan :active)
-                                                    collect (json-name-object active))
+                          collect (json "summary" (json-summary (getf jewel-plan :summary))
                                         "plan" (loop for jewel in 
                                                     (getf jewel-plan :plan)
                                                   collect (json "name" (json-name-object 

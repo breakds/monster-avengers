@@ -245,7 +245,8 @@ namespace monster_avengers {
               }
             }
           }
-	  jewel_plan_object.Set("active", GetActiveObject(jewel_plan_effects));
+	  jewel_plan_object.Set("summary", 
+                                GetSummaryObject(jewel_plan_effects));
           output["jewel-plans"].Push(std::move(jewel_plan_object));
         }
         jewel_plan_count++;
@@ -338,32 +339,32 @@ namespace monster_avengers {
       return result;
     }
 
-    lisp::Object GetActiveObject(const std::unordered_map<int, int> &effects) {
-      lisp::Object active_object = lisp::Object::List();
+    lisp::Object GetSummaryObject(const std::unordered_map<int, int> &effects) {
+      lisp::Object effects_object = lisp::Object::List();
       for (auto &effect : effects) {
         const SkillSystem &skill_system = data_->skill_system(effect.first);
         int active_points = 0;
-        lisp::Object active_name;
-        if (effect.second > 0) {
-          for (const Skill &skill : skill_system.skills) {
-            if (effect.second > 0) {
-              if (effect.second >= skill.points && 
-                  skill.points > active_points) {
-                active_points = skill.points;
-                active_name = GetLanguageText(skill.name);
-              }
-            } else if (effect.second <= skill.points && 
-                       skill.points < active_points) {
+        lisp::Object active_name = lisp::Object::Struct();
+        for (const Skill &skill : skill_system.skills) {
+          if (skill.points > 0) {
+            if (effect.second >= skill.points && 
+                skill.points > active_points) {
               active_points = skill.points;
               active_name = GetLanguageText(skill.name);
             }
+          } else if (effect.second <= skill.points && 
+                     skill.points < active_points) {
+            active_points = skill.points;
+            active_name = GetLanguageText(skill.name);
           }
         }
-        if (0 != active_points) {
-	  active_object.Push(std::move(active_name));
-        }
+        lisp::Object effect_obj = lisp::Object::Struct();
+        effect_obj["name"] = GetLanguageText(skill_system.name);
+        effect_obj["points"] = effect.second;
+        effect_obj["active"] = std::move(active_name);
+        effects_object.Push(std::move(effect_obj));
       }
-      return active_object;
+      return effects_object;
     }
 
     std::unique_ptr<std::wofstream> output_stream_;
