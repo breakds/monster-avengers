@@ -176,7 +176,7 @@
                            (:option ((value "1")) "O")
                            (:option ((value "2")) "OO")
                            (:option ((value "3")) "OOO"))
-                  (:button ((class-name "btn btn-default")
+                  (:button ((class-name "btn btn-info")
                             (on-click (@ this add-amulet)))
                            (lang-text ("en" "Add")
                                       ("zh" "添加"))))))
