@@ -588,7 +588,7 @@ namespace monster_avengers {
       
       std::vector<int> forest;
       if (!armor_ids.empty()) {
-        forest.push_back(pool_.MakeOR<ARMORS>(0, &armor_ids));
+        forest.push_back(pool_.MakeOR<ARMORS>(Signature(), &armor_ids));
       }
       return forest;
     }

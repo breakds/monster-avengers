@@ -31,6 +31,8 @@ int main(int argc, char **argv) {
   //                            L"(:amulet 1 (119 8))"
   //                            L"(:blacklist (1575 502))",
   //                            &query));
+
+  // Query that returns 5 skills
   // CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
   //                            L"(:weapon-holes 2)"
   //                            L"(:rare 8)" 
@@ -41,16 +43,31 @@ int main(int argc, char **argv) {
   //                            L"(:skill 36 10)" 
   //                            L"(:amulet 2 (1 4 20 5))",
   //                            &query));
-  CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")"
-                             L"(:weapon-holes 2)" 
-                             L"(:rare 1)" 
-                             L"(:skill 41 10)"
-                             L"(:skill 38 20)"
+
+  // Query that returns 6 skills
+  CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
+                             L"(:weapon-holes 2)"
+                             L"(:rare 8)" 
                              L"(:skill 25 15)"
-                             L"(:skill 132 10)" 
-                             L"(:amulet 3 (38 5))"
-                             L"(:amulet 2 (25 5))",
+                             L"(:skill 1 10)"
+                             L"(:skill 40 15)"
+                             L"(:skill 41 10)"
+                             L"(:skill 36 10)" 
+                             L"(:skill 30 10)" 
+                             L"(:amulet 2 (1 4 30 10))",
                              &query));
+
+  // Query that does not return anything (time consuming)
+  // CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")"
+  //                            L"(:weapon-holes 2)" 
+  //                            L"(:rare 1)" 
+  //                            L"(:skill 41 10)"
+  //                            L"(:skill 38 20)"
+  //                            L"(:skill 25 15)"
+  //                            L"(:skill 132 10)" 
+  //                            L"(:amulet 3 (38 5))"
+  //                            L"(:amulet 2 (25 5))",
+  //                            &query));
   
   query.DebugPrint();
   Timer timer;

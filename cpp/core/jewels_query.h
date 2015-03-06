@@ -30,10 +30,10 @@ namespace monster_avengers {
         }
       }
       
-      buffer_[0].insert(0);
-      fixed_buffer_[1][0].insert(0);
-      fixed_buffer_[2][0].insert(0);
-      fixed_buffer_[3][0].insert(0);
+      buffer_[0].insert(Signature());
+      fixed_buffer_[1][0].insert(Signature());
+      fixed_buffer_[2][0].insert(Signature());
+      fixed_buffer_[3][0].insert(Signature());
     }
     
     HoleClient(const DataSet &data, 
@@ -111,7 +111,7 @@ namespace monster_avengers {
         }
       }
       std::unordered_set<Signature> result;
-      DFS(i, j, k, 3, 0, 0, jewels, &result);
+      DFS(i, j, k, 3, 0, Signature(), jewels, &result);
       return result;
     }
 
@@ -308,7 +308,7 @@ namespace monster_avengers {
     bool Search(int i, int scan_id, 
                 Signature key, std::vector<int> *ids) const {
       if (0 == i) {
-        return 0 == key;
+        return key.IsZero();
       }
       
       for (int seq = scan_id; seq < jewel_ids_[1].size(); ++seq) {
