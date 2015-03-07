@@ -8,7 +8,22 @@
 
 namespace monster_avengers {
 
+  // Signature is a 16 bytes (128 bit) unsigned integer, internally
+  // represented as a length-16 char array. Where the encoding
+  // follows:
+  // 
+  // byte 0: number of 1-slots [8]
+  //
+  // byte 1: number of 3-slots [4] | number of 2 slots [4]
+  // 
+  // byte 2: number of body 3-slots [1] | number of body 2-slots [1] |
+  //         number of body 1-slots [2] | torso multiplier [4]
+  // 
+  // byte 3+: number of points for corresponding skill system [8]
+  //
+  // Notes: [x] stands for x bits in the byte.
   struct Signature {
+    static constexpr int EFFECTS_BEGIN = 3;
     char bytes[16];
 
     inline Signature() {
@@ -17,6 +32,16 @@ namespace monster_avengers {
 
     inline Signature(const Armor &armor, const std::vector<Effect> &effects) 
       : Signature() {
+      if (armor.TorsoUp()) {
+        // Torso up armors are not allowedto have holes and effects.
+        bytes[2] = 1;
+        return;
+      } else if (BODY == armor.part) {
+        bytes[2] = 1;
+      } else {
+        bytes[2] = 0;
+      }
+      
       if (1 == armor.holes) {
         bytes[0] = 1;
       } else if (2 == armor.holes) {
@@ -25,7 +50,7 @@ namespace monster_avengers {
         bytes[1] = 16;
       }
       
-      int byte_id = 2;
+      int byte_id = EFFECTS_BEGIN;
       for (const Effect& effect : effects) {
         for (const Effect &armor_effect : armor.effects) {
           if (effect.skill_id == armor_effect.skill_id) {
@@ -53,7 +78,6 @@ namespace monster_avengers {
         }
       }
       
-      // TODO(breakds): there should be better way to return 0.
       if (!(*valid)) return;
 
       if (1 == jewel.holes) {
@@ -64,7 +88,7 @@ namespace monster_avengers {
         bytes[1] = 16;
       }
 
-      int byte_id = 2;
+      int byte_id = EFFECTS_BEGIN;
       for (const Effect &effect : effects) {
         for (const Effect &jewel_effect : jewel.effects) {
           if (effect.skill_id == jewel_effect.skill_id) {
@@ -78,17 +102,23 @@ namespace monster_avengers {
     // Construct a signature with hole alignment (i, j, k) and the
     // given effect points. This is mainly for debug use.
     inline Signature (int i, int j, int k,
-               std::vector<int> points) 
+                      std::vector<int> points) 
+      // TODO(breakds): Check whether needs torso up
       : Signature() {
       bytes[0] = i;
       bytes[1] = j;
       bytes[1] |= (k << 4);
-      int byte_id = 2;
+      int byte_id = EFFECTS_BEGIN;
       for (int value : points) {
         bytes[byte_id++] = value;
       }
     }
     
+    // ---------- Signature Methods ----------
+
+    int multiplier() const {
+      return static_cast<int>(bytes[2] & 0x0F);
+    }
 
     bool IsZero() const {
       for (int i = 0; i < sizeof(Signature); ++i) {
@@ -105,7 +135,8 @@ namespace monster_avengers {
     }
 
     inline void operator*=(int multiplier) {
-      for (int i = 2; i < sizeof(Signature); ++i) {
+      // TODO(breakds): Check whether needs to be removed.
+      for (int i = EFFECTS_BEGIN; i < sizeof(Signature); ++i) {
         bytes[i] *= multiplier;
       }
     }
@@ -119,16 +150,26 @@ namespace monster_avengers {
     return key;
   }
 
+  inline Signature operator|(const Signature &a, const Signature &b) {
+    Signature key;
+    for (int i = Signature::EFFECTS_BEGIN; i < sizeof(Signature); ++i) {
+      key.bytes[i] = a.bytes[i] + b.bytes[i];
+    }
+    return key;
+  }
+
 
   
   namespace sig {
+    constexpr int EFFECTS_BEGIN = Signature::EFFECTS_BEGIN;
+
     inline Signature InverseKey(std::vector<Effect>::const_iterator begin,
                                 std::vector<Effect>::const_iterator end) {
       
       Signature key;
       char *bytes = reinterpret_cast<char*>(&key);
       
-      int byte_id = 2;
+      int byte_id = EFFECTS_BEGIN;
       for (auto it = begin; it != end; ++it) {
         bytes[byte_id++] = -it->points;
       }
@@ -140,22 +181,9 @@ namespace monster_avengers {
       key.bytes[0] = 0;
       key.bytes[1] = 0;
       char *bytes = reinterpret_cast<char*>(&key);
-      for (int i = 2; i < sizeof(Signature); ++i) {
+      for (int i = EFFECTS_BEGIN; i < sizeof(Signature); ++i) {
         bytes[i] = -bytes[i];
       }
-      return key;
-    }
-
-    inline Signature CombineKeyPoints(Signature a, Signature b) {
-      Signature key;
-      char *bytes = reinterpret_cast<char*>(&key);
-      char *bytes_a = reinterpret_cast<char*>(&a);
-      char *bytes_b = reinterpret_cast<char*>(&b);
-      
-      for (int i = 2; i < sizeof(Signature); ++i) {
-        bytes[i] = bytes_a[i] + bytes_b[i];
-      }
-      
       return key;
     }
 
@@ -163,19 +191,19 @@ namespace monster_avengers {
                                int effect_id, int points) {
       Signature key = input_key;
       char *bytes = reinterpret_cast<char*>(&key);
-      bytes[2 + effect_id] += points;
+      bytes[EFFECTS_BEGIN + effect_id] += points;
       return key;
     }
     
     inline int GetPoints(Signature key, int effect_id) {
       char *bytes = reinterpret_cast<char*>(&key);
-      return bytes[2 + effect_id];
+      return bytes[EFFECTS_BEGIN + effect_id];
     }
 
     inline std::vector<Effect> KeyEffects(Signature key, 
                                           const std::vector<Effect> &required) {
       char *bytes = reinterpret_cast<char*>(&key);
-      int byte_id = 2;
+      int byte_id = EFFECTS_BEGIN;
       std::vector<Effect> result;
       result.reserve(required.size());
       for (int i = 0; i < required.size(); ++i) {
@@ -212,7 +240,9 @@ namespace monster_avengers {
       char *bytes = reinterpret_cast<char*>(&key);
       std::vector<int> result;
       result.reserve(size);
-      for (int byte_id = 2; byte_id < 2 + size; ++byte_id) {
+      for (int byte_id = EFFECTS_BEGIN; 
+           byte_id < EFFECTS_BEGIN + size; 
+           ++byte_id) {
         result.push_back(bytes[byte_id]);
       }
       return result;
@@ -235,7 +265,7 @@ namespace monster_avengers {
 
     inline bool Satisfy(const Signature &test, 
                         const Signature &inverse_target) {
-      for (int i = 0; i < sizeof(Signature); ++i) {
+      for (int i = EFFECTS_BEGIN; i < sizeof(Signature); ++i) {
         if (test.bytes[i] + inverse_target.bytes[i] < 0) return false;
       }
       return true;
@@ -246,6 +276,7 @@ namespace monster_avengers {
 }  // namespace monster_avengers
 
 namespace std {
+  // The code is a slightly modified version from the wikipedia page.
   template <>
   struct hash<monster_avengers::Signature> {
     uint32_t operator()(const monster_avengers::Signature &input) const {

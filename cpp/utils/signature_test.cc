@@ -17,8 +17,7 @@ int main() {
   key_b = sig::AddPoints(key_b, 2, 0);
   sig::ExplainSignature(key_b, {{46, 10}, {43, 10}, {91, 15}});
 
-  sig::ExplainSignature(sig::CombineKeyPoints(key_a, key_b),
-                        {{46, 10}, {43, 10}, {91, 15}});
+  sig::ExplainSignature(key_a | key_b, {{46, 10}, {43, 10}, {91, 15}});
 
   std::vector<Effect> effects = {{46, 10}, {43, 10}, {91, 15}};
 
@@ -26,8 +25,7 @@ int main() {
   sig::ExplainSignature(inverse_key,
                         {{46, 10}, {43, 10}, {91, 15}});
 
-  CHECK(!sig::Satisfy(sig::CombineKeyPoints(key_a, key_b),
-                      inverse_key));
+  CHECK(!sig::Satisfy(key_a | key_b, inverse_key));
   
   return 0;
 }

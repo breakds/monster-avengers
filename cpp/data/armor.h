@@ -16,12 +16,12 @@ namespace monster_avengers {
 
   enum ArmorPart {
     HEAD = 0,
-    BODY = 1,
-    HANDS = 2,
-    WAIST = 3,
-    FEET = 4,
-    GEAR = 5,
-    AMULET = 6,
+    HANDS = 1,
+    WAIST = 2,
+    FEET = 3,
+    GEAR = 4,
+    AMULET = 5,
+    BODY = 6,
     PART_NUM
   };
 
@@ -93,6 +93,7 @@ namespace monster_avengers {
     int base;
     // The stuffed jewels
     std::unordered_map<int, int> jewels;
+    bool torso_up;
     
     Armor() = default;
 
@@ -145,7 +146,7 @@ namespace monster_avengers {
       object.AppendSlotTo("MATERIAL", &material);
       object.AppendSlotTo("EFFECTS", &effects);
     }
-    
+
     void DebugPrint(int indent = 0) const {
       for (int i = 0; i < indent; ++i) wprintf(L" ");
       wprintf(L"Armor {\n");
@@ -176,6 +177,10 @@ namespace monster_avengers {
       wprintf(L"]\n");
       for (int i = 0; i < indent; ++i) wprintf(L" ");
       wprintf(L"};\n");
+    }
+
+    bool TorsoUp() const {
+      return 1 == effects.size() && effects[0].skill_id == 0;
     }
   };
 

@@ -108,8 +108,7 @@ namespace monster_avengers {
         const std::unordered_set<Signature> &jewel_keys = 
           hole_client_.Query(key);
         for (const Signature &jewel_key : jewel_keys) {
-          if (sig::Satisfy(sig::CombineKeyPoints(key, jewel_key),
-                           inverse_points_)) {
+          if (sig::Satisfy(key | jewel_key, inverse_points_)) {
             current_.jewel_keys.push_back(jewel_key);
           }
         }
@@ -181,8 +180,7 @@ namespace monster_avengers {
                                                              two, 
                                                              three)) {
             Signature key1 = jewel_key + new_key;
-            if (sig::Satisfy(sig::CombineKeyPoints(key0, key1),
-                             inverse_points_)) {
+            if (sig::Satisfy(key0 | key1, inverse_points_)) {
               jewel_candidates.push_back(key1);
               int diff = required_points_ - sig::GetPoints(key1, effect_id_);
               if (diff < sub_min) {
@@ -194,12 +192,11 @@ namespace monster_avengers {
         if (!jewel_candidates.empty()) {
           std::vector<int> new_ors = splitter_.Split(root, sub_min);
           for (int or_id : new_ors) {
-            buffer_.emplace_back(or_id, root.torso_multiplier);
+            // TODO(breakds): change pool_->Or(or_id) back to root.torso_multiplier.
+            buffer_.emplace_back(or_id, pool_->Or(or_id));
             const OR &or_node = pool_->Or(or_id);
             for (const Signature &jewel_key : jewel_candidates) {
-              if (sig::Satisfy(sig::CombineKeyPoints(jewel_key,
-                                                     or_node.key),
-                               inverse_points_)) {
+              if (sig::Satisfy(jewel_key | or_node.key, inverse_points_)) {
                 buffer_.back().jewel_keys.push_back(jewel_key);
               }
             }
@@ -328,7 +325,7 @@ namespace monster_avengers {
             multiplied_forests[multiplier] :
             (torso_up[part] ? torso_up_forests[part] : 
              ordinary_forests[part]);
-
+          
           if (HEAD == part) {
             current = part_forest;
           } else {
@@ -337,7 +334,7 @@ namespace monster_avengers {
         }
 
         for (int id : current) {
-          result.emplace_back(id, multiplier);
+          result.emplace_back(id, pool_.Or(id));
         }
       }
       
@@ -521,10 +518,15 @@ namespace monster_avengers {
       for (int id : data_.ArmorIds(part)) {
         const Armor &armor = data_.armor(id);
         if (armor.type == query.weapon_type || BOTH == armor.type) {
-          // Signature key = sig::ArmorKey(armor, effects);
+          // TODO(breakds): The filter here is a chaos. Should be
+          // cleaned up.
           Signature key(armor, effects);
           valid = true;
 
+          if (armor.TorsoUp()) {
+            valid = false;
+          }
+          
           if (1 < multiplier) {
             // Torso Up armors, with modified key.
             if (armor.multiplied) {
@@ -574,6 +576,8 @@ namespace monster_avengers {
     std::vector<int> ClassifyTorsoUpArmors(ArmorPart part,
                                            const Query &query) {
       std::vector<int> armor_ids;
+      Signature key;
+
       for (int i = 0; i < data_.ArmorIds(part).size(); ++i) {
         int id = data_.ArmorIds(part)[i];
         const Armor &armor = data_.armor(id);
@@ -584,12 +588,14 @@ namespace monster_avengers {
             // Blacklist filter
             0 == query.blacklist.count(data_.ArmorIds(part)[i])) {
           armor_ids.push_back(data_.ArmorIds(part)[i]);
+          key = Signature(armor, query.effects);
+          CHECK(key.multiplier() == 1);
         }
       }
       
       std::vector<int> forest;
       if (!armor_ids.empty()) {
-        forest.push_back(pool_.MakeOR<ARMORS>(Signature(), &armor_ids));
+        forest.push_back(pool_.MakeOR<ARMORS>(key, &armor_ids));
       }
       return forest;
     }

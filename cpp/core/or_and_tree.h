@@ -87,9 +87,9 @@ namespace monster_avengers {
     int torso_multiplier;
     
     TreeRoot(int id_) : id(id_), jewel_keys(), torso_multiplier(1) {}
-    TreeRoot(int id_, int multiplier) : 
+    TreeRoot(int id_, const OR &node) : 
       id(id_), jewel_keys(), 
-      torso_multiplier(multiplier) {}
+      torso_multiplier(node.key.multiplier()) {}
   };
 
   struct TempOr {

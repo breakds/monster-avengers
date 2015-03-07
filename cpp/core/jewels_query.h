@@ -312,9 +312,7 @@ namespace monster_avengers {
       
       for (int seq = scan_id; seq < jewel_ids_[1].size(); ++seq) {
         ids->push_back(jewel_ids_[1][seq]);
-        if (Search(i - 1, seq, 
-                   sig::CombineKeyPoints(key, jewel_keys_[1][seq]),
-                   ids)) {
+        if (Search(i - 1, seq, key | jewel_keys_[1][seq], ids)) {
           return true;
         }
         ids->pop_back();
@@ -329,9 +327,7 @@ namespace monster_avengers {
       }
       for (int seq = scan_id; seq < jewel_ids_[2].size(); ++seq) {
         ids->push_back(jewel_ids_[2][seq]);
-        if (Search(i, j - 1, seq, 
-                   sig::CombineKeyPoints(key, jewel_keys_[2][seq]),
-                   ids)) {
+        if (Search(i, j - 1, seq, key | jewel_keys_[2][seq], ids)) {
           return true;
         }
         ids->pop_back();
@@ -347,9 +343,7 @@ namespace monster_avengers {
 
       for (int seq = scan_id; seq < jewel_ids_[3].size(); ++seq) {
         ids->push_back(jewel_ids_[3][seq]);
-        if (Search(i, j, k - 1, seq, 
-                   sig::CombineKeyPoints(key, jewel_keys_[3][seq]),
-                   ids)) {
+        if (Search(i, j, k - 1, seq, key | jewel_keys_[3][seq], ids)) {
           return true;
         }
         ids->pop_back();
