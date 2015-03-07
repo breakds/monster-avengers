@@ -69,7 +69,7 @@
 					       (:option ((value (@ system id)))
                                                         (lang-text ("zh" (@ system name jp))
                                                                    ("en" (@ system name en))))))))
-                        (:div ((class-name "input-group-btn dropdown"))
+                        (:div ((class-name "input-group-btn"))
                               (:button ((class-name "btn btn-info")
                                         (disabled (>= (@ effects length) 5))
 					(on-click (@ this add-skill)))
