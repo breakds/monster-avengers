@@ -521,7 +521,8 @@ namespace monster_avengers {
       for (int id : data_.ArmorIds(part)) {
         const Armor &armor = data_.armor(id);
         if (armor.type == query.weapon_type || BOTH == armor.type) {
-          Signature key = sig::ArmorKey(armor, effects);
+          // Signature key = sig::ArmorKey(armor, effects);
+          Signature key(armor, effects);
           valid = true;
 
           if (1 < multiplier) {

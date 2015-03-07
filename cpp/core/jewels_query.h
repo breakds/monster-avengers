@@ -23,8 +23,8 @@ namespace monster_avengers {
       bool valid = false;
 
       for (const Jewel &jewel : data.jewels()) {
-        Signature key = sig::JewelKey(jewel, skill_ids, 
-                                      effects, &valid);
+        Signature key = Signature(jewel, skill_ids, 
+                                  effects, &valid);
         if (valid) {
           jewel_keys_[jewel.holes].insert(key);
         }
@@ -275,8 +275,7 @@ namespace monster_avengers {
       
       for (int i = 0; i < data.jewels().size(); ++i) {
         const Jewel &jewel = data.jewel(i);
-        Signature key = sig::JewelKey(jewel, skill_ids, 
-                                      effects, &valid);
+        Signature key = Signature(jewel, skill_ids, effects, &valid);
         if (valid) {
           jewel_keys_[jewel.holes].push_back(key);
           jewel_ids_[jewel.holes].push_back(i);

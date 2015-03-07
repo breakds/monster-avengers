@@ -50,7 +50,7 @@ void TestJewelSolver(const DataSet &data,
                      int i, int j, int k,
                      int p0, int p1, int p2) {
   std::unordered_map<int, int> result =
-    std::move(solver.Solve(sig::ConstructKey(i, j, k, {p0, p1, p2})));
+    std::move(solver.Solve(Signature(i, j, k, {p0, p1, p2})));
   wprintf(L"----------\n");
   for (auto &item : result) {
     wprintf(L"%3d x %ls\n", item.second, 

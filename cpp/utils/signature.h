@@ -15,31 +15,8 @@ namespace monster_avengers {
       memset(bytes, 0, sizeof(Signature));
     }
 
-    bool IsZero() const {
-      for (int i = 0; i < sizeof(Signature); ++i) {
-        if (bytes[i] != 0) return false;
-      }
-      return true;
-    }
-
-    bool operator==(const Signature &other) const {
-      for (int i = 0; i < sizeof(Signature); ++i) {
-        if (bytes[i] != other.bytes[i]) return false;
-      }
-      return true;
-    }
-  };
-
-  
-  // typedef uint64_t Signature;
-  
-  namespace sig {
-    inline Signature ArmorKey(const Armor &armor, 
-                              const std::vector<Effect> &effects) {
-      // By default, key is set to all zero.
-      Signature key;
-      char *bytes = reinterpret_cast<char *>(&key);
-      
+    Signature(const Armor &armor, const std::vector<Effect> &effects) 
+      : Signature() {
       if (1 == armor.holes) {
         bytes[0] = 1;
       } else if (2 == armor.holes) {
@@ -57,34 +34,15 @@ namespace monster_avengers {
         }
         byte_id++;
       }
-      return key;
     }
 
-    // Construct a signature with hole alignment (i, j, k) and the
-    // given effect points. This is mainly for debug use.
-    inline Signature ConstructKey(int i, int j, int k,
-                                  std::vector<int> points) {
-      Signature key;
-      char *bytes = reinterpret_cast<char*>(&key);
-      bytes[0] = i;
-      bytes[1] = j;
-      bytes[1] |= (k << 4);
-      int byte_id = 2;
-      for (int value : points) {
-        bytes[byte_id++] = value;
-      }
-      return key;
-    }
-    
-    inline Signature JewelKey(const Jewel &jewel, 
-                              const std::vector<int> &skill_ids,
-                              const std::vector<Effect> &effects,
-                              bool *valid) {
+    Signature(const Jewel &jewel, 
+              const std::vector<int> &skill_ids,
+              const std::vector<Effect> &effects,
+              bool *valid)
+      : Signature() {
       *valid = false;
 
-      Signature key;
-      char *bytes = reinterpret_cast<char*>(&key);
-      
       for (int skill_id : skill_ids) {
         for (const Effect &jewel_effect : jewel.effects) {
           if (skill_id == jewel_effect.skill_id) {
@@ -96,7 +54,7 @@ namespace monster_avengers {
       }
       
       // TODO(breakds): there should be better way to return 0.
-      if (!(*valid)) return Signature();
+      if (!(*valid)) return;
 
       if (1 == jewel.holes) {
         bytes[0] = 1;
@@ -115,9 +73,40 @@ namespace monster_avengers {
         }
         byte_id++;
       }
-      return key;
     }
 
+    // Construct a signature with hole alignment (i, j, k) and the
+    // given effect points. This is mainly for debug use.
+    Signature (int i, int j, int k,
+               std::vector<int> points) 
+      : Signature() {
+      bytes[0] = i;
+      bytes[1] = j;
+      bytes[1] |= (k << 4);
+      int byte_id = 2;
+      for (int value : points) {
+        bytes[byte_id++] = value;
+      }
+    }
+    
+
+    bool IsZero() const {
+      for (int i = 0; i < sizeof(Signature); ++i) {
+        if (bytes[i] != 0) return false;
+      }
+      return true;
+    }
+
+    bool operator==(const Signature &other) const {
+      for (int i = 0; i < sizeof(Signature); ++i) {
+        if (bytes[i] != other.bytes[i]) return false;
+      }
+      return true;
+    }
+  };
+
+  
+  namespace sig {
     inline Signature InverseKey(std::vector<Effect>::const_iterator begin,
                                 std::vector<Effect>::const_iterator end) {
       
