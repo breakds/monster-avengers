@@ -11,11 +11,11 @@ namespace monster_avengers {
   struct Signature {
     char bytes[16];
 
-    Signature() {
+    inline Signature() {
       memset(bytes, 0, sizeof(Signature));
     }
 
-    Signature(const Armor &armor, const std::vector<Effect> &effects) 
+    inline Signature(const Armor &armor, const std::vector<Effect> &effects) 
       : Signature() {
       if (1 == armor.holes) {
         bytes[0] = 1;
@@ -36,7 +36,7 @@ namespace monster_avengers {
       }
     }
 
-    Signature(const Jewel &jewel, 
+    inline Signature(const Jewel &jewel, 
               const std::vector<int> &skill_ids,
               const std::vector<Effect> &effects,
               bool *valid)
@@ -77,7 +77,7 @@ namespace monster_avengers {
 
     // Construct a signature with hole alignment (i, j, k) and the
     // given effect points. This is mainly for debug use.
-    Signature (int i, int j, int k,
+    inline Signature (int i, int j, int k,
                std::vector<int> points) 
       : Signature() {
       bytes[0] = i;
@@ -103,7 +103,22 @@ namespace monster_avengers {
       }
       return true;
     }
+
+    inline void operator*=(int multiplier) {
+      for (int i = 2; i < sizeof(Signature); ++i) {
+        bytes[i] *= multiplier;
+      }
+    }
   };
+
+  inline Signature operator+(const Signature &a, const Signature &b) {
+    Signature key;
+    for (int i = 0; i < sizeof(Signature); ++i) {
+      key.bytes[i] =  a.bytes[i] + b.bytes[i];
+    }
+    return key;
+  }
+
 
   
   namespace sig {
@@ -131,25 +146,6 @@ namespace monster_avengers {
       return key;
     }
 
-    inline void KeyMultiplication(Signature *a, int multiplier) {
-      char *bytes = reinterpret_cast<char*>(a);
-      for (int i = 2; i < sizeof(Signature); ++i) {
-        bytes[i] *= multiplier;
-      }
-    }
-
-    inline Signature CombineKey(Signature a, Signature b) {
-      Signature key;
-      char *bytes = reinterpret_cast<char*>(&key);
-      char *bytes_a = reinterpret_cast<char*>(&a);
-      char *bytes_b = reinterpret_cast<char*>(&b);
-      
-      for (int i = 0; i < sizeof(Signature); ++i) {
-        bytes[i] =  bytes_a[i] + bytes_b[i];
-      }
-      return key;
-    }
-
     inline Signature CombineKeyPoints(Signature a, Signature b) {
       Signature key;
       char *bytes = reinterpret_cast<char*>(&key);
@@ -170,7 +166,7 @@ namespace monster_avengers {
       bytes[2 + effect_id] += points;
       return key;
     }
-
+    
     inline int GetPoints(Signature key, int effect_id) {
       char *bytes = reinterpret_cast<char*>(&key);
       return bytes[2 + effect_id];
@@ -265,8 +261,7 @@ namespace std {
       return hash;
     }
   };
-
-}
+}  // namespace std
   
 
 

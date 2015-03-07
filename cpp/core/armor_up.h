@@ -180,7 +180,7 @@ namespace monster_avengers {
           for (const Signature &new_key : hole_client_.Query(one, 
                                                              two, 
                                                              three)) {
-            Signature key1 = sig::CombineKey(jewel_key, new_key);
+            Signature key1 = jewel_key + new_key;
             if (sig::Satisfy(sig::CombineKeyPoints(key0, key1),
                              inverse_points_)) {
               jewel_candidates.push_back(key1);
@@ -528,7 +528,7 @@ namespace monster_avengers {
           if (1 < multiplier) {
             // Torso Up armors, with modified key.
             if (armor.multiplied) {
-              sig::KeyMultiplication(&key, multiplier);
+              key *= multiplier;
             } else {
               valid = false;
             }
@@ -601,7 +601,7 @@ namespace monster_avengers {
         const OR &left = pool_.Or(i);
         for (int j : right_ors) {
           const OR &right = pool_.Or(j);
-          Signature key = sig::CombineKey(left.key, right.key);
+          Signature key = left.key + right.key;
           int id = pool_.MakeAnd(i, j);
           auto it = and_map.find(key);
           if (and_map.end() == it) {

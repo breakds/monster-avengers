@@ -129,7 +129,7 @@ namespace monster_avengers {
                     std::unordered_set<Signature> *c) {
       for (Signature key_a : a) {
         for (Signature key_b : b) {
-          c->insert(sig::CombineKey(key_a, key_b));
+          c->insert(key_a + key_b);
         }
       }
     }
@@ -216,31 +216,31 @@ namespace monster_avengers {
         if (1 == p) {
           if (0 < i) {
             DFS(i - 1, j, k, p, q, 
-                sig::CombineKey(key, jewels[p][q]),
+                key + jewels[p][q],
                 jewels, result);
           } else if (0 < j) {
             DFS(i + 1, j - 1, k, p, q,
-                sig::CombineKey(key, jewels[p][q]),
+                key + jewels[p][q],
                 jewels, result);
           } else {
             DFS(i, j + 1, k - 1, p, q,
-                sig::CombineKey(key, jewels[p][q]),
+                key + jewels[p][q],
                 jewels, result);
           }
         } else if (2 == p) {
           if (0 < j) {
             DFS(i, j - 1, k, p, q,
-                sig::CombineKey(key, jewels[p][q]),
+                key + jewels[p][q],
                 jewels, result);
           } else if (0 < k) {
             DFS(i + 1, j, k - 1, p, q,
-                sig::CombineKey(key, jewels[p][q]),
+                key + jewels[p][q],
                 jewels, result);
           }
         } else if (3 == p) {
           if (0 < k) {
             DFS(i, j, k - 1, p, q,
-                sig::CombineKey(key, jewels[p][q]),
+                key + jewels[p][q],
                 jewels, result);
           }
         }
