@@ -164,7 +164,6 @@ namespace monster_avengers {
         if (!jewel_candidates.empty()) {
           std::vector<int> new_ors = splitter_.Split(root, sub_min);
           for (int or_id : new_ors) {
-            // TODO(breakds): change pool_->Or(or_id) back to root.torso_multiplier.
             buffer_.emplace_back(or_id, pool_->Or(or_id));
             const OR &or_node = pool_->Or(or_id);
             for (const Signature &jewel_key : jewel_candidates) {
@@ -258,17 +257,15 @@ namespace monster_avengers {
       }
       
       std::vector<int> current;
-      for (int part = HEAD; part < BODY; ++part) {
+      for (int part = HEAD; part < PART_NUM; ++part) {
         if (HEAD == part) {
           current = part_forests[part];
         } else {
-          current = std::move(MergeForests(part_forests[part], current));
+          current = std::move(MergeForests(part_forests[part], current,
+                                           part == BODY));
         }
       }
 
-      current = std::move(MergeBodyWithForests(part_forests[BODY], 
-                                               current));
-      
       std::vector<TreeRoot> result;
       
       for (int id : current) {
@@ -364,36 +361,28 @@ namespace monster_avengers {
         effects.push_back(query.effects[i]);
       }
       
-      bool valid = false;
       for (int id : data_.ArmorIds(part)) {
         const Armor &armor = data_.armor(id);
         if (armor.type == query.weapon_type || BOTH == armor.type) {
-          // TODO(breakds): The filter here is a chaos. Should be
-          // cleaned up.
           Signature key(armor, effects);
-          valid = true;
-
+          
           // Rare blacklist
           if (GEAR != part && AMULET != part) {
-            valid &= armor.rare >= query.min_rare;
-            valid &= armor.rare <= query.max_rare;
+            if (armor.rare < query.min_rare ||
+                armor.rare > query.max_rare) continue;
           }
           
           // Blacklist filter
-          valid &= 0 == query.blacklist.count(id);
-
+          if (0 != query.blacklist.count(id)) continue;
+          
           // Weapon holes match
-          if (GEAR == part) {
-            valid &= armor.holes == query.weapon_holes;
-          }
-
-          if (valid) {
-            auto it = armor_map.find(key);
-            if (armor_map.end() == it) {
-              armor_map[key] = {id};
-            } else {
-              it->second.push_back(id);
-            }
+          if (GEAR == part && armor.holes != query.weapon_holes) continue;
+          
+          auto it = armor_map.find(key);
+          if (armor_map.end() == it) {
+            armor_map[key] = {id};
+          } else {
+            it->second.push_back(id);
           }
         }
       }
@@ -408,43 +397,17 @@ namespace monster_avengers {
     }
 
     std::vector<int> MergeForests(const std::vector<int> &left_ors, 
-                                  const std::vector<int> &right_ors) {
+                                  const std::vector<int> &right_ors, 
+                                  bool is_body = false) {
       std::unordered_map<Signature, std::vector<int> > and_map;
       for (int i : left_ors) {
         const OR &left = pool_.Or(i);
         for (int j : right_ors) {
           const OR &right = pool_.Or(j);
-          Signature key = left.key + right.key;
-          int id = pool_.MakeAnd(i, j);
-          auto it = and_map.find(key);
-          if (and_map.end() == it) {
-            and_map[key] = {id};
-          } else {
-            it->second.push_back(id);
-          }
-        }
-      }
-      
-      std::vector<int> forest;
-      forest.reserve(and_map.size());
-      for (auto &item : and_map) {
-        forest.push_back(pool_.MakeOR<ANDS>(item.first,
-                                            &item.second));
-      }
-      return forest;
-    }
-
-    // TODO(breakds): Merge this function into the above one when
-    // possible.
-    std::vector<int> MergeBodyWithForests(const std::vector<int> &body_ors, 
-                                          const std::vector<int> &right_ors) {
-      std::unordered_map<Signature, std::vector<int> > and_map;
-      for (int i : body_ors) {
-        const OR &left = pool_.Or(i);
-        for (int j : right_ors) {
-          const OR &right = pool_.Or(j);
           Signature key = left.key;
-          key.BodyRefactor(right.key.multiplier() + 1);
+          if (is_body) {
+            key.BodyRefactor(right.key.multiplier() + 1);
+          }
           key += right.key;
           int id = pool_.MakeAnd(i, j);
           auto it = and_map.find(key);

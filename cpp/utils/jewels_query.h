@@ -133,8 +133,8 @@ namespace monster_avengers {
     inline void SetProduct(const std::unordered_set<Signature> &a,
                     const std::unordered_set<Signature> &b,
                     std::unordered_set<Signature> *c) {
-      for (Signature key_a : a) {
-        for (Signature key_b : b) {
+      for (const Signature &key_a : a) {
+        for (const Signature &key_b : b) {
           c->insert(key_a + key_b);
         }
       }
@@ -142,8 +142,7 @@ namespace monster_avengers {
 
     inline void SetUnion(const std::unordered_set<Signature> &input,
                   std::unordered_set<Signature> *base) {
-      // TODO(breakds): use Signature& instead.
-      for (Signature key : input) {
+      for (const Signature &key : input) {
         base->insert(key);
       }
     }

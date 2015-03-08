@@ -99,21 +99,6 @@ namespace monster_avengers {
       }
     }
 
-    // Construct a signature with hole alignment (i, j, k) and the
-    // given effect points. This is mainly for debug use.
-    inline Signature (int i, int j, int k,
-                      std::vector<int> points) 
-      // TODO(breakds): Check whether needs torso up
-      : Signature() {
-      bytes[0] = i;
-      bytes[1] = j;
-      bytes[1] |= (k << 4);
-      int byte_id = EFFECTS_BEGIN;
-      for (int value : points) {
-        bytes[byte_id++] = value;
-      }
-    }
-    
     // ---------- Signature Methods ----------
 
     void ShowMetaInfo() const {
@@ -185,7 +170,6 @@ namespace monster_avengers {
     }
 
     inline void operator*=(int multiplier) {
-      // TODO(breakds): Check whether needs to be removed.
       for (int i = EFFECTS_BEGIN; i < sizeof(Signature); ++i) {
         bytes[i] *= multiplier;
       }
@@ -332,6 +316,7 @@ namespace monster_avengers {
 }  // namespace monster_avengers
 
 namespace std {
+  // Jenkins Hash Function
   // The code is a slightly modified version from the wikipedia page.
   template <>
   struct hash<monster_avengers::Signature> {
