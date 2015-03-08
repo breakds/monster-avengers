@@ -71,7 +71,7 @@
                                                                    ("en" (@ system name en))))))))
                         (:div ((class-name "input-group-btn"))
                               (:button ((class-name "btn btn-info")
-                                        (disabled (>= (@ effects length) 5))
+                                        (disabled (>= (@ effects length) 9))
 					(on-click (@ this add-skill)))
                                        (lang-text ("en" "Add")
                                                   ("zh" "添加"))))))))
