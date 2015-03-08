@@ -45,6 +45,21 @@ namespace monster_avengers {
       object.AssignSlotTo("ID", &id);
       object.AppendSlotTo("SKILLS", &skills);
     }
+
+    int FindActive(int points) const {
+      int active_points = 0;
+      int active_id = -1;
+      for (int i = 0; i < skills.size(); ++i) {
+        if ((points > 0 && points >= skills[i].points && 
+             skills[i].points > active_points) ||
+            (points < 0 && points <= skills[i].points &&
+             skills[i].points < active_points)) {
+          active_points = skills[i].points;
+          active_id = i;
+        }
+      }
+      return active_id;
+    }
     
     void DebugPrint(int indent = 0) const {
       for (int i = 0; i < indent; ++i) wprintf(L" ");

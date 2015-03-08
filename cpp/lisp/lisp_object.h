@@ -34,6 +34,11 @@ namespace monster_avengers {
 
     std::wostream &operator<<(std::wostream &out, const Object &lisp_object);
 
+    struct Formattable {
+    public:
+      virtual Object Format() const = 0;
+    };
+
     struct Object {
       typedef std::unique_ptr<void, std::function<void(void*)>> DataHolder;
       typedef std::unordered_map<std::string, Object> ObjectHolder;
@@ -51,7 +56,10 @@ namespace monster_avengers {
       Object() : data(nullptr), type(LISP_OBJ) {}
 
       Object(Object &&other) = default;
-
+      
+      Object(const Formattable &formattable) 
+        : Object(std::move(formattable.Format())) {}
+      
       Object(int x) :
         type(LISP_NUM), data(new int(x), [](void * content) {
             delete static_cast<int*>(content);}) {}
@@ -59,13 +67,20 @@ namespace monster_avengers {
       Object(const std::wstring &x) :
         type(LISP_STR), data(new std::wstring(x), [](void * content) {
             delete static_cast<std::wstring*>(content);}) {}
-    
+
+      Object(std::vector<Object> &&other) :
+        type(LISP_LIST), 
+        data(new std::vector<Object>(std::move(other)),
+             [](void * content) {
+               delete static_cast<std::vector<Object>*>(content);
+             }) {}
+
       const Object &operator=(Object &&other) {
         type = other.type;
         data = std::move(other.data);
         return (*this);
       }
-    
+
       static Object Number(int x = 0) {
         return Object(x);
       }
@@ -222,7 +237,7 @@ namespace monster_avengers {
       }
     };
 
-        std::wostream &operator<<(std::wostream &out, const Object &lisp_object) {
+    std::wostream &operator<<(std::wostream &out, const Object &lisp_object) {
     
       switch (lisp_object.type) {
       case Object::LISP_NIL:
@@ -295,6 +310,14 @@ namespace monster_avengers {
       std::unique_ptr<EnumType> default_;
     };
 
+    template <typename FormattableObject>
+    std::vector<Object> FormatList(const std::vector<FormattableObject> &input) {
+      std::vector<Object> output;
+      for (const FormattableObject &item : input) {
+        output.emplace_back(item);
+      }
+      return output;
+    }
   }  // namespace lisp
 
 }  // namespace monster_avengers

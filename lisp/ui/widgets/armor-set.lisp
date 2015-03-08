@@ -45,7 +45,7 @@
                                              :height "1px")))))))))
 
 
-(def-widget armor-display (language part armor appender filter weapon)
+(def-widget armor-display (language part armor appender filter weapon body-plan stuffed)
     ((state (expanded false)))
   #jsx(:tr ()
            (:td ((style :text-align "center")) 
@@ -129,18 +129,19 @@
                                             ("zh" "点击此处过滤包含此装备的配装")))))))
            (:td ((style :text-align "center")) 
                 (:slots-text ((holes (@ armor holes))
-                              (occupied (@ armor stuffed)))))
+                              (occupied (if stuffed stuffed 0)))))
            (:td ((style :text-align "center"))
                 (if (= "true" (@ armor torsoup))
                     (lang-text ("zh" "胴系统倍加")
                                ("en" "Torso Up"))
-                    (chain (@ armor jewels)
-                           (map (lambda (jewel)
-                                  (+ (lang-text ("zh" (@ jewel name jp))
-                                                ("en" (@ jewel name en)))
-                                     " x "
-                                     (@ jewel num))))
-                           (join ", "))))))
+                    (when body-plan
+                      (chain body-plan
+                             (map (lambda (jewel)
+                                    (+ (lang-text ("zh" (@ jewel name jp))
+                                                  ("en" (@ jewel name en)))
+                                       " x "
+                                       (@ jewel num))))
+                             (join ", ")))))))
 
 (def-widget summary-table (language summary full-summary)
     ()
@@ -224,6 +225,12 @@
                                      (:language language)
                                      (appender blacklist-callback)
                                      (filter filter-callback)
+                                     (stuffed (@ (aref (@ armor-set jewel-plans)
+                                                       (local-state jewel-plan-id))
+                                                 body-stuffed))
+                                     (body-plan (@ (aref (@ armor-set jewel-plans)
+                                                         (local-state jewel-plan-id))
+                                                   body-plan))
                                      (armor (@ armor-set body))))
                     (:armor-display ((part "hands")
                                      (:language language)
@@ -247,7 +254,7 @@
                                      (armor (@ armor-set amulet)))))
             (:div ((class-name "panel-body"))
                   (:div ((class-name "row"))
-                        (:div ((class-name "col-md-3"))
+                        (:div ((class-name "col-md-3 col-sm-3 col-xs-3"))
                               (:div () (let ((plan (@ (aref (@ armor-set jewel-plans)
                                                             (local-state jewel-plan-id))
                                                       plan)))
@@ -258,7 +265,7 @@
                                                                                   ("en" (@ x name en)))
                                                                        " x " 
                                                                        (@ x num)))))))))
-                        (:div ((class-name "col-md-9"))
+                        (:div ((class-name "col-md-9 col-sm-9 col-xs-3"))
                               (:summary-table ((:language language)
                                                (full-summary (local-state full-summary))
                                                (summary (chain (@ (aref (@ armor-set jewel-plans)

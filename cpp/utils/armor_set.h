@@ -11,20 +11,13 @@
 #include <functional>
 
 #include "lisp/lisp_object.h"
+#include "utils/output_specs.h"
 
 namespace monster_avengers {
 
-  const int MAX_JEWEL_PLAN = 5;
-
-  struct ArmorSet {
-    std::array<int, PART_NUM> ids;
-    std::vector<Signature> jewel_keys;
-  };
-  
   void OutputArmorSet(const DataSet &data, 
                       const ArmorSet &armor_set, 
                       const JewelSolver &solver) {
-    wprintf(L"---------- Armor Set ----------\n");
     int defense = 0;
     std::vector<Effect> effects;
     const std::array<int, PART_NUM> &ids = armor_set.ids;
@@ -103,7 +96,7 @@ namespace monster_avengers {
                 data.jewel(item.first).name.c_str());
       }
       wprintf(L"\n");
-      if (++plan_count >= MAX_JEWEL_PLAN) {
+      if (++plan_count >= 5) {
         break;
       }
     }
@@ -125,189 +118,106 @@ namespace monster_avengers {
       output_stream_->imbue(std::locale("en_US.UTF-8"));
     }
 
+    ArmorSetFormatter(const DataSet *data,
+                      const Query &query)
+      : output_stream_(),
+        solver_(*data, query.effects), 
+        data_(data) {}
+    
     void Format(const ArmorSet &armor_set) {
-      lisp::Object output = lisp::Object::Struct();
-      int defense = 0;
-      std::unordered_map<int, int> effects;
+      (*output_stream_) << ArmorResult(*data_, solver_, armor_set) << "\n";
+    }
+
+    void Text(const ArmorSet &armor_set) const {
+      ArmorResult result(*data_, solver_, armor_set);
+      wprintf(L"---------- ArmorSet (defense %d) ----------\n", 
+              result.defense);
+      WriteGear(result.gear);
+      WriteArmor(HEAD, result.head);
+      WriteArmor(BODY, result.body);
+      WriteArmor(HANDS, result.hands);
+      WriteArmor(WAIST, result.waist);
+      WriteArmor(FEET, result.feet);
+      WriteAmulet(result.amulet);
       
-      int torso_multiplier = 1;
-      for (int i = HEAD; i < PART_NUM; ++i) {
-        int id = armor_set.ids[i];
-        if (data_->ProvidesTorsoUp(id)) torso_multiplier++;
-      }
-
-      for (int i = 0; i < PART_NUM; ++i) {
-        ArmorPart part = static_cast<ArmorPart>(PART_NUM - i - 1);
-        int id = armor_set.ids[i];
-        const Armor &armor = data_->armor(id);
-	output.Set(PartName(part),
-		   GetArmorObject(data_, armor, part, id));
-        defense += armor.max_defense;
-        for (const Effect &effect : armor.effects) {
-          int points = part == BODY ? 
-            effect.points * torso_multiplier : effect.points;
-          auto it = effects.find(effect.skill_id);
-          if (effects.end() == it) {
-            effects[effect.skill_id] = points;
-          } else {
-            it->second += points;
-          }
+      for (const JewelPlan &plan : result.plans) {
+        wprintf(L"Jewel Plan:");
+        for (const JewelPair &pair : plan.body_plan) {
+          wprintf(L" | %ls[BODY] x %d", 
+                  pair.name.c_str(),
+                  pair.quantity);
         }
-      }
-
-      output.Set("defense", defense);
-
-      output.Set("jewel-plans", lisp::Object::List());
-
-      int jewel_plan_count = 0;
-      for (const Signature &jewel_key : armor_set.jewel_keys) {
-        if (jewel_plan_count < MAX_JEWEL_PLAN) {
-	  lisp::Object jewel_plan_object = lisp::Object::Struct();
-	  jewel_plan_object.Set("plan", lisp::Object::List());
-          std::unordered_map<int, int> jewel_plan_effects = effects;
-          JewelSolver::JewelPlan jewel_plan = solver_.Solve(jewel_key, 1);
-          for (auto item : jewel_plan.first) {
-	    lisp::Object plan_object = lisp::Object::Struct();
-            const Jewel &jewel = data_->jewel(item.first);
-	    plan_object.Set("name", GetLanguageText(jewel.name));
-	    plan_object.Set("quantity", item.second);
-	    jewel_plan_object["plan"].Push(std::move(plan_object));
-            for (const Effect &effect : jewel.effects) {
-              auto it = jewel_plan_effects.find(effect.skill_id);
-              if (jewel_plan_effects.end() == it) {
-                jewel_plan_effects[effect.skill_id] = 
-                  effect.points * item.second;
-              } else {
-                it->second += effect.points * item.second;
-              }
-            }
-          }
-	  jewel_plan_object.Set("summary", 
-                                GetSummaryObject(jewel_plan_effects));
-          output["jewel-plans"].Push(std::move(jewel_plan_object));
+        for (const JewelPair &pair : plan.plan) {
+          wprintf(L" | %ls x %d", 
+                  pair.name.c_str(),
+                  pair.quantity);
         }
-        jewel_plan_count++;
+        wprintf(L" |\n");
+        for (const SummaryItem &item : plan.summary) {
+          wprintf(L"%ls(%d)  ", item.name.c_str(), item.points);
+        }
+        wprintf(L"\n");
       }
-      
-      (*output_stream_) << output << "\n";
+      wprintf(L"\n");
     }
     
   private:
-    std::string PartName(ArmorPart part) {
+
+    void WriteGear(const PackedArmor &gear) const {
+      wprintf(L"[ GEAR ] [%s] [Rare ??] %ls\n", 
+              HoleText(gear.holes).c_str(),
+              gear.name.c_str());
+    }
+
+    void WriteArmor(ArmorPart part, const PackedArmor &armor) const {
+      wprintf(L"[%s] [%s] [Rare %02d] %ls", 
+              PartText(part).c_str(),
+              HoleText(armor.holes).c_str(),
+              armor.rare,
+              armor.name.c_str());
+      if (L"true" == armor.torso_up) {
+        wprintf(L"(%ls)",
+                data_->skill_system(data_->torso_up_id).name.c_str());
+      }
+      wprintf(L"        | Material:");
+      for (const LanguageText &material : armor.material) {
+        wprintf(L" %ls", material.c_str());
+      }
+      wprintf(L"\n");
+    }
+
+    void WriteAmulet(const PackedArmor &amulet) const {
+      wprintf(L"[AMULET] [%s] [Rare ??] %ls\n", 
+              HoleText(amulet.holes).c_str(),
+              amulet.name.c_str());
+    }
+    
+    std::string HoleText(int holes) const {
+      switch (holes) {
+      case 1: return "O--";
+      case 2: return "OO-";
+      case 3: return "OOO";
+      default: return "---";
+      }
+    }
+
+    std::string PartText(ArmorPart part) const {
       switch (part) {
-      case HEAD: return "head"; 
-      case BODY: return "body";
-      case HANDS: return "hands";
-      case WAIST: return "waist";
-      case FEET: return "feet";
-      case AMULET: return "amulet";
-      case GEAR: return "gear";
-      default: Log(ERROR, L"FormatArmor: no such armor part %d", part); exit(-1); break;
+      case HEAD: return " HEAD ";
+      case BODY: return " BODY ";
+      case HANDS: return " ARMS ";
+      case WAIST: return " LEGS ";
+      case FEET: return " FEET ";
+      default: return "---";
       }
-    }
-    
-    lisp::Object GetLanguageText(const LanguageText &text) {
-      lisp::Object result = lisp::Object::Struct();
-      result["en"] = text.en;
-      result["jp"] = text.jp;
-      return result;
-    }
-    
-    lisp::Object GetArmorObject(const DataSet *data, const Armor &armor, 
-                              ArmorPart part, int id) {
-      lisp::Object armor_object = lisp::Object::Struct();
-      armor_object["name"] = GetLanguageText(armor.name);
-      armor_object["holes"] = armor.holes;
-      armor_object["id"] = std::to_wstring(id);
-      armor_object["max-defense"] = armor.max_defense;
-      armor_object["min-defense"] = armor.min_defense;
-      armor_object.Set("resistence", armor.resistence.ToObject());
-      armor_object.Set("torsoup",
-                       data_->ProvidesTorsoUp(id) ? 
-                       std::wstring(L"true") : 
-                       std::wstring(L"false"));
-      if (AMULET == part) {
-        armor_object.Set("effects", GetEffectsObject(armor.effects));
-      } else if (GEAR != part) {
-        armor_object.Set("material", 
-                         GetMaterialObject(data, armor.material));
-        armor_object.Set("rare", armor.rare);
-      } 
-      
-      if (armor.multiplied) {
-        const Armor &base_armor = data_->armor(armor.base);
-        armor_object["holes"] = base_armor.holes;
-        int stuffed = 0;
-        if (!armor.jewels.empty()) {
-          armor_object.Set("jewels", lisp::Object::List());
-          for (const auto &item : armor.jewels) {
-            const Jewel &jewel = data_->jewel(item.first);
-            lisp::Object jewel_object = lisp::Object::Struct();
-            jewel_object.Set("name", GetLanguageText(jewel.name));
-            jewel_object.Set("quantity", item.second);
-            stuffed += jewel.holes * item.second;
-            armor_object["jewels"].Push(std::move(jewel_object));
-          }
-          armor_object.Set("stuffed", stuffed);
-        }
-      }
-
-      return armor_object;
     }
 
-    lisp::Object GetEffectsObject(const std::vector<Effect> &effects) {
-      lisp::Object result = lisp::Object::List();
-      for (const Effect &effect : effects) {
-	lisp::Object effect_object = lisp::Object::Struct();
-	effect_object.Set("name", 
-                          GetLanguageText(data_->skill_system(effect.skill_id).name));
-	effect_object.Set("points", effect.points); 
-	result.Push(std::move(effect_object));
-      }
-      return result;
-    }
-
-    lisp::Object GetMaterialObject(const DataSet *data, 
-                                 const std::vector<int> &material) {
-      lisp::Object result = lisp::Object::List();
-      for (const int &item_id : material) {
-	result.Push(GetLanguageText(data->ItemName(item_id)));
-      }
-      return result;
-    }
-
-    lisp::Object GetSummaryObject(const std::unordered_map<int, int> &effects) {
-      lisp::Object effects_object = lisp::Object::List();
-      for (auto &effect : effects) {
-        const SkillSystem &skill_system = data_->skill_system(effect.first);
-        int active_points = 0;
-        lisp::Object active_name = lisp::Object::Struct();
-        for (const Skill &skill : skill_system.skills) {
-          if (skill.points > 0) {
-            if (effect.second >= skill.points && 
-                skill.points > active_points) {
-              active_points = skill.points;
-              active_name = GetLanguageText(skill.name);
-            }
-          } else if (effect.second <= skill.points && 
-                     skill.points < active_points) {
-            active_points = skill.points;
-            active_name = GetLanguageText(skill.name);
-          }
-        }
-        lisp::Object effect_obj = lisp::Object::Struct();
-        effect_obj["name"] = GetLanguageText(skill_system.name);
-        effect_obj["points"] = effect.second;
-        effect_obj["active"] = std::move(active_name);
-        effects_object.Push(std::move(effect_obj));
-      }
-      return effects_object;
-    }
 
     std::unique_ptr<std::wofstream> output_stream_;
     const JewelSolver solver_;
     const DataSet *data_;
   };
+
 }  // namespace monster_avengers
 
 

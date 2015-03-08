@@ -5,7 +5,7 @@
 #include "lisp/lisp_object.h"
 
 namespace monster_avengers {
-  struct LanguageText {
+  struct LanguageText : public lisp::Formattable {
     std::wstring en;
     std::wstring jp;
 
@@ -21,10 +21,25 @@ namespace monster_avengers {
       jp.swap(other.jp);
     }
 
+    LanguageText(const LanguageText &other) = default;
+
     const LanguageText &operator=(LanguageText &&other) {
       en.swap(other.en);
       jp.swap(other.jp);
       return *this;
+    }
+
+    const LanguageText &operator=(const LanguageText &other) {
+      en = other.en;
+      jp = other.jp;
+      return *this;
+    }
+
+    lisp::Object Format() const override {
+      lisp::Object output = lisp::Object::Struct();
+      output["en"] = en;
+      output["jp"] = jp;
+      return output;
     }
 
     const wchar_t *c_str() const {

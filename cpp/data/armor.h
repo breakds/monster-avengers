@@ -43,7 +43,7 @@ namespace monster_avengers {
     
   }  // namespace
 
-  struct Resistence {
+  struct Resistence : public lisp::Formattable {
     int fire;
     int thunder;
     int dragon;
@@ -64,7 +64,7 @@ namespace monster_avengers {
       object.AssignSlotTo("ICE", &ice);
     }
 
-    lisp::Object ToObject() const {
+    lisp::Object Format() const override {
       lisp::Object result = lisp::Object::Struct();
       result["fire"] = fire;
       result["thunder"] = thunder;
@@ -146,7 +146,7 @@ namespace monster_avengers {
       object.AppendSlotTo("MATERIAL", &material);
       object.AppendSlotTo("EFFECTS", &effects);
     }
-
+    
     void DebugPrint(int indent = 0) const {
       for (int i = 0; i < indent; ++i) wprintf(L" ");
       wprintf(L"Armor {\n");

@@ -26,9 +26,6 @@
                    (format nil "~2,'0d" (getf obj :rare))
                    "??")
         "torsoup" (getf obj :torsoup)
-        "stuffed" (if (getf obj :stuffed)
-                      (getf obj :stuffed)
-                      0)
         "maxDef" (getf obj :max-defense)
         "minDef" (getf obj :min-defense)
         "resistence" (json-resistence (getf obj :resistence))
@@ -56,7 +53,6 @@
           "material" ""
           "rare" "??"
           "torsoup" "false"
-          "stuffed" 0
           "jewels" nil
           "name" (json "en" (amulet-name :en obj)
                        "jp" (amulet-name :jp obj)))))
@@ -106,6 +102,12 @@
                        "jewelPlans" 
                        (loop for jewel-plan in (getf solution :jewel-plans)
                           collect (json "summary" (json-summary (getf jewel-plan :summary))
+                                        "bodyPlan" (loop for jewel in 
+                                                        (getf jewel-plan :body-plan)
+                                                      collect (json "name" (json-name-object 
+                                                                            (getf jewel :name))
+                                                                    "num" (getf jewel :quantity)))
+                                        "bodyStuffed" (getf jewel-plan :body-stuffed)
                                         "plan" (loop for jewel in 
                                                     (getf jewel-plan :plan)
                                                   collect (json "name" (json-name-object 

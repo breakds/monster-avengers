@@ -47,7 +47,7 @@
     ()                    
   #jsx(:li ((class-name "list-group-item"))
            (:div ((class-name "row"))
-                 (:div ((class-name "col-md-2")
+                 (:div ((class-name "col-md-2 col-sm-2 col-xs-2")
                         (style :font-family "monospace"))
                        (funcall (lambda (x) (case x
                                               ("0" "---")
@@ -55,7 +55,7 @@
                                               ("2" "oo-")
                                               ("3" "ooo")))
                                 (aref amulet 0)))
-                 (:div ((class-name "col-md-4"))
+                 (:div ((class-name "col-md-4 col-sm-4 col-xs-4"))
                          (when (> (@ amulet length) 1)
                            (let ((content ""))
                              (setf content 
@@ -71,7 +71,7 @@
                                                             (+ " +" points)
                                                             (+ " " points)))))
                              content)))
-                 (:div ((class-name "col-md-4"))
+                 (:div ((class-name "col-md-4 col-sm-4 col-xs-4"))
                        (let ((content ""))
                          (when (> (@ amulet length) 3)
                            (setf content (+ content 
@@ -86,7 +86,7 @@
                                                           (+ " +" points)
                                                           (+ " " points)))))
                            content)))
-                 (:div ((class-name "col-md-2"))
+                 (:div ((class-name "col-md-2 col-sm-2 col-xs-2"))
                        (:button ((class-name "btn btn-default btn-xs")
                                  (on-click (lambda () 
                                              (funcall destructor amulet))))

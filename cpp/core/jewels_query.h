@@ -317,9 +317,6 @@ namespace monster_avengers {
         const Jewel &jewel = data.jewel(i);
         Signature key = Signature(jewel, skill_ids, effects, &valid);
         if (valid) {
-          // DEBUG(breakds) {
-          sig::ExplainSignature(key, {{1, 10}, {25, 15}, {40, 15}, {41, 10}, {30, 10}, {36, 10}}); 
-          // }
           jewel_keys_[jewel.holes].push_back(key);
           jewel_ids_[jewel.holes].push_back(i);
         }

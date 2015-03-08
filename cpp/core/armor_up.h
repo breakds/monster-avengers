@@ -148,12 +148,6 @@ namespace monster_avengers {
         for (const Signature &jewel_key : root.jewel_keys) {
           HoleClient::GetResidual(node.key, jewel_key,
                                   &one, &two, &three, &body_holes);
-          // DEBUG(breakds) {
-          // node.key.ShowMetaInfo();
-          // jewel_key.ShowMetaInfo();
-          // wprintf(L"Query %d %d %d %d %d\n", 
-          //         one, two, three, body_holes, root.torso_multiplier);
-          // }
           for (const Signature &new_key : 
                  hole_client_.Query(one, two, three, 
                                     body_holes, root.torso_multiplier)) {
@@ -297,6 +291,7 @@ namespace monster_avengers {
       CHECK_SUCCESS(ApplyDefenseFilter(query));
       JewelSolver solver(data_, query.effects);
       int count = 0;
+      ArmorSetFormatter formatter(&data_, query);
       while (count < required_num && !output_iterators_.back()->empty()) {
         const OR &or_node = pool_.Or(output_iterators_.back()->BaseIndex());
         for (const Effect &effect : sig::KeyEffects(or_node.key, 
@@ -308,8 +303,7 @@ namespace monster_avengers {
         int one(0), two(0), three(0);
         sig::KeyHoles(or_node.key, &one, &two, &three);
         wprintf(L"O:%d   OO:%d   OOO:%d\n", one, two, three);
-
-        OutputArmorSet(data_, **output_iterators_.back(), solver);
+        formatter.Text(**output_iterators_.back());
         ++count;
         ++(*output_iterators_.back());
       }
