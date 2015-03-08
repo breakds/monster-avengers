@@ -73,6 +73,7 @@
             (weapon-holes 0)
             (min-rare 1)
             (max-rare 10)
+            (max-results 10)
             (current-page "search")
             (amulets (array))
             (effects (array))
@@ -98,6 +99,8 @@
                                     (local-state min-rare) ") "))
                      (setf query (+ query "(:max-rare "
                                     (local-state max-rare) ") "))
+                     (setf query (+ query "(:max-results "
+                                    (local-state max-results) ") "))
                      (loop for effect in (local-state effects)
                         do (setf query (+ query "(:skill "
                                           (@ effect id) " "
@@ -141,8 +144,10 @@
                                 (chain this (set-state (create weapon-holes value)))
                                 (if (= param "min-rare")
                                     (chain this (set-state (create min-rare value)))
-                                    (if (= param "max-rare")
-                                        (chain this (set-state (create max-rare value)))))))
+                                    (if (= param "max-results")
+                                        (chain this (set-state (create max-results value)))
+                                        (if (= param "max-rare")
+                                            (chain this (set-state (create max-rare value))))))))
                         nil)
      (update-amulets (new-amulets)
                      (chain this (set-state (create amulets new-amulets)))
@@ -186,6 +191,7 @@
                                          (weapon-holes (local-state weapon-holes))
                                          (min-rare (local-state min-rare))
                                          (max-rare (local-state max-rare))
+                                         (max-results (local-state max-results))
                                          (callback (@ this update-parameters))))
                       (:div ((class-name "row"))
                             (:div ((class-name "col-md-3 col-xs-6 col-sm-6"))

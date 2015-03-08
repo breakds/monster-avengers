@@ -298,7 +298,7 @@ namespace monster_avengers {
       ArmorSetFormatter formatter(output_path, &data_, query);
       
       int count = 0;
-      while (count < 10 && !output_iterators_.back()->empty()) {
+      while (count < query.max_results && !output_iterators_.back()->empty()) {
         const OR &or_node = pool_.Or(output_iterators_.back()->BaseIndex());
         formatter(**output_iterators_.back());
 	++count;

@@ -21,6 +21,7 @@ namespace monster_avengers {
       MIN_RARE,
       MAX_RARE,
       ADD_AMULET,
+      MAX_RESULTS,
       BLACKLIST,
     };
 
@@ -32,6 +33,7 @@ namespace monster_avengers {
     int weapon_holes;
     int min_rare;
     int max_rare;
+    int max_results;
     std::vector<Armor> amulets;
     std::unordered_set<int> blacklist;
 
@@ -45,6 +47,7 @@ namespace monster_avengers {
       query->weapon_holes = 0; // by default do not allow weapon holes.
       query->min_rare = 0; // by default there is no rare limit.
       query->max_rare = 11; // by default there is no rare limit.
+      query->max_results = 10; // by default we are expecting 10 results.
       query->amulets.clear();
 
       auto tokenizer = lisp::Tokenizer::FromText(query_text);
@@ -92,6 +95,10 @@ namespace monster_avengers {
           break;
         case MAX_RARE:
 	  status = ReadInt(&tokenizer, &query->max_rare);
+          if (!status.Success()) return status;
+          break;
+        case MAX_RESULTS:
+	  status = ReadInt(&tokenizer, &query->max_results);
           if (!status.Success()) return status;
           break;
         case ADD_AMULET:
@@ -235,6 +242,7 @@ namespace monster_avengers {
      {L"weapon-holes", WEAPON_HOLES},
      {L"rare", MIN_RARE},
      {L"max-rare", MAX_RARE},
+     {L"max-results", MAX_RESULTS},
      {L"amulet", ADD_AMULET},
      {L"blacklist", BLACKLIST}};
 }
