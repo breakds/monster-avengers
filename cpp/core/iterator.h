@@ -4,7 +4,7 @@
 #include <memory>
 #include <array>
 #include "or_and_tree.h"
-#include "utils/armor_set.h"
+#include "utils/formatter.h"
 
 namespace monster_avengers {
 

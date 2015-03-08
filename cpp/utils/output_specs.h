@@ -9,7 +9,7 @@
 #include "data/armor.h"
 #include "data/data_set.h"
 #include "data/effect.h"
-#include "core/jewels_query.h"
+#include "jewels_query.h"
 #include "signature.h"
 
 

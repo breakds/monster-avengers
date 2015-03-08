@@ -6,7 +6,7 @@
 #include <array>
 #include <unordered_map>
 #include "data/data_set.h"
-#include "jewels_query.h"
+#include "utils/jewels_query.h"
 
 namespace monster_avengers {
   

@@ -8,10 +8,10 @@
 
 #include "utils/query.h"
 #include "utils/signature.h"
+#include "utils/jewels_query.h"
+#include "utils/formatter.h"
 #include "or_and_tree.h"
 #include "iterator.h"
-#include "jewels_query.h"
-#include "utils/armor_set.h"
 
 namespace monster_avengers {
 
@@ -278,40 +278,17 @@ namespace monster_avengers {
       return result;
     }
 
-    void Search(const Query &input_query, int required_num) {
+    void Search(const Query &input_query, 
+                const std::string output_path) {
+      bool to_screen = "" == output_path;
+      
+      // Optimize the Query
       Query query = OptimizeQuery(input_query);
-      query.DebugPrint();
-      InitializeExtraArmors(query);
-      CHECK_SUCCESS(ApplyFoundation(query));
-      CHECK_SUCCESS(ApplyJewelFilter(query.effects));
-      for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
-        CHECK_SUCCESS(ApplySkillSplitter(query, i));	
-      }
-      CHECK_SUCCESS(PrepareOutput());
-      CHECK_SUCCESS(ApplyDefenseFilter(query));
-      JewelSolver solver(data_, query.effects);
-      int count = 0;
-      ArmorSetFormatter formatter(&data_, query);
-      while (count < required_num && !output_iterators_.back()->empty()) {
-        const OR &or_node = pool_.Or(output_iterators_.back()->BaseIndex());
-        for (const Effect &effect : sig::KeyEffects(or_node.key, 
-                                                    query)) {
-          wprintf(L"%ls(%d)  ", 
-                  data_.skill_system(effect.skill_id).name.c_str(),
-                  effect.points);
-        }
-        int one(0), two(0), three(0);
-        sig::KeyHoles(or_node.key, &one, &two, &three);
-        wprintf(L"O:%d   OO:%d   OOO:%d\n", one, two, three);
-        formatter.Text(**output_iterators_.back());
-        ++count;
-        ++(*output_iterators_.back());
-      }
-    }
 
-    void SearchAndLispOut(const Query &input_query, const std::string output_path) {
-      Query query = OptimizeQuery(input_query);
+      // Add in custom armors
       InitializeExtraArmors(query);
+
+      // Core Search
       CHECK_SUCCESS(ApplyFoundation(query));
       CHECK_SUCCESS(ApplyJewelFilter(query.effects));
       for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
@@ -319,12 +296,14 @@ namespace monster_avengers {
       }
       CHECK_SUCCESS(PrepareOutput());
       CHECK_SUCCESS(ApplyDefenseFilter(query));
-      ArmorSetFormatter formatter(output_path,
-                                  &data_, query);
+      
+      // Prepare formatter
+      ArmorSetFormatter formatter(output_path, &data_, query);
+      
       int count = 0;
       while (count < 10 && !output_iterators_.back()->empty()) {
         const OR &or_node = pool_.Or(output_iterators_.back()->BaseIndex());
-        formatter.Format(**output_iterators_.back());
+        formatter(**output_iterators_.back());
 	++count;
         ++(*output_iterators_.back());
       }

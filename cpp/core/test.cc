@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
   ArmorUp armor_up("/home/breakds/pf/projects/monster-avengers/dataset/MH4GU");
   double init_duration = timer.Toc();
   timer.Tic();
-  armor_up.Search(query, 10);
+  armor_up.Search(query, "");
   double duration = timer.Toc();
   armor_up.Summarize();
   wprintf(L"Initialization: %.4lf seconds.\n", init_duration);
