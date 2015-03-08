@@ -28,6 +28,13 @@ namespace monster_avengers {
     int defense = 0;
     std::vector<Effect> effects;
     const std::array<int, PART_NUM> &ids = armor_set.ids;
+    int multiplier = 1;
+    for (int i = 0; i < PART_NUM; ++i) {
+      const Armor &armor = data.armor(ids[i]);
+      if (armor.TorsoUp()) {
+        multiplier++;
+      }
+    }
     for (int i = 0; i < PART_NUM; ++i) {
       const Armor &armor = data.armor(ids[i]);
       defense += data.armor(ids[i]).max_defense;
@@ -43,7 +50,7 @@ namespace monster_avengers {
         wprintf(L"] [Rare ??] ??? %ls (%d)\n", 
                 armor.name.c_str(), ids[i]);
       } else {
-        if (armor.multiplied) {
+        if (BODY == armor.part && multiplier > 1) {
           const Armor &base = data.armor(armor.base);
           wprintf(L"] [Rare %02d] %s %ls (%d) ",
                   base.rare,
@@ -86,7 +93,12 @@ namespace monster_avengers {
     int plan_count = 0;
     for (const Signature &jewel_key : armor_set.jewel_keys) {
       wprintf(L"Jewel Plan:    ");
-      for (auto item : solver.Solve(jewel_key)) {
+      JewelSolver::JewelPlan jewel_plan = solver.Solve(jewel_key, multiplier);
+      for (auto item : jewel_plan.second) {
+        wprintf(L"%d x %ls{BODY}  ", item.second, 
+                data.jewel(item.first).name.c_str());
+      }
+      for (auto item : jewel_plan.first) {
         wprintf(L"%d x %ls  ", item.second, 
                 data.jewel(item.first).name.c_str());
       }
@@ -97,82 +109,6 @@ namespace monster_avengers {
     }
     wprintf(L"\n");
   }
-
-  void PrettyPrintArmorSet(const DataSet &data, 
-			   const ArmorSet &armor_set, 
-			   const JewelSolver &solver) {
-    int defense = 0;
-    std::vector<Effect> effects;
-    const std::array<int, PART_NUM> &ids = armor_set.ids;
-    for (int i = 0; i < PART_NUM; ++i) {
-      const Armor &armor = data.armor(ids[i]);
-      defense += data.armor(ids[i]).max_defense;
-      wprintf(L"[");
-      for (int j = 0; j < 3; ++j) {
-        if (j < armor.holes) {
-          wprintf(L"O");
-        } else {
-          wprintf(L"-");
-        }
-      }
-      if (GEAR == armor.part) {
-        wprintf(L"] [Rare ??] ??? %ls\n", 
-                armor.name.c_str());
-      } else if (AMULET == armor.part) {
-        wprintf(L"] [Rare ??] ??? %ls    ",
-                armor.name.c_str());
-	for (const Effect &effect : armor.effects) {
-	  wprintf(L"%ls(%d) ", 
-		  data.skill_system(effect.skill_id).name.c_str(),
-		  effect.points);
-	}
-	wprintf(L"\n");
-      } else {
-        wprintf(L"] [Rare %02d] %s %ls (id: %d)     Require:",
-                armor.rare,
-                (MELEE == armor.type) ? "--H" : ")->", 
-		armor.name.c_str(), ids[i]);
-
-        // for (const std::wstring &material_name : armor.material) {
-        //   wprintf(L"  %ls", material_name.c_str());
-        // }
-        wprintf(L"\n");
-      }
-      for (const Effect &effect : armor.effects) {
-        auto it = std::find_if(effects.begin(), effects.end(),
-                               [&effect](const Effect& x) {
-                                 return x.skill_id == effect.skill_id;
-                               });
-        if (effects.end() == it) {
-          effects.push_back(effect);
-        } else {
-          it->points += effect.points;
-        }
-      }
-    }
-    wprintf(L"Defense: %d\n", defense);
-    for (const Effect &effect : effects) {
-      wprintf(L"%ls(%d)  ", 
-              data.skill_system(effect.skill_id).name.c_str(),
-              effect.points);
-    }
-    wprintf(L"\n");
-    int plan_count = 0;
-    for (const Signature &jewel_key : armor_set.jewel_keys) {
-      wprintf(L"Jewel Plan:    ");
-      for (auto item : solver.Solve(jewel_key)) {
-        wprintf(L"%d x %ls  ", item.second, 
-                data.jewel(item.first).name.c_str());
-      }
-      wprintf(L"\n");
-      if (++plan_count >= MAX_JEWEL_PLAN) {
-        break;
-      }
-    }
-    wprintf(L"\n");
-  }
-
-  
 
   class ArmorSetFormatter {
   public:
@@ -229,7 +165,8 @@ namespace monster_avengers {
 	  lisp::Object jewel_plan_object = lisp::Object::Struct();
 	  jewel_plan_object.Set("plan", lisp::Object::List());
           std::unordered_map<int, int> jewel_plan_effects = effects;
-          for (auto item : solver_.Solve(jewel_key)) {
+          JewelSolver::JewelPlan jewel_plan = solver_.Solve(jewel_key, 1);
+          for (auto item : jewel_plan.first) {
 	    lisp::Object plan_object = lisp::Object::Struct();
             const Jewel &jewel = data_->jewel(item.first);
 	    plan_object.Set("name", GetLanguageText(jewel.name));

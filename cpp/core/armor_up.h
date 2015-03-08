@@ -17,34 +17,6 @@ namespace monster_avengers {
 
   constexpr int FOUNDATION_NUM = 2;
 
-  class DirectIterator : public TreeIterator {
-  public:
-    explicit DirectIterator(std::vector<int> &&or_forest)
-      : forest_() {
-      forest_.reserve(or_forest.size());
-      for (int or_id : or_forest) {
-        forest_.emplace_back(or_id);
-      }
-      current_ = forest_.begin();
-    }
-
-    inline void operator++() override {
-      if (forest_.end() != current_) current_++;
-    }
-
-    inline const TreeRoot &operator*() const override {
-      return *current_;
-    }
-
-    inline bool empty() const override {
-      return forest_.end() == current_;
-    }
-    
-  private:
-    std::vector<TreeRoot> forest_;
-    std::vector<TreeRoot>::const_iterator current_;
-  };
-
   class ListIterator : public TreeIterator {
   public:
     explicit ListIterator(const std::vector<TreeRoot> &&input) 
@@ -166,7 +138,7 @@ namespace monster_avengers {
       while (!base_iter_->empty()) {
         const TreeRoot root = **base_iter_;
         const OR &node = pool_->Or(root.id);
-        int one(0), two(0), three(0);
+        int one(0), two(0), three(0), body_holes(0);
 
         int sub_max = splitter_.Max(root);
         int sub_min = 1000;
@@ -175,10 +147,16 @@ namespace monster_avengers {
 
         for (const Signature &jewel_key : root.jewel_keys) {
           HoleClient::GetResidual(node.key, jewel_key,
-                                  &one, &two, &three);
-          for (const Signature &new_key : hole_client_.Query(one, 
-                                                             two, 
-                                                             three)) {
+                                  &one, &two, &three, &body_holes);
+          // DEBUG(breakds) {
+          // node.key.ShowMetaInfo();
+          // jewel_key.ShowMetaInfo();
+          // wprintf(L"Query %d %d %d %d %d\n", 
+          //         one, two, three, body_holes, root.torso_multiplier);
+          // }
+          for (const Signature &new_key : 
+                 hole_client_.Query(one, two, three, 
+                                    body_holes, root.torso_multiplier)) {
             Signature key1 = jewel_key + new_key;
             if (sig::Satisfy(key0 | key1, inverse_points_)) {
               jewel_candidates.push_back(key1);
@@ -278,66 +256,31 @@ namespace monster_avengers {
     std::vector<TreeRoot> Foundation(const Query &query) {
 
       // Forest with no torso up.
-      std::array<std::vector<int>, PART_NUM> ordinary_forests;
+      std::array<std::vector<int>, PART_NUM> part_forests;
       for (int part = HEAD; part < PART_NUM; ++part) {
-        ordinary_forests[part] = 
+        part_forests[part] = 
           std::move(ClassifyArmors(static_cast<ArmorPart>(part),
                                    query));
       }
-
-      // Forest with armors that provides torso up.
-      std::array<std::vector<int>, PART_NUM> torso_up_forests;
-      for (int part = HEAD; part <= FEET; ++part) {
-        if (BODY != part) {
-          torso_up_forests[part] = 
-            std::move(ClassifyTorsoUpArmors(static_cast<ArmorPart>(part),
-                                            query));          
-        }
-      }
-
-      // Forest with multiplied armors
-      std::array<std::vector<int>, 5> multiplied_forests;
-      for (int multiplier = 2; multiplier <= 5; ++multiplier) {
-        multiplied_forests[multiplier] =
-          std::move(ClassifyArmors(static_cast<ArmorPart>(BODY),
-                                   query,
-                                   multiplier));
-      }
-
       
       std::vector<int> current;
-      std::vector<bool> torso_up(PART_NUM, false);
-      std::vector<TreeRoot> result;
-      for (unsigned char torso_up_code = 0; 
-           torso_up_code < 16; 
-           ++torso_up_code) {
-        int multiplier = 1;
-        multiplier += (torso_up[HEAD] = torso_up_code & 1) ? 1 : 0;
-        multiplier += (torso_up[HANDS] = torso_up_code & 2) ? 1 : 0;
-        multiplier += (torso_up[WAIST] = torso_up_code & 4) ? 1 : 0;
-        multiplier += (torso_up[FEET] = torso_up_code & 8) ? 1 : 0;
-        
-        current.clear();
-        
-        for (int part = HEAD; part < PART_NUM; ++part) {
-          std::vector<int> &part_forest = 
-            (BODY == part && multiplier > 1) ?
-            multiplied_forests[multiplier] :
-            (torso_up[part] ? torso_up_forests[part] : 
-             ordinary_forests[part]);
-          
-          if (HEAD == part) {
-            current = part_forest;
-          } else {
-            current = std::move(MergeForests(part_forest, current));
-          }
-        }
-
-        for (int id : current) {
-          result.emplace_back(id, pool_.Or(id));
+      for (int part = HEAD; part < BODY; ++part) {
+        if (HEAD == part) {
+          current = part_forests[part];
+        } else {
+          current = std::move(MergeForests(part_forests[part], current));
         }
       }
+
+      current = std::move(MergeBodyWithForests(part_forests[BODY], 
+                                               current));
       
+      std::vector<TreeRoot> result;
+      
+      for (int id : current) {
+        result.emplace_back(id, pool_.Or(id));
+      }
+
       return result;
     }
 
@@ -368,26 +311,6 @@ namespace monster_avengers {
 
         OutputArmorSet(data_, **output_iterators_.back(), solver);
         ++count;
-        ++(*output_iterators_.back());
-      }
-    }
-
-    void SearchAndOutput(const Query &input_query, int required_num = 10) {
-      Query query = OptimizeQuery(input_query);
-      InitializeExtraArmors(query);
-      CHECK_SUCCESS(ApplyFoundation(query));
-      CHECK_SUCCESS(ApplyJewelFilter(query.effects));
-      for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
-        CHECK_SUCCESS(ApplySkillSplitter(query, i));	
-      }
-      CHECK_SUCCESS(PrepareOutput());
-      CHECK_SUCCESS(ApplyDefenseFilter(query));
-      JewelSolver solver(data_, query.effects);
-      int count = 0;
-      while (count < required_num && !output_iterators_.back()->empty()) {
-        const OR &or_node = pool_.Or(output_iterators_.back()->BaseIndex());
-        PrettyPrintArmorSet(data_, **output_iterators_.back(), solver);
-	++count;
         ++(*output_iterators_.back());
       }
     }
@@ -455,57 +378,11 @@ namespace monster_avengers {
       for (const Armor &amulet : query.amulets) {
         data_.AddExtraArmor(AMULET, amulet);
       }
-
-      // Torso Up Armors
-      HoleClient hole_client(data_, query.effects);
-      JewelSolver solver(data_, query.effects);
-      int body_size = data_.ArmorIds(BODY).size();
-      for (int i = 0; i < body_size; ++i) {
-        int base_id = data_.ArmorIds(BODY)[i];
-        const Armor &armor = data_.armor(BODY, i);
-        // Do not include torso_up armors. It typically doesn't exist
-        // anyway.
-        if (data_.ProvidesTorsoUp(BODY, i)) continue;
-        
-        int one(0), two(0), three(0);
-        switch (armor.holes) {
-        case 1: one = 1; break;
-        case 2: two = 1; break;
-        case 3: three = 1; break;
-        }
-        const std::unordered_set<Signature> &jewel_keys = 
-          hole_client.Query(one, two, three);
-
-        for (const Signature &key : jewel_keys) {
-          std::vector<Effect> effects = 
-            std::move(sig::KeyEffects(key, query));
-          Armor new_armor = data_.armor(BODY, i);
-          for (Effect &effect : effects) {
-            if (0 == effect.points) continue;
-            auto it = std::find_if(new_armor.effects.begin(),
-                                   new_armor.effects.end(),
-                                   [&effect](const Effect &x) {
-                                     return effect.skill_id == x.skill_id;
-                                   });
-            if (new_armor.effects.end() != it) {
-              it->points += effect.points;
-            } else {
-              new_armor.effects.push_back(effect);
-            }
-          }
-          new_armor.multiplied = true;
-          new_armor.holes = 0;
-          new_armor.base = base_id;
-          new_armor.jewels = solver.Solve(key);
-          data_.AddExtraArmor(BODY, new_armor);
-        }
-      }
     }
     
     // Returns a vector of newly created or nodes' indices.
     std::vector<int> ClassifyArmors(ArmorPart part,
-                                    const Query &query,
-                                    int multiplier = 1) {
+                                    const Query &query) {
       std::unordered_map<Signature, std::vector<int> > armor_map;
 
       std::vector<Effect> effects;
@@ -522,22 +399,6 @@ namespace monster_avengers {
           // cleaned up.
           Signature key(armor, effects);
           valid = true;
-
-          if (armor.TorsoUp()) {
-            valid = false;
-          }
-          
-          if (1 < multiplier) {
-            // Torso Up armors, with modified key.
-            if (armor.multiplied) {
-              key *= multiplier;
-            } else {
-              valid = false;
-            }
-          } else {
-            // if we are not expecting multiplied armors, filter them.
-            valid &= (!armor.multiplied);
-          }
 
           // Rare blacklist
           if (GEAR != part && AMULET != part) {
@@ -573,33 +434,6 @@ namespace monster_avengers {
       return forest;
     }
 
-    std::vector<int> ClassifyTorsoUpArmors(ArmorPart part,
-                                           const Query &query) {
-      std::vector<int> armor_ids;
-      Signature key;
-
-      for (int i = 0; i < data_.ArmorIds(part).size(); ++i) {
-        int id = data_.ArmorIds(part)[i];
-        const Armor &armor = data_.armor(id);
-        if (data_.ProvidesTorsoUp(part, i) && 
-            // Rare blacklist
-            armor.rare >= query.min_rare &&
-            armor.rare <= query.max_rare &&
-            // Blacklist filter
-            0 == query.blacklist.count(data_.ArmorIds(part)[i])) {
-          armor_ids.push_back(data_.ArmorIds(part)[i]);
-          key = Signature(armor, query.effects);
-          CHECK(key.multiplier() == 1);
-        }
-      }
-      
-      std::vector<int> forest;
-      if (!armor_ids.empty()) {
-        forest.push_back(pool_.MakeOR<ARMORS>(key, &armor_ids));
-      }
-      return forest;
-    }
-
     std::vector<int> MergeForests(const std::vector<int> &left_ors, 
                                   const std::vector<int> &right_ors) {
       std::unordered_map<Signature, std::vector<int> > and_map;
@@ -608,6 +442,37 @@ namespace monster_avengers {
         for (int j : right_ors) {
           const OR &right = pool_.Or(j);
           Signature key = left.key + right.key;
+          int id = pool_.MakeAnd(i, j);
+          auto it = and_map.find(key);
+          if (and_map.end() == it) {
+            and_map[key] = {id};
+          } else {
+            it->second.push_back(id);
+          }
+        }
+      }
+      
+      std::vector<int> forest;
+      forest.reserve(and_map.size());
+      for (auto &item : and_map) {
+        forest.push_back(pool_.MakeOR<ANDS>(item.first,
+                                            &item.second));
+      }
+      return forest;
+    }
+
+    // TODO(breakds): Merge this function into the above one when
+    // possible.
+    std::vector<int> MergeBodyWithForests(const std::vector<int> &body_ors, 
+                                          const std::vector<int> &right_ors) {
+      std::unordered_map<Signature, std::vector<int> > and_map;
+      for (int i : body_ors) {
+        const OR &left = pool_.Or(i);
+        for (int j : right_ors) {
+          const OR &right = pool_.Or(j);
+          Signature key = left.key;
+          key.BodyRefactor(right.key.multiplier() + 1);
+          key += right.key;
           int id = pool_.MakeAnd(i, j);
           auto it = and_map.find(key);
           if (and_map.end() == it) {

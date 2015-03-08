@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
                              L"(:skill 30 10)" 
                              L"(:amulet 2 (1 4 30 10))",
                              &query));
-
+  
   // Query that does not return anything (time consuming)
   // CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")"
   //                            L"(:weapon-holes 2)" 

@@ -16,8 +16,8 @@ namespace monster_avengers {
   //
   // byte 1: number of 3-slots [4] | number of 2 slots [4]
   // 
-  // byte 2: number of body 3-slots [1] | number of body 2-slots [1] |
-  //         number of body 1-slots [2] | torso multiplier [4]
+  // byte 2: sign [1] | number of body 3-slots [1] | number of body 2-slots [1] |
+  //         number of body 1-slots [2] | torso multiplier [3]
   // 
   // byte 3+: number of points for corresponding skill system [8]
   //
@@ -116,8 +116,58 @@ namespace monster_avengers {
     
     // ---------- Signature Methods ----------
 
+    void ShowMetaInfo() const {
+      int one = bytes[0];
+      int two = bytes[1] & 15;
+      int three = bytes[1] >> 4;
+      wprintf(L"(%d %d %d) + %d, %d\n",
+              one, two, three, BodyHoleSum(), multiplier());
+    }
+    
+    inline void BodyRefactor(int multiplier) {
+      if (multiplier > 1) {
+        // Transfer Holes
+        if (0 != bytes[0]) {
+          bytes[2] |= (0x08 * bytes[0]);
+        } 
+        
+        if (0 != (bytes[1] & 0x0F)) {
+          bytes[2] |= 0x20;
+        } 
+        
+        if (0 != (bytes[1] & 0xF0)) {
+          bytes[2] |= 0x40;
+        }
+
+        bytes[0] = 0;
+        bytes[1] = 0;
+        
+        for (int i = EFFECTS_BEGIN; i < sizeof(Signature); ++i) {
+          bytes[i] *= multiplier;
+        }
+      }
+    }
+
+    inline int BodyHoleSum() const {
+      int result = 0;
+      if (0 != (bytes[2] & 0x40)) {
+        return 3;
+      } else if (0 != (bytes[2] & 0x20)) {
+        result = 2;
+      }
+      result += (bytes[2] & 0x18) >> 3;
+      return result;
+    }
+
+    void BodyHoles(int *i, int *j, int *k) const {
+      *k = (0 != (bytes[2] & 0x40)) ? 1 : 0;
+      *j = (0 != (bytes[2] & 0x20)) ? 1 : 0;
+      *i = (bytes[2] & 0x18) >> 3;
+    }
+
+
     int multiplier() const {
-      return static_cast<int>(bytes[2] & 0x0F);
+      return static_cast<int>(bytes[2] & 0x07);
     }
 
     bool IsZero() const {
@@ -138,6 +188,12 @@ namespace monster_avengers {
       // TODO(breakds): Check whether needs to be removed.
       for (int i = EFFECTS_BEGIN; i < sizeof(Signature); ++i) {
         bytes[i] *= multiplier;
+      }
+    }
+
+    inline void operator+=(const Signature &other) {
+      for (int i = 0; i < sizeof(Signature); ++i) {
+        bytes[i] += other.bytes[i];
       }
     }
   };

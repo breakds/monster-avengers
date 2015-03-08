@@ -109,11 +109,11 @@ namespace monster_avengers {
                   int skill_id) 
       : pool_(pool), effect_id_(effect_id) {
       armor_points_.resize(data.armors().size());
-      torso_up_.resize(data.armors().size());
+      is_body_.resize(data.armors().size());
       int i = 0;
       for (const Armor &armor : data.armors()) {
         armor_points_[i] = 0;
-        torso_up_[i] = armor.multiplied;
+        is_body_[i] = armor.part == BODY;
         for (const Effect &effect : armor.effects) {
           if (effect.skill_id == skill_id) {
             armor_points_[i] = effect.points;
@@ -146,7 +146,7 @@ namespace monster_avengers {
       int result = -1000;
       for (int armor_id : pool_->Or(or_id).daughters) {
         int points = armor_points_[armor_id];
-        if (torso_up_[armor_id] && multiplier > 1) {
+        if (is_body_[armor_id] && multiplier > 1) {
           points *= multiplier;
         }
         if (points > result) {
@@ -180,7 +180,7 @@ namespace monster_avengers {
       int result_max = -1000;
       for (int armor_id : pool_->Or(or_id).daughters) {
         int points = armor_points_[armor_id];
-        if (torso_up_[armor_id] && multiplier > 1) {
+        if (is_body_[armor_id] && multiplier > 1) {
           points *= multiplier;
         }
         if (points > result_max) {
@@ -203,7 +203,7 @@ namespace monster_avengers {
       const OR &node = pool_->Or(or_id);
       for (int armor_id : node.daughters) {
         int points = armor_points_[armor_id];
-        if (torso_up_[armor_id] && multiplier > 1) {
+        if (is_body_[armor_id] && multiplier > 1) {
           points *= multiplier;
         }
         if (points > result_max) {
@@ -301,7 +301,7 @@ namespace monster_avengers {
     
     NodePool *pool_;
     std::vector<int> armor_points_;
-    std::vector<bool> torso_up_;
+    std::vector<bool> is_body_;
     int effect_id_;
   };
   

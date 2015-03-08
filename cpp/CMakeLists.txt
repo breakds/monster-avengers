@@ -24,8 +24,6 @@ SET(CMAKE_CXX_FLAGS_GPROF "-O1 -pg")
 
 IF(BUILD_TESTS)
   ADD_EXECUTABLE(test core/test.cc)
-  ADD_EXECUTABLE(find_armor core/find_armor.cc)
-  ADD_EXECUTABLE(jewels_query_test core/jewels_query_test.cc)
   ADD_EXECUTABLE(signature_test utils/signature_test.cc)
 ENDIF(BUILD_TESTS)
 
