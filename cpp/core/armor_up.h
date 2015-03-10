@@ -287,7 +287,9 @@ namespace monster_avengers {
 
       // Core Search
       CHECK_SUCCESS(ApplyFoundation(query));
-      CHECK_SUCCESS(ApplyJewelFilter(query.effects));
+      for (int i = 0; i < FOUNDATION_NUM; ++i) {
+        CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, i));
+      }
       for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
         CHECK_SUCCESS(ApplySkillSplitter(query, i));	
       }
@@ -302,6 +304,30 @@ namespace monster_avengers {
         const OR &or_node = pool_.Or(output_iterators_.back()->BaseIndex());
         formatter(**output_iterators_.back());
 	++count;
+        ++(*output_iterators_.back());
+      }
+    }
+
+    // Iterate is for speed test only.
+    void Iterate(const Query &input_query) {
+      // Optimize the Query
+      Query query = OptimizeQuery(input_query);
+
+      // Add in custom armors
+      InitializeExtraArmors(query);
+
+      // Core Search
+      CHECK_SUCCESS(ApplyFoundation(query));
+      CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, 0));
+      CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, 1));
+      for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
+        CHECK_SUCCESS(ApplySkillSplitter(query, i));	
+      }
+      CHECK_SUCCESS(PrepareOutput());
+      CHECK_SUCCESS(ApplyDefenseFilter(query));
+      
+      // Prepare formatter
+      while (!output_iterators_.back()->empty()) {
         ++(*output_iterators_.back());
       }
     }
@@ -441,6 +467,20 @@ namespace monster_avengers {
       for (int i = 0; i < actual_size; ++i) {
         skill_ids.push_back(effects[i].skill_id);
       }
+      TreeIterator *new_iter = 
+        new JewelFilterIterator(iterators_.back().get(),
+                                data_,
+                                &pool_,
+                                skill_ids,
+                                effects);
+      iterators_.emplace_back(new_iter);
+      return Status(SUCCESS);
+    }
+
+    Status ApplySingleJewelFilter(const std::vector<Effect> &effects, 
+                                  int effect_id) {
+      std::vector<int> skill_ids;
+      skill_ids.push_back(effects[effect_id].skill_id);
       TreeIterator *new_iter = 
         new JewelFilterIterator(iterators_.back().get(),
                                 data_,

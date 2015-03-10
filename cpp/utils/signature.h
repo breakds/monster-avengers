@@ -316,21 +316,22 @@ namespace monster_avengers {
 }  // namespace monster_avengers
 
 namespace std {
-  // Jenkins Hash Function
-  // The code is a slightly modified version from the wikipedia page.
   template <>
   struct hash<monster_avengers::Signature> {
     uint32_t operator()(const monster_avengers::Signature &input) const {
-      uint32_t hash = 0;
-      for (int i = 0; i < sizeof(monster_avengers::Signature); ++i) {
-        hash += input.bytes[i];
-        hash += (hash << 10);
-        hash ^= (hash >> 6);
-      }
-      hash += (hash << 3);
-      hash ^= (hash >> 11);
-      hash += (hash << 15);
-      return hash;
+      // // Jenkins Hash Function
+      // // The code is a slightly modified version from the wikipedia page.
+      // uint32_t hash = 0;
+      // for (int i = 0; i < sizeof(monster_avengers::Signature); ++i) {
+      //   hash += input.bytes[i];
+      //   hash += (hash << 10);
+      //   hash ^= (hash >> 6);
+      // }
+      // hash += (hash << 3);
+      // hash ^= (hash >> 11);
+      // hash += (hash << 15);
+      // return hash;
+      return *(const uint32_t*)(&input.bytes[0]);
     }
   };
 }  // namespace std
