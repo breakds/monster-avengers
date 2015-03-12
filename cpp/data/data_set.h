@@ -100,6 +100,10 @@ namespace monster_avengers {
       return skill_systems_[id];
     }
 
+    inline const std::vector<SkillSystem> &skill_systems() const {
+      return skill_systems_;
+    }
+
     inline void AddExtraArmor(ArmorPart part, const Armor &armor) {
       armor_indices_by_parts_[part].push_back(armors_.size());
       armors_.push_back(armor);

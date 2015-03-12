@@ -60,6 +60,16 @@ namespace monster_avengers {
       }
       return active_id;
     }
+
+    int LowestPositivePoints() const {
+      int points = 0;
+      for (const Skill &skill : skills) {
+        if (0 == points || (skill.points > 0 && skill.points < points)) {
+          points = skill.points;
+        }
+      }
+      return points;
+    }
     
     void DebugPrint(int indent = 0) const {
       for (int i = 0; i < indent; ++i) wprintf(L" ");

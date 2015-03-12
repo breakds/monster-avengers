@@ -13,7 +13,7 @@ namespace monster_avengers {
     virtual void operator++() = 0;
     virtual const TreeRoot &operator*() const = 0;
     virtual bool empty() const = 0;
-    // virtual void Reset() = 0;
+    virtual void Reset() = 0;
   };
 
   class ArmorSetIterator {

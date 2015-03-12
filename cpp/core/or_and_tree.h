@@ -19,6 +19,8 @@ namespace monster_avengers {
     Signature key;
     ORTag tag;
     std::vector<int> daughters;
+
+    OR() = default;
       
     OR(Signature key_, ORTag tag_, 
        std::vector<int> *daughters_) :
@@ -32,6 +34,8 @@ namespace monster_avengers {
     Signature key;
     int left;
     int right;
+
+    AND() = default;
     
     AND(int left_, int right_) 
       : left(left_), right(right_) {}
@@ -39,7 +43,14 @@ namespace monster_avengers {
 
   class NodePool {
   public:
-    NodePool() : or_pool_(), and_pool_() {}
+    struct Snapshot {
+      Snapshot(size_t or_size_, size_t and_size_)
+        : or_size(or_size_), and_size(and_size_) {}
+      size_t or_size;
+      size_t and_size;
+    };
+    
+    NodePool() : or_pool_(), and_pool_(), snapshots_() {}
     
     // Returns the index of the newly created OR node.
     template <ORTag Tag>
@@ -76,9 +87,21 @@ namespace monster_avengers {
     inline size_t AndSize() const {
       return and_pool_.size();
     }
+
+    inline void PushSnapshot() {
+      snapshots_.emplace_back(or_pool_.size(), and_pool_.size());
+    }
+
+    inline void PopSnapshot() {
+      or_pool_.resize(snapshots_.back().or_size);
+      and_pool_.resize(snapshots_.back().and_size);
+      snapshots_.pop_back();
+    }
+
   private:
     std::vector<OR> or_pool_;
     std::vector<AND> and_pool_;
+    std::vector<Snapshot> snapshots_;
   };
   
   struct TreeRoot {
@@ -103,7 +126,6 @@ namespace monster_avengers {
   class SkillSplitter {
   public:
     SkillSplitter(const DataSet &data,
-                  const Query &query,
                   NodePool *pool,
                   int effect_id,
                   int skill_id) 

@@ -24,9 +24,11 @@ SET(CMAKE_CXX_FLAGS_GPROF "-O1 -pg")
 
 IF(BUILD_TESTS)
   ADD_EXECUTABLE(test core/test.cc)
+  ADD_EXECUTABLE(explore_test core/explore_test.cc)
   ADD_EXECUTABLE(signature_test utils/signature_test.cc)
 ENDIF(BUILD_TESTS)
 
 ADD_EXECUTABLE(serve_query serve_query.cc)
+
 
 

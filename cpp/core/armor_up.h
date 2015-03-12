@@ -12,6 +12,7 @@
 #include "utils/formatter.h"
 #include "or_and_tree.h"
 #include "iterator.h"
+#include "explore.h"
 
 namespace monster_avengers {
 
@@ -33,6 +34,8 @@ namespace monster_avengers {
     inline bool empty() const override {
       return current_ >= forest_.size();
     }
+
+    inline void Reset() override {}
     
   private:
     std::vector<TreeRoot> forest_;
@@ -69,6 +72,8 @@ namespace monster_avengers {
     inline bool empty() const override {
       return base_iter_->empty();
     }
+
+    inline void Reset() override {}
 
   private:
     inline void Proceed() {
@@ -107,7 +112,7 @@ namespace monster_avengers {
                        int effect_id,
                        const Query &query)
       : base_iter_(base_iter), pool_(pool), 
-        splitter_(data, query, pool, effect_id, 
+        splitter_(data, pool, effect_id, 
                   query.effects[effect_id].skill_id),
         hole_client_(data, query.effects[effect_id].skill_id, query.effects),
         effect_id_(effect_id),
@@ -132,6 +137,8 @@ namespace monster_avengers {
     inline bool empty() const override {
       return buffer_.empty();
     }
+
+    inline void Reset() override {}
     
   private:
     inline void Proceed() {
@@ -329,6 +336,40 @@ namespace monster_avengers {
       // Prepare formatter
       while (!output_iterators_.back()->empty()) {
         ++(*output_iterators_.back());
+      }
+    }
+
+    void Explore(const Query &input_query) {
+      // Optimize the Query
+      Query query = OptimizeQuery(input_query);
+
+      // Add in custom armors
+      InitializeExtraArmors(query);
+
+      // Core Search
+      CHECK_SUCCESS(ApplyFoundation(query));
+      for (int i = 0; i < FOUNDATION_NUM; ++i) {
+        CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, i));
+      }
+      for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
+        CHECK_SUCCESS(ApplySkillSplitter(query, i));	
+      }
+      
+      CachedTreeIterator iterator(iterators_.back().get());
+      wprintf(L"start!\n");
+      for (int i = 0; i < data_.skill_systems().size(); ++i) {
+        auto it = std::find_if(query.effects.begin(),
+                               query.effects.end(),
+                               [&i](const Effect &effect) {
+                                 return effect.skill_id == i;
+                               });
+        if (query.effects.end() == it) {
+          if (ExploreSkill(&iterator, data_, &pool_, i, query.effects)) {
+            wprintf(L"%ls: PASS ^_^\n", data_.skill_system(i).name.c_str());
+          } else {
+            wprintf(L"%ls: fail\n", data_.skill_system(i).name.c_str());
+          }
+        }
       }
     }
 
