@@ -80,6 +80,8 @@
             (blacklist (array))
             (query-fail false)
             (query-result (array))
+            (achievable-ids (chain skill-systems
+                                   (map (lambda (x id) id))))
             (in-progress false))
      (switch-language (target) 
                       (chain this (set-state (create language target))))
@@ -89,44 +91,47 @@
                          (chain this (set-state (create blacklist
                                                         new-blacklist))))
                        nil)
+     (construct-query (is-filter)
+                      (let ((query ""))
+                        (setf query (+ query "(:weapon-type \""
+                                       (local-state weapon-type) "\") "))
+                        (setf query (+ query "(:weapon-holes "
+                                       (local-state weapon-holes) ") "))
+                        (setf query (+ query "(:rare "
+                                       (local-state min-rare) ") "))
+                        (setf query (+ query "(:max-rare "
+                                       (local-state max-rare) ") "))
+                        (setf query (+ query "(:max-results "
+                                       (local-state max-results) ") "))
+                        (loop for effect in (local-state effects)
+                           do (setf query (+ query "(:skill "
+                                             (@ effect id) " "
+                                             (@ effect points) ") ")))
+                        (loop for amulet in (local-state amulets)
+                           do (progn (setf query (+ query "(:amulet " 
+                                                    (aref amulet 0)
+                                                    " ("))
+                                     (when (> (@ amulet length) 1)
+                                       (setf query (+ query (aref amulet 1)))
+                                       (loop for i from 2 below (@ amulet length)
+                                          do (setf query (+ query " "
+                                                            (aref amulet i)))))
+                                     (setf query (+ query ")) "))))
+                        ;; blacklist
+                        (when (not is-filter)
+                          (chain this (set-state (create blacklist (array)))))
+                        (when (and (> (@ (local-state blacklist) length) 0)
+                                   is-filter)
+                          (setf query (+ query "(:blacklist ("
+                                         (aref (local-state blacklist) 0)))
+                          (loop for i from 1 
+                             below (@ (local-state blacklist) length)
+                             do (setf query (+ query " " 
+                                               (aref (local-state blacklist) i))))
+                          (setf query (+ query ")) ")))
+                        query))
      (handle-query (is-filter)
-                   (let ((query ""))
-                     (setf query (+ query "(:weapon-type \""
-                                    (local-state weapon-type) "\") "))
-                     (setf query (+ query "(:weapon-holes "
-                                    (local-state weapon-holes) ") "))
-                     (setf query (+ query "(:rare "
-                                    (local-state min-rare) ") "))
-                     (setf query (+ query "(:max-rare "
-                                    (local-state max-rare) ") "))
-                     (setf query (+ query "(:max-results "
-                                    (local-state max-results) ") "))
-                     (loop for effect in (local-state effects)
-                        do (setf query (+ query "(:skill "
-                                          (@ effect id) " "
-                                          (@ effect points) ") ")))
-                     (loop for amulet in (local-state amulets)
-                        do (progn (setf query (+ query "(:amulet " 
-                                                 (aref amulet 0)
-                                                 " ("))
-                                  (when (> (@ amulet length) 1)
-                                    (setf query (+ query (aref amulet 1)))
-                                    (loop for i from 2 below (@ amulet length)
-                                       do (setf query (+ query " "
-                                                         (aref amulet i)))))
-                                  (setf query (+ query ")) "))))
-                     ;; blacklist
-                     (when (not is-filter)
-                       (chain this (set-state (create blacklist (array)))))
-                     (when (and (> (@ (local-state blacklist) length) 0)
-                                is-filter)
-                       (setf query (+ query "(:blacklist ("
-                                      (aref (local-state blacklist) 0)))
-                       (loop for i from 1 
-                          below (@ (local-state blacklist) length)
-                          do (setf query (+ query " " 
-                                            (aref (local-state blacklist) i))))
-                       (setf query (+ query ")) ")))
+                   (let ((query (funcall (@ this construct-query) is-filter)))
                      (chain console (log query))
                      (chain this (set-state (create in-progress true
                                                     query-result (array))))
@@ -166,6 +171,13 @@
 							    :points points)))))
 		       (chain this (set-state (create effects new-effects))))
 		     nil)
+     (update-achievable-ids (new-ids)
+                            (if new-ids
+                                (chain this (set-state (create achievable-ids new-ids)))
+                                (chain this (set-state (create achievable-ids 
+                                                               (chain skill-systems
+                                                                      (map (lambda (x id) id)))))))
+                            nil)
      (switch-page (page)
                   (chain this (set-state (create current-page page)))
                   nil))
@@ -202,19 +214,23 @@
                             (:div ((class-name "col-md-3 col-xs-6 col-sm-6"))
                                   (:skill-panel ((language (local-state language))
                                                  (effects (local-state effects))
+                                                 (achievable-ids (local-state achievable-ids))
                                                  (change-callback (@ this update-effects))))
-                                  (:button ((class-name "btn btn-primary")
-                                            (disabled (local-state in-progress))
-                                            (on-click (lambda () 
-                                                        (funcall (@ this handle-query) false)
-                                                        nil)))
-                                           (if (local-state in-progress)
-                                               (if (= (local-state "language") "en")
-                                                   "Working..."
-                                                   "执行中...")
-                                               (if (= (local-state "language") "en")
-                                                   "Search"
-                                                   "搜索"))))))
+                                  (:div ((class-name "btn-group"))
+                                        (:button ((class-name "btn btn-primary")
+                                                  (disabled (local-state in-progress))
+                                                  (on-click (lambda () 
+                                                              (funcall (@ this handle-query) false)
+                                                              nil)))
+                                                 (if (local-state in-progress)
+                                                     (if (= (local-state "language") "en")
+                                                         "Working..."
+                                                         "执行中...")
+                                                     (if (= (local-state "language") "en")
+                                                         "Search"
+                                                         "搜索")))
+                                        (:button ((class-name "btn btn-success"))
+                                                 "Prune")))))
                 (if (= (local-state current-page) "result")
                     (:div ((class-name "row"))
                           (:div ((class-name "col-md-6 col-xs-12 col-sm-12"))

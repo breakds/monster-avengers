@@ -62,7 +62,8 @@ namespace monster_avengers {
 
     // Use the hole aligment from stuffed to stuff the original hole
     // aligment, and get the residual hole alignment.
-    static void GetResidual(Signature original, Signature stuffed,
+    static void GetResidual(const Signature &original, 
+                            const Signature &stuffed,
                             int *i, int *j, int *k, int *extra) {
       sig::KeyHoles(original, i, j, k);
       int one(0), two(0), three(0);

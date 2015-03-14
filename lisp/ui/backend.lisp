@@ -66,6 +66,8 @@
 ;;; ---------- RPC ----------
 
 (def-rpc answer-query (query)
+  (hunchentoot:log-message* :info "session: ~a"
+                            (hunchentoot:session-id current-session))
   (let ((query-file (merge-pathnames (format nil "query_cache_~a.lsp"
                                              (hunchentoot:session-id 
                                               current-session))
@@ -113,4 +115,8 @@
                                                   collect (json "name" (json-name-object 
                                                                         (getf jewel :name))
                                                                 "num" (getf jewel :quantity))))))))))
+
+;; (def-rpc answer-query (query)
+;;   (hunchentoot:log-message* :info 
+
 

@@ -97,6 +97,11 @@ namespace monster_avengers {
       and_pool_.resize(snapshots_.back().and_size);
       snapshots_.pop_back();
     }
+    
+    inline void RestoreSnapshot() {
+      or_pool_.resize(snapshots_.back().or_size);
+      and_pool_.resize(snapshots_.back().and_size);
+    }
 
   private:
     std::vector<OR> or_pool_;

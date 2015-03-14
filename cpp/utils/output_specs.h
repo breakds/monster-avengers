@@ -264,6 +264,16 @@ namespace monster_avengers {
     }
   };
 
+  struct ExploreResult : public lisp::Formattable {
+    std::vector<int> ids;
+    
+    ExploreResult() : ids() {}
+
+    lisp::Object Format() const override {
+      return lisp::FormatList(ids);
+    }
+  };
+
 }  // namespace monster_avengers
 
 

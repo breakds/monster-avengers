@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "aux/timer.h"
 #include "utils/query.h"
 #include "utils/signature.h"
 #include "utils/jewels_query.h"
@@ -47,14 +48,14 @@ namespace monster_avengers {
     explicit JewelFilterIterator(TreeIterator *base_iter,
                                  const DataSet &data,
                                  const NodePool *pool,
-                                 const std::vector<int> &skill_ids,
+                                 int effect_id,
                                  const std::vector<Effect> &effects)
       : base_iter_(base_iter), 
         pool_(pool),
-        hole_client_(data, skill_ids, effects),
+        hole_client_(data, {effects[effect_id].skill_id}, effects),
         current_(0),
         inverse_points_(sig::InverseKey(effects.begin(),
-                                        effects.begin() + skill_ids.size())) {
+                                        effects.begin() + effect_id + 1)) {
       Proceed();
     }
 
@@ -79,14 +80,32 @@ namespace monster_avengers {
     inline void Proceed() {
       current_.jewel_keys.clear();
       while (!base_iter_->empty()) {
-        current_.id = (**base_iter_).id;
-        current_.torso_multiplier = (**base_iter_).torso_multiplier;
+        const TreeRoot &root = **base_iter_;
+        current_.id = root.id;
+        current_.torso_multiplier = root.torso_multiplier;
         const Signature &key = pool_->Or(current_.id).key;
-        const std::unordered_set<Signature> &jewel_keys = 
-          hole_client_.Query(key);
-        for (const Signature &jewel_key : jewel_keys) {
-          if (sig::Satisfy(key | jewel_key, inverse_points_)) {
-            current_.jewel_keys.push_back(jewel_key);
+        if (root.jewel_keys.empty()) {
+          const std::unordered_set<Signature> &jewel_keys = 
+            hole_client_.Query(key);
+          for (const Signature &jewel_key : jewel_keys) {
+            if (sig::Satisfy(key | jewel_key, inverse_points_)) {
+              current_.jewel_keys.push_back(jewel_key);
+            }
+          }
+        } else {
+          int one(0), two(0), three(0), extra(0);
+          for (const Signature &existing_key : root.jewel_keys) {
+            hole_client_.GetResidual(key, existing_key,
+                                     &one, &two, &three, &extra);
+            Signature key0 = key | existing_key;
+            for (const Signature &jewel_key : 
+                   hole_client_.Query(one, two, 
+                                      three, extra,
+                                      root.torso_multiplier)) {
+              if (sig::Satisfy(key0 | jewel_key, inverse_points_)) {
+                current_.jewel_keys.push_back(existing_key + jewel_key);
+              }
+            }
           }
         }
         if (current_.jewel_keys.empty()) {
@@ -252,7 +271,6 @@ namespace monster_avengers {
       : data_(data_folder), pool_(),
         iterators_(), output_iterators_() {}
     
-    
     std::vector<TreeRoot> Foundation(const Query &query) {
 
       // Forest with no torso up.
@@ -339,7 +357,8 @@ namespace monster_avengers {
       }
     }
 
-    void Explore(const Query &input_query) {
+    void Explore(const Query &input_query,
+                 const std::string output_path = "") {
       // Optimize the Query
       Query query = OptimizeQuery(input_query);
 
@@ -355,9 +374,17 @@ namespace monster_avengers {
         CHECK_SUCCESS(ApplySkillSplitter(query, i));	
       }
       
+      ExploreResult result;
+
+      Timer timer;
+      timer.Tic();
       CachedTreeIterator iterator(iterators_.back().get());
-      wprintf(L"start!\n");
-      for (int i = 0; i < data_.skill_systems().size(); ++i) {
+      wprintf(L"Initialization: %.4lf\n", timer.Toc());
+      
+      pool_.PushSnapshot();
+      for (int i = 1; i < data_.skill_systems().size(); ++i) {
+        pool_.RestoreSnapshot();
+        timer.Tic();
         auto it = std::find_if(query.effects.begin(),
                                query.effects.end(),
                                [&i](const Effect &effect) {
@@ -365,11 +392,30 @@ namespace monster_avengers {
                                });
         if (query.effects.end() == it) {
           if (ExploreSkill(&iterator, data_, &pool_, i, query.effects)) {
-            wprintf(L"%ls: PASS ^_^\n", data_.skill_system(i).name.c_str());
-          } else {
-            wprintf(L"%ls: fail\n", data_.skill_system(i).name.c_str());
+            result.ids.push_back(i);
+            if ("" == output_path) {
+              wprintf(L"[%03d] %.4lf %ls: PASS ^_^ \n", 
+                      i,
+                      timer.Toc(),
+                      data_.skill_system(i).name.c_str());
+            }
+          } else if ("" == output_path) {
+            wprintf(L"[%03d] %.4lf %ls: fail\n", 
+                    i,
+                    timer.Toc(),
+                    data_.skill_system(i).name.c_str());
           }
         }
+      }
+      
+      if ("" != output_path) {
+        std::wofstream output_stream(output_path);
+        if (!output_stream.good()) {
+          Log(ERROR, L"error while opening %s.", output_path.c_str());
+          exit(-1);
+        }
+        output_stream.imbue(std::locale("en_US.UTF-8"));
+        output_stream << result.Format() << "\n";
       }
     }
 
@@ -501,32 +547,30 @@ namespace monster_avengers {
       return Status(SUCCESS);
     }
 
-    Status ApplyJewelFilter(const std::vector<Effect> &effects) {
-      std::vector<int> skill_ids;
-      int actual_size = std::min(static_cast<int>(effects.size()),
-                                 FOUNDATION_NUM);
-      for (int i = 0; i < actual_size; ++i) {
-        skill_ids.push_back(effects[i].skill_id);
-      }
-      TreeIterator *new_iter = 
-        new JewelFilterIterator(iterators_.back().get(),
-                                data_,
-                                &pool_,
-                                skill_ids,
-                                effects);
-      iterators_.emplace_back(new_iter);
-      return Status(SUCCESS);
-    }
+    // Status ApplyJewelFilter(const std::vector<Effect> &effects) {
+    //   std::vector<int> skill_ids;
+    //   int actual_size = std::min(static_cast<int>(effects.size()),
+    //                              FOUNDATION_NUM);
+    //   for (int i = 0; i < actual_size; ++i) {
+    //     skill_ids.push_back(effects[i].skill_id);
+    //   }
+    //   TreeIterator *new_iter = 
+    //     new JewelFilterIterator(iterators_.back().get(),
+    //                             data_,
+    //                             &pool_,
+    //                             skill_ids,
+    //                             effects);
+    //   iterators_.emplace_back(new_iter);
+    //   return Status(SUCCESS);
+    // }
 
     Status ApplySingleJewelFilter(const std::vector<Effect> &effects, 
                                   int effect_id) {
-      std::vector<int> skill_ids;
-      skill_ids.push_back(effects[effect_id].skill_id);
       TreeIterator *new_iter = 
         new JewelFilterIterator(iterators_.back().get(),
                                 data_,
                                 &pool_,
-                                skill_ids,
+                                effect_id,
                                 effects);
       iterators_.emplace_back(new_iter);
       return Status(SUCCESS);

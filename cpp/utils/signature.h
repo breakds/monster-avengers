@@ -162,6 +162,10 @@ namespace monster_avengers {
       return true;
     }
 
+    inline int PointsAt(int id) const {
+      return bytes[3 + id];
+    }
+
     bool operator==(const Signature &other) const {
       for (int i = 0; i < sizeof(Signature); ++i) {
         if (bytes[i] != other.bytes[i]) return false;

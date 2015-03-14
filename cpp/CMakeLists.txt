@@ -29,6 +29,7 @@ IF(BUILD_TESTS)
 ENDIF(BUILD_TESTS)
 
 ADD_EXECUTABLE(serve_query serve_query.cc)
+ADD_EXECUTABLE(serve_explore serve_explore.cc)
 
 
 
