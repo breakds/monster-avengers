@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
                              L"(:skill 36 10)"
                              L"(:skill 41 10)"
                              L"(:skill 40 15)"
-                             L"(:skill 30 10)", 
+                             // L"(:skill 30 10)", 
                              &query));
   
   query.DebugPrint();
