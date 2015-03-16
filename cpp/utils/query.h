@@ -147,6 +147,13 @@ namespace monster_avengers {
       weapon_type = other.weapon_type;
       return *this;
     }
+
+    bool HasSkill(int skill_id) const {
+      for (const Effect &effect : effects) {
+        if (skill_id == effect.skill_id) return true;
+      }
+      return false;
+    }
     
     void DebugPrint() {
       wprintf(L"---------- Query ----------\n");

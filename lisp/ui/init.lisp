@@ -7,9 +7,17 @@
   (defparameter *server-binary*
     (merge-pathnames "cpp/build/serve_query"
                      (asdf:system-source-directory 'monster-avengers)))
+  (defparameter *explore-binary*
+    (merge-pathnames "cpp/build/serve_explore"
+                     (asdf:system-source-directory 'monster-avengers)))
   (defparameter *dataset-path* 
     (merge-pathnames "dataset/MH4GU/"
-                     (asdf:system-source-directory 'monster-avengers))))
+                     (asdf:system-source-directory 'monster-avengers)))
+  (defparameter *skill-systems*
+    (with-open-file (in (merge-pathnames "skills.lisp"
+                                         *dataset-path*)
+                        :direction :input)
+      (read in))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defpsmacro lang-text (&rest lang-text-pairs)

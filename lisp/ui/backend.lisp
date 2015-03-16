@@ -66,57 +66,103 @@
 ;;; ---------- RPC ----------
 
 (def-rpc answer-query (query)
-  (hunchentoot:log-message* :info "session: ~a"
-                            (hunchentoot:session-id current-session))
-  (let ((query-file (merge-pathnames (format nil "query_cache_~a.lsp"
-                                             (hunchentoot:session-id 
-                                              current-session))
-                                     *working-dir*))
-        (output-file (merge-pathnames (format nil "output_~a.lsp"
-                                              (hunchentoot:session-id 
-                                               current-session))
-                                      *working-dir*)))
-    (with-open-file (output output-file
-                            :direction :output
-                            :if-exists :supersede)
-      (format output ""))
-    (with-open-file (cache query-file
-                           :direction :output
-                           :if-exists :supersede)
-      (format cache "~a~%" query))
-    (sb-ext:run-program (namestring *server-binary*)
-                        (list (namestring *dataset-path*) 
-                              (namestring query-file)
-                              (namestring output-file))
-                        :output *standard-output* :wait t)
-    (with-open-file (input output-file
-                           :direction :input)
-      (loop for solution = (read input nil nil)
-         while solution
-         collect (json "gear" (json-armor-object (getf solution :gear))
-                       "head" (json-armor-object (getf solution :head))
-                       "body" (json-armor-object (getf solution :body))
-                       "hands" (json-armor-object (getf solution :hands))
-                       "waist" (json-armor-object (getf solution :waist))
-                       "feet" (json-armor-object (getf solution :feet))
-                       "amulet" (json-amulet-object (getf solution :amulet))
-                       "defense" (getf solution :defense)
-                       "jewelPlans" 
-                       (loop for jewel-plan in (getf solution :jewel-plans)
-                          collect (json "summary" (json-summary (getf jewel-plan :summary))
-                                        "bodyPlan" (loop for jewel in 
-                                                        (getf jewel-plan :body-plan)
-                                                      collect (json "name" (json-name-object 
-                                                                            (getf jewel :name))
-                                                                    "num" (getf jewel :quantity)))
-                                        "bodyStuffed" (getf jewel-plan :body-stuffed)
-                                        "plan" (loop for jewel in 
-                                                    (getf jewel-plan :plan)
-                                                  collect (json "name" (json-name-object 
-                                                                        (getf jewel :name))
-                                                                "num" (getf jewel :quantity))))))))))
+  (let ((session-id (hunchentoot:session-id hunchentoot:*session*))
+        (local-session hunchentoot:*session*))
+    (hunchentoot:log-message* :info "session: ~a query start."
+                              session-id)
+    ;; Kill alive explore processes
+    (let ((explore-process (hunchentoot:session-value :explore-process local-session)))
+      (when (and explore-process
+                 (sb-ext:process-alive-p explore-process))
+        (sb-ext:process-kill explore-process 9)))
+    (let ((query-file (merge-pathnames (format nil "query_cache_~a.lsp"
+                                               session-id)
+                                       *working-dir*))
+          (output-file (merge-pathnames (format nil "output_~a.lsp"
+                                                session-id)
+                                        *working-dir*)))
+      (with-open-file (output output-file
+                              :direction :output
+                              :if-exists :supersede)
+        (format output ""))
+      (with-open-file (cache query-file
+                             :direction :output
+                             :if-exists :supersede)
+        (format cache "~a~%" query))
+      (sb-ext:run-program (namestring *server-binary*)
+                          (list (namestring *dataset-path*) 
+                                (namestring query-file)
+                                (namestring output-file))
+                          :output *standard-output* :wait t)
+      (with-open-file (input output-file
+                             :direction :input)
+        (loop for solution = (read input nil nil)
+           while solution
+           collect (json "gear" (json-armor-object (getf solution :gear))
+                         "head" (json-armor-object (getf solution :head))
+                         "body" (json-armor-object (getf solution :body))
+                         "hands" (json-armor-object (getf solution :hands))
+                         "waist" (json-armor-object (getf solution :waist))
+                         "feet" (json-armor-object (getf solution :feet))
+                         "amulet" (json-amulet-object (getf solution :amulet))
+                         "defense" (getf solution :defense)
+                         "jewelPlans" 
+                         (loop for jewel-plan in (getf solution :jewel-plans)
+                            collect (json "summary" (json-summary (getf jewel-plan :summary))
+                                          "bodyPlan" (loop for jewel in 
+                                                          (getf jewel-plan :body-plan)
+                                                        collect (json "name" (json-name-object 
+                                                                              (getf jewel :name))
+                                                                      "num" (getf jewel :quantity)))
+                                          "bodyStuffed" (getf jewel-plan :body-stuffed)
+                                          "plan" (loop for jewel in 
+                                                      (getf jewel-plan :plan)
+                                                    collect (json "name" (json-name-object 
+                                                                          (getf jewel :name))
+                                                                  "num" (getf jewel :quantity)))))))))))
 
-;; (def-rpc answer-query (query)
-;;   (hunchentoot:log-message* :info 
+(def-rpc answer-explore (query init-call)
+  (let ((session-id (hunchentoot:session-id hunchentoot:*session*))
+        (local-session hunchentoot:*session*))
+    (hunchentoot:log-message* :info "session: ~a explore start."
+                              session-id)
+  (let ((query-file (merge-pathnames (format nil "explore_query_cache_~a.lsp"
+                                             session-id)
+                                     *working-dir*))
+        (output-file (merge-pathnames (format nil "explore_output_~a.lsp"
+                                              session-id)
+                                      *working-dir*)))
+    (when (equal init-call "true")
+      (with-open-file (cache query-file
+                             :direction :output
+                             :if-exists :supersede)
+        (format cache "~a~%" query))
+
+      ;; Empty the output file.
+      (with-open-file (output output-file
+                              :direction :output
+                              :if-exists :supersede)
+        (format output ""))
+      (setf (hunchentoot:session-value :explore-process local-session)
+            (sb-ext:run-program (namestring *explore-binary*)
+                                (list (namestring *dataset-path*) 
+                                      (namestring query-file)
+                                      (namestring output-file))
+                                :wait nil))
+      (sleep 0.4))
+    (let* ((explore-process (hunchentoot:session-value :explore-process local-session))
+           (finished (not (sb-ext:process-alive-p explore-process)))
+           (current-result  (with-open-file (input output-file
+                                                   :direction :input)
+                              (loop for entry = (read input nil nil) 
+                                 while entry
+                                 collect entry)))
+           (size (length current-result)))
+      (json "finished" (if finished "true" "false")
+            "result" (mapcar #`,(car x1)
+                             (remove-if #`,(eq (second x1) :fail)
+                                        current-result))
+            "percentage" (ceiling (* size 100) 
+                                  (length *skill-systems*)))))))
 
 

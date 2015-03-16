@@ -302,8 +302,6 @@ namespace monster_avengers {
 
     void Search(const Query &input_query, 
                 const std::string output_path) {
-      bool to_screen = "" == output_path;
-      
       // Optimize the Query
       Query query = OptimizeQuery(input_query);
 
@@ -356,79 +354,64 @@ namespace monster_avengers {
         ++(*output_iterators_.back());
       }
     }
-
+    
     void Explore(const Query &input_query,
                  const std::string output_path = "") {
-      // Optimize the Query
-      Query query = OptimizeQuery(input_query);
-
-      // Add in custom armors
-      InitializeExtraArmors(query);
-
-      // Core Search
-      CHECK_SUCCESS(ApplyFoundation(query));
-      for (int i = 0; i < FOUNDATION_NUM; ++i) {
-        CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, i));
-      }
-      for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
-        CHECK_SUCCESS(ApplySkillSplitter(query, i));	
-      }
-      
-      ExploreResult result;
-
+      Timer overall_timer;
+      overall_timer.Tic();
       Timer timer;
-      timer.Tic();
-      CachedTreeIterator iterator(iterators_.back().get());
-      wprintf(L"Initialization: %.4lf\n", timer.Toc());
-      
       pool_.PushSnapshot();
-      for (int i = 1; i < data_.skill_systems().size(); ++i) {
-        pool_.RestoreSnapshot();
-        timer.Tic();
-        auto it = std::find_if(query.effects.begin(),
-                               query.effects.end(),
-                               [&i](const Effect &effect) {
-                                 return effect.skill_id == i;
-                               });
-        if (query.effects.end() == it) {
-          if (ExploreSkill(&iterator, data_, &pool_, i, query.effects)) {
-            result.ids.push_back(i);
-            if ("" == output_path) {
-              wprintf(L"[%03d] %.4lf %ls: PASS ^_^ \n", 
-                      i,
-                      timer.Toc(),
-                      data_.skill_system(i).name.c_str());
-            }
-          } else if ("" == output_path) {
-            wprintf(L"[%03d] %.4lf %ls: fail\n", 
-                    i,
-                    timer.Toc(),
-                    data_.skill_system(i).name.c_str());
-          }
-        }
-      }
+
+      ExploreFormatter formatter(output_path);
       
-      if ("" != output_path) {
-        std::wofstream output_stream(output_path);
-        if (!output_stream.good()) {
-          Log(ERROR, L"error while opening %s.", output_path.c_str());
-          exit(-1);
+      for (int i = 1; i < data_.skill_systems().size(); ++i) {
+        timer.Tic();
+        if (input_query.HasSkill(i)) {
+          formatter.Push(i, false,
+                         data_.skill_system(i).name,
+                         timer.Toc());
+          continue;
         }
-        output_stream.imbue(std::locale("en_US.UTF-8"));
-        output_stream << result.Format() << "\n";
+        pool_.RestoreSnapshot();
+        iterators_.clear();
+        
+        Query updated_query = input_query;
+        updated_query.effects.push_back({
+            i, data_.skill_system(i).LowestPositivePoints()});
+        Query query = OptimizeQuery(updated_query, false);
+        
+        // Add in custom armors
+        InitializeExtraArmors(query);
+
+        // Core Search
+        CHECK_SUCCESS(ApplyFoundation(query));
+        for (int i = 0; i < FOUNDATION_NUM; ++i) {
+          CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, i));
+        }
+        for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
+          CHECK_SUCCESS(ApplySkillSplitter(query, i));	
+        }
+
+        formatter.Push(i, !iterators_.back()->empty(), 
+                       data_.skill_system(i).name,
+                       timer.Toc());
       }
+      wprintf(L"Overall: %.4lf sec\n", overall_timer.Toc());
     }
 
-    Query OptimizeQuery(const Query &query) {
+    Query OptimizeQuery(const Query &query, bool verbose = true) {
       std::vector<double> scores;
       std::vector<int> indices;
       for (int i = 0; i < query.effects.size(); ++i) {
         const Effect &effect = query.effects[i];
         indices.push_back(i);
         scores.push_back(data_.EffectScore(effect));
-        wprintf(L"%ls: %.5lf\n", 
-                data_.skill_system(effect.skill_id).name.c_str(),
-                scores.back());
+        if (verbose) {
+          wprintf(L"(%03d) %ls: %.5lf\n", 
+                  effect.skill_id,
+                  data_.skill_system(effect.skill_id).name.c_str(),
+                  scores.back());
+        }
       }
 
       std::sort(indices.begin(), indices.end(), 

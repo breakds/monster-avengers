@@ -31,11 +31,20 @@
 					       (funcall destructor (@ effect id)))))
 				  (:span ((class-name "glyphicon glyphicon-remove")))))))))
 
-(def-widget skill-panel (language change-callback effects achievable-ids)
+(def-widget skill-panel (language change-callback effects explore-progress achievable-ids)
     ((state (selected 13))
      (add-skill ()
 		(funcall change-callback (local-state selected) 0)
 		nil)
+     (component-will-receive-props ()
+                                   (if (= (@ achievable-ids length) 0)
+                                       (chain this (set-state (create selected "-1")))
+                                       (when (= (chain achievable-ids 
+                                                       (index-of (local-state selected)))
+                                                -1)
+                                         (chain this (set-state (create selected 
+                                                                        (aref achievable-ids 0))))))
+                                   nil)
      (remove-skill (skill-id)
 		   (funcall change-callback skill-id -1)
 		   nil))
@@ -52,10 +61,12 @@
 					     (destructor (@ this remove-skill))))))))
             (:div ((class-name "panel-body"))
                   (:div ((class-name "input-group"))
-                        ;; (:span ((class-name "input-group-addon"))
-                        ;;        "Still Achievable")
                         (:select ((class-name "form-control")
                                   (value (local-state selected))
+                                  (style :color (if (= (@ achievable-ids length)
+                                                       (@ skill-systems length))
+                                                    "black"
+                                                    "#00BFFF"))
 				  (on-change (lambda (e)
                                                (chain this 
                                                       (set-state (create 
@@ -67,7 +78,11 @@
                                                        (@ (aref skill-systems y) name en))
                                                     -1 1)))
                                         (map (lambda (id)
-                                               (:option ((value id))
+                                               (:option ((value id)
+                                                         (style :color (if (= (@ achievable-ids length)
+                                                                              (@ skill-systems length))
+                                                                           "black"
+                                                                           "#00BFFF")))
                                                         (lang-text ("zh" (@ (aref skill-systems id) 
                                                                             name jp))
                                                                    ("en" (@ (aref skill-systems id) 
@@ -78,12 +93,14 @@
 					(on-click (@ this add-skill)))
                                        (lang-text ("en" "Add")
                                                   ("zh" "添加")))))
-                  (:div ((class-name "progress")
-                         (style :margin-top "10px"))
-                        (:div ((class-name "progress-bar progress-bar-striped active")
-                               (style :width "100%"))
-                              (:span () "Updating usable skill trees."))))))
-
+                  (when (>= explore-progress 0)
+                    (:div ((class-name "progress")
+                           (style :margin-top "10px"
+                                  :height 32))
+                          (:div ((class-name "progress-bar progress-bar-striped active")
+                                 (style :width (+ explore-progress "%")
+                                        :text-align "right"))
+                                (:img ((src "img/ostrich.gif")))))))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (disable-jsx-reader))

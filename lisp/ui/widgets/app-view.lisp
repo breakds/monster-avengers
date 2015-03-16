@@ -79,6 +79,7 @@
             (effects (array))
             (blacklist (array))
             (query-fail false)
+            (explore-progress -1)
             (query-result (array))
             (achievable-ids (chain skill-systems
                                    (map (lambda (x id) id))))
@@ -142,6 +143,27 @@
                        (funcall (@ this switch-page) "result")
                        (chain console (log rpc-result))))
                    nil)
+     (handle-explore (init)
+                     (chain console (log (+ "handle-explore " init)))
+                     (let ((query (funcall (@ this construct-query) false)))
+                       (when (= init "true")
+                         (chain console (log query))
+                         (chain this (set-state (create explore-progress 0))))
+                       (with-rpc (answer-explore query init)
+                         (when (>= (local-state explore-progress) 0)
+                           (chain this (set-state (create explore-progress 
+                                                          (*number (@ rpc-result percentage))
+                                                          achievable-ids
+                                                          (@ rpc-result result))))
+                           (if (= "false" (@ rpc-result finished))
+                               (set-timeout (@ this handle-explore) 750 "false")
+                               (chain this (set-state (create explore-progress -1))))
+                           (chain console (log rpc-result)))))
+                     nil)
+     (reset-skill-input ()
+                        (chain this (set-state (create achievable-ids
+                                                       (chain skill-systems
+                                                              (map (lambda (x id) id)))))))
      (update-parameters (param value)
                         (if (= param "weapon-type")
                             (chain this (set-state (create weapon-type value)))
@@ -158,26 +180,20 @@
                      (chain this (set-state (create amulets new-amulets)))
                      nil)
      (update-effects (skill-id active-id)
-		     (let ((new-effects (local-state effects)))
-		       (setf new-effects
-			     (chain new-effects (filter (lambda (e i a) 
-							  (not (= (@ e id)
-                                                                  skill-id))))))
-		       (when (> active-id -1)
-			 (let ((points (@ (aref (@ (aref skill-systems skill-id) skills)
-						active-id) points)))
-			   (chain new-effects (push (create :id skill-id
-                                                            :active active-id
-							    :points points)))))
-		       (chain this (set-state (create effects new-effects))))
+                     (when (not (= skill-id -1))
+                       (let ((new-effects (local-state effects)))
+                         (setf new-effects
+                               (chain new-effects (filter (lambda (e i a) 
+                                                            (not (= (@ e id)
+                                                                    skill-id))))))
+                         (when (> active-id -1)
+                           (let ((points (@ (aref (@ (aref skill-systems skill-id) skills)
+                                                  active-id) points)))
+                             (chain new-effects (push (create :id skill-id
+                                                              :active active-id
+                                                              :points points)))))
+                         (chain this (set-state (create effects new-effects)))))
 		     nil)
-     (update-achievable-ids (new-ids)
-                            (if new-ids
-                                (chain this (set-state (create achievable-ids new-ids)))
-                                (chain this (set-state (create achievable-ids 
-                                                               (chain skill-systems
-                                                                      (map (lambda (x id) id)))))))
-                            nil)
      (switch-page (page)
                   (chain this (set-state (create current-page page)))
                   nil))
@@ -215,6 +231,7 @@
                                   (:skill-panel ((language (local-state language))
                                                  (effects (local-state effects))
                                                  (achievable-ids (local-state achievable-ids))
+                                                 (explore-progress (local-state explore-progress))
                                                  (change-callback (@ this update-effects))))
                                   (:div ((class-name "btn-group"))
                                         (:button ((class-name "btn btn-primary")
@@ -229,8 +246,43 @@
                                                      (if (= (local-state "language") "en")
                                                          "Search"
                                                          "搜索")))
-                                        (:button ((class-name "btn btn-success"))
-                                                 "Prune")))))
+                                        (:button ((class-name "btn btn-success")
+                                                  (disabled (or (<= (@ (local-state effects) length) 0)
+                                                                (>= (local-state explore-progress) 0)))
+                                                  ("data-toggle" "tooltip")
+                                                  ("data-placement" "bottom")
+                                                  (title (if (= (local-state language) "en")
+                                                             (+ "Screen the skill trees and keep "
+                                                                "only those that are still achievable "
+                                                                "based on current skill choices.")
+                                                             "筛选出当前技能组合下，仍然可以发动的技能."))
+                                                  (on-click (lambda ()
+                                                              (funcall (@ this handle-explore) "true")
+                                                              nil)))
+                                                 (if (< (local-state explore-progress) 0)
+                                                     (if (= (local-state language) "en")
+                                                         "Screen Skills"
+                                                         "筛选技能")
+                                                     (if (= (local-state language) "en")
+                                                         "Screen in Progress ..."
+                                                         "正在过滤 ...")))
+                                        (when (>= (local-state explore-progress) 0)
+                                          (:button ((class-name "btn btn-danger")
+                                                    (on-click (lambda ()
+                                                                (chain this (set-state (create explore-progress
+                                                                                               -1)))
+                                                                nil)))
+                                                   (if (= (local-state lambda) "en")
+                                                       "Stop"
+                                                       "停止筛选")))
+                                        (when (and (not (= (@ (local-state achievable-ids) length)
+                                                           (@ skill-systems length)))
+                                                   (< (local-state explore-progress) 0))
+                                          (:button ((class-name "btn btn-warning")
+                                                    (on-click (@ this reset-skill-input)))
+                                                   (if (= (local-state language) "en")
+                                                       "Reset Skill Options"
+                                                       "重置可选技能")))))))
                 (if (= (local-state current-page) "result")
                     (:div ((class-name "row"))
                           (:div ((class-name "col-md-6 col-xs-12 col-sm-12"))

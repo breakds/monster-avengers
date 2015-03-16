@@ -136,6 +136,41 @@ namespace monster_avengers {
     const DataSet *data_;
   };
 
+
+  class ExploreFormatter {
+  public:
+    ExploreFormatter(const std::string &file_name) 
+      : to_screen_("" == file_name) {
+      if (!to_screen_) {
+        output_stream_.reset(new std::wofstream(file_name));
+        if (!output_stream_->good()) {
+          Log(ERROR, L"error while opening %s.", file_name.c_str());
+          exit(-1);
+        }
+        output_stream_->imbue(std::locale("en_US.UTF-8"));
+      }
+    }
+
+    void Push(int skill_id, bool pass, const LanguageText &name, 
+              double duration) {
+      if (to_screen_) {
+        wprintf(L"%.4lf sec, (%03d) %ls %s\n",
+                duration,
+                skill_id,
+                name.c_str(),
+                pass ? "[PASS]" : "[fail]");
+      } else {
+        (*output_stream_) << "(" << skill_id << " "
+                          << (pass ? ":PASS" : ":FAIL") << ")\n";
+        output_stream_->flush();
+      }
+    }
+    
+  private:
+    bool to_screen_;
+    std::unique_ptr<std::wofstream> output_stream_;
+  };
+
 }  // namespace monster_avengers
 
 

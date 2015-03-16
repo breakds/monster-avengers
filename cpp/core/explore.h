@@ -36,12 +36,16 @@ namespace monster_avengers {
       current_ = 0;
     }
 
+    inline size_t size() const {
+      return cache_.size();
+    }
+
   private:
     std::vector<TreeRoot> cache_;
     size_t current_;
   };
 
-  bool ExploreSkill(CachedTreeIterator *iterator,
+  bool ExploreSkill(TreeIterator *iterator,
                     const DataSet &data, 
                     NodePool *pool, 
                     int skill_id, 
