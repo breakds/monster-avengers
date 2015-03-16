@@ -272,7 +272,7 @@
                                                                 (chain this (set-state (create explore-progress
                                                                                                -1)))
                                                                 nil)))
-                                                   (if (= (local-state lambda) "en")
+                                                   (if (= (local-state language) "en")
                                                        "Stop"
                                                        "停止筛选")))
                                         (when (and (not (= (@ (local-state achievable-ids) length)

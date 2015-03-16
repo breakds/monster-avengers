@@ -163,6 +163,6 @@
                              (remove-if #`,(eq (second x1) :fail)
                                         current-result))
             "percentage" (ceiling (* size 100) 
-                                  (length *skill-systems*)))))))
+                                  (1- (length *skill-systems*))))))))
 
 
