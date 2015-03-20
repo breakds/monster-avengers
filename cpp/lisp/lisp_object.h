@@ -68,6 +68,18 @@ namespace monster_avengers {
         type(LISP_STR), data(new std::wstring(x), [](void * content) {
             delete static_cast<std::wstring*>(content);}) {}
 
+      template <typename FormattableType>
+      Object(const std::vector<FormattableType> &other) :
+        type(LISP_LIST) {
+        std::vector<Object> *list = new std::vector<Object>();
+        for (const FormattableType &item : other) {
+          list->emplace_back(item);
+        }
+        data = DataHolder(list, [](void * content) {
+              delete static_cast<std::vector<Object>*>(content);
+          });
+      }
+      
       Object(std::vector<Object> &&other) :
         type(LISP_LIST), 
         data(new std::vector<Object>(std::move(other)),
@@ -234,6 +246,42 @@ namespace monster_avengers {
 
       const ObjectHolder &GetMap() const {
         return (*static_cast<ObjectHolder*>(data.get()));
+      }
+
+      void OutputJson(std::wostream &out) {
+        switch (type) {
+        case Object::LISP_NIL:
+          out << "{}";
+          break;
+        case Object::LISP_NUM: 
+          out << std::to_wstring(*static_cast<int*>(data.get())); 
+          break;
+        case Object::LISP_STR: 
+          out << "\"" << *static_cast<std::wstring*>(data.get())
+              << "\"";
+          break;
+        case Object::LISP_LIST:
+          out << "[";
+          for (int i = 0; i < Size(); ++i) {
+            if (i > 0) out << ", ";
+            (*this)[i].OutputJson(out);
+          }
+          out << "]";
+          break;
+        case Object::LISP_OBJ:
+          out << "{";
+          int i = 0;
+          for (auto &item : GetMap()) {
+            std::wstring name;
+            name.assign(item.first.begin(), item.first.end());
+            if (i > 0) out << ", ";
+            out << "\"" << name << "\": ";
+            item.second.OutputJson(out);
+            i++;
+          }
+          out << "}";
+          break;
+        }
       }
     };
 

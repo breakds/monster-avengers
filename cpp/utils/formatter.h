@@ -14,40 +14,23 @@
 #include "utils/output_specs.h"
 
 namespace monster_avengers {
+
+  template <OutputSpec Spec>
   class ArmorSetFormatter {
   public:
-    ArmorSetFormatter(const std::string file_name, 
+    virtual void operator()(const ArmorSet &armor_set) = 0;
+  };
+
+  template <>
+  class ArmorSetFormatter<SCREEN> {
+  public:
+    ArmorSetFormatter(const std::string &unused_path,
                       const DataSet *data,
                       const Query &query)
-      : to_screen_("" == file_name),
-        solver_(*data, query.effects), 
-        data_(data) {
-      if (!to_screen_) {
-        output_stream_.reset(new std::wofstream(file_name));
-        if (!output_stream_->good()) {
-          Log(ERROR, L"error while opening %s.", file_name.c_str());
-          exit(-1);
-        }
-        output_stream_->imbue(std::locale("en_US.UTF-8"));
-      }
-    }
+      : solver_(*data, query.effects), 
+        data_(data) {}
 
     void operator()(const ArmorSet &armor_set) {
-      if (to_screen_) {
-        ToScreen(armor_set);
-      } else {
-        ToFile(armor_set);
-      }
-    }
-
-  private:
-    // Output to specified file.
-    void ToFile(const ArmorSet &armor_set) {
-      (*output_stream_) << ArmorResult(*data_, solver_, armor_set) << "\n";
-    }
-
-    // Output to screen.
-    void ToScreen(const ArmorSet &armor_set) const {
       ArmorResult result(*data_, solver_, armor_set);
       wprintf(L"---------- ArmorSet (defense %d) ----------\n", 
               result.defense);
@@ -80,6 +63,7 @@ namespace monster_avengers {
       wprintf(L"\n");
     }
     
+  private:
     void WriteGear(const PackedArmor &gear) const {
       wprintf(L"[ GEAR ] [%s] [Rare ??] %ls\n", 
               HoleText(gear.holes).c_str(),
@@ -129,13 +113,74 @@ namespace monster_avengers {
       }
     }
 
+    const JewelSolver solver_;
+    const DataSet *data_;
+  };
 
-    bool to_screen_;
+
+  template <>
+  class ArmorSetFormatter<LISP> {
+  public:
+    ArmorSetFormatter(const std::string file_name, 
+                      const DataSet *data,
+                      const Query &query)
+      : solver_(*data, query.effects), 
+        data_(data) {
+      output_stream_.reset(new std::wofstream(file_name));
+      if (!output_stream_->good()) {
+        Log(ERROR, L"error while opening %s.", file_name.c_str());
+        exit(-1);
+      }
+      output_stream_->imbue(std::locale("en_US.UTF-8"));
+    }
+
+    void operator()(const ArmorSet &armor_set) {
+      ToFile(armor_set);
+    }
+
+  private:
+    // Output to specified file.
+    void ToFile(const ArmorSet &armor_set) {
+      (*output_stream_) << ArmorResult(*data_, solver_, armor_set) << "\n";
+    }
+
     std::unique_ptr<std::wofstream> output_stream_;
     const JewelSolver solver_;
     const DataSet *data_;
   };
 
+  template <>
+  class ArmorSetFormatter<JSON> {
+  public:
+    ArmorSetFormatter(const std::string file_name, 
+                      const DataSet *data,
+                      const Query &query)
+      : solver_(*data, query.effects), 
+        data_(data) {
+      output_stream_.reset(new std::wofstream(file_name));
+      if (!output_stream_->good()) {
+        Log(ERROR, L"error while opening %s.", file_name.c_str());
+        exit(-1);
+      }
+      output_stream_->imbue(std::locale("en_US.UTF-8"));
+    }
+
+    void operator()(const ArmorSet &armor_set) {
+      ToFile(armor_set);
+    }
+
+  private:
+    // Output to specified file.
+    void ToFile(const ArmorSet &armor_set) {
+      lisp::Object result = 
+        JsonArmorResult(*data_, solver_, armor_set).Format();
+      result.OutputJson(*output_stream_);
+    }
+
+    std::unique_ptr<std::wofstream> output_stream_;
+    const JewelSolver solver_;
+    const DataSet *data_;
+  };
 
   class ExploreFormatter {
   public:

@@ -14,9 +14,15 @@
 
 
 namespace monster_avengers {
-
+  
   constexpr int MAX_JEWEL_PLANS = 5;
 
+  enum OutputSpec {
+    LISP = 0,
+    JSON = 1,
+    SCREEN = 2,
+  };
+  
   struct ArmorSet {
     std::array<int, PART_NUM> ids;
     std::vector<Signature> jewel_keys;
@@ -263,6 +269,114 @@ namespace monster_avengers {
       return output;
     }
   };
+
+  // ---------- JSON ----------
+
+  // Amulet
+  struct JsonTalisman : public lisp::Formattable {
+    int slot;
+    std::vector<Effect> effects;
+    
+    JsonTalisman(const DataSet &data, int armor_id) {
+      const Armor &amulet = data.armor(armor_id);
+      slot = amulet.holes;
+      effects = amulet.effects;
+    }
+
+    lisp::Object Format() const override {
+      lisp::Object output = lisp::Object::Struct();
+      output["slot"] = slot;
+      if (0 < effects.size()) {
+        output["skilltree_1_id"] = effects[0].skill_id;
+        output["skilltree_1_points"] = effects[0].points;
+      }
+      if (1 < effects.size()) {
+        output["skilltree_2_id"] = effects[1].skill_id;
+        output["skilltree_2_points"] = effects[1].points;
+      }
+      return output;
+    }
+  };
+
+  struct JsonDecoration : public lisp::Formattable {
+    int jewel_id;
+    int quantity;
+    bool on_body;
+
+    JsonDecoration(int jewel_id_, int quantity_, bool on_body_) 
+      : jewel_id(jewel_id_), quantity(quantity_), on_body(on_body_) {}
+
+    
+    lisp::Object Format() const override {
+      lisp::Object output = lisp::Object::Struct();
+      output["jewel_id"] = jewel_id;
+      output["quantity"] = quantity;
+      output["on_body"] = std::wstring(on_body ? L"true" : L"false");
+      return output;
+    }
+  };
+
+  struct JsonArmorResult : public lisp::Formattable {
+    int head_id;
+    int body_id;
+    int arms_id;
+    int waist_id;
+    int legs_id;
+    int weapon_slot;
+    JsonTalisman talisman;
+    std::vector<std::vector<JsonDecoration> > plans;
+    
+    JsonArmorResult(const DataSet &data, 
+                    const JewelSolver &solver, 
+                    const ArmorSet &armor_set) 
+      : talisman(data, armor_set.ids[AMULET]) {
+      weapon_slot = data.armor(armor_set.ids[GEAR]).holes;
+      head_id = armor_set.ids[HEAD];
+      body_id = armor_set.ids[BODY];
+      arms_id = armor_set.ids[HANDS];
+      waist_id = armor_set.ids[WAIST];
+      legs_id = armor_set.ids[FEET];
+
+      int multiplier = 
+        std::accumulate(armor_set.ids.begin(),
+                        armor_set.ids.end(),
+                        1, // initially we have 1 for body itself
+                        [&data](int accu, int id) {
+                          return accu + (data.armor(id).TorsoUp() ? 1 : 0);
+                        });
+      
+      plans.clear();
+      for (const Signature &jewel_key : armor_set.jewel_keys) {
+        if (plans.size() >= MAX_JEWEL_PLANS) break;
+        plans.emplace_back();
+        const JewelSolver::JewelPlan jewel_plan = 
+          std::move(solver.Solve(jewel_key, multiplier));
+        for (const auto &item : jewel_plan.first) {
+          plans.back().emplace_back(item.first, item.second, false);
+        }
+
+        // On-body jewels
+        for (const auto &item : jewel_plan.second) {
+          plans.back().push_back({item.first, item.second, true});
+        }
+      }
+    }
+
+    lisp::Object Format() const override {
+      lisp::Object output = lisp::Object::Struct();
+      output["head_id"] = head_id;
+      output["body_id"] = body_id;
+      output["arms_id"] = arms_id;
+      output["waist_id"] = waist_id;
+      output["legs_id"] = legs_id;
+      output["weapon_slot"] = weapon_slot;
+      output["talisman"] = talisman;
+      output["decoration_plans"] = lisp::FormatList(plans);
+      return output;
+    }
+  };
+
+  // ---------- Explore ----------
 
   struct ExploreResult : public lisp::Formattable {
     std::vector<int> ids;

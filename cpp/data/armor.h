@@ -87,13 +87,6 @@ namespace monster_avengers {
     int holes;
     std::vector<Effect> effects;
     std::vector<int> material;
-    // Whether the armor is created only for being multiplied.
-    bool multiplied;
-    // What is the base armor, in torso up case.
-    int base;
-    // The stuffed jewels
-    std::unordered_map<int, int> jewels;
-    bool torso_up;
     
     Armor() = default;
 
@@ -109,9 +102,6 @@ namespace monster_avengers {
       armor.max_defense = 0;
       armor.holes = holes;
       armor.effects = std::move(effects);
-      armor.multiplied = false;
-      armor.base = -1;
-      armor.jewels.clear();
       return armor;
     }
 
@@ -128,9 +118,6 @@ namespace monster_avengers {
       holes = other.holes;
       effects = other.effects;
       material = other.material;
-      multiplied = other.multiplied;
-      base = other.base;
-      jewels = other.jewels;
     }
 
     Armor(const lisp::Object &object) {

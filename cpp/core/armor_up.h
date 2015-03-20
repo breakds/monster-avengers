@@ -11,6 +11,7 @@
 #include "utils/signature.h"
 #include "utils/jewels_query.h"
 #include "utils/formatter.h"
+#include "utils/output_specs.h"
 #include "or_and_tree.h"
 #include "iterator.h"
 #include "explore.h"
@@ -300,11 +301,7 @@ namespace monster_avengers {
       return result;
     }
 
-    void Search(const Query &input_query, 
-                const std::string output_path) {
-      // Optimize the Query
-      Query query = OptimizeQuery(input_query);
-
+    void SearchCore(const Query &query) {
       // Add in custom armors
       InitializeExtraArmors(query);
 
@@ -318,9 +315,18 @@ namespace monster_avengers {
       }
       CHECK_SUCCESS(PrepareOutput());
       CHECK_SUCCESS(ApplyDefenseFilter(query));
-      
+    }
+
+    template <OutputSpec Spec>
+    void Search(const Query &query, const std::string &output_path = "") {
+      // Optimize the Query
+      Query optimized_query = OptimizeQuery(query);
+
+      SearchCore(optimized_query);
+
       // Prepare formatter
-      ArmorSetFormatter formatter(output_path, &data_, query);
+      ArmorSetFormatter<Spec> formatter(output_path, &data_, 
+                                        optimized_query);
       
       int count = 0;
       while (count < query.max_results && !output_iterators_.back()->empty()) {
@@ -330,7 +336,7 @@ namespace monster_avengers {
         ++(*output_iterators_.back());
       }
     }
-
+    
     // Iterate is for speed test only.
     void Iterate(const Query &input_query) {
       // Optimize the Query

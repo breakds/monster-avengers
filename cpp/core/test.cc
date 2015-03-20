@@ -28,14 +28,13 @@ int main(int argc, char **argv) {
   //                            L"(:skill 30 20)",
   //                            &query));
 
-  CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
-                             L"(:weapon-holes 2)"
-                             L"(:skill 36 10)"
-                             L"(:skill 41 10)"
-                             L"(:skill 40 15)"
-                             L"(:skill 1 10)",
-                             &query));
-
+  // CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
+  //                            L"(:weapon-holes 2)"
+  //                            L"(:skill 36 10)"
+  //                            L"(:skill 41 10)"
+  //                            L"(:skill 40 15)",
+  //                            &query));
+  
   // Query that returns 5 skills
   // CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
   //                            L"(:weapon-holes 2)"
@@ -48,16 +47,16 @@ int main(int argc, char **argv) {
   //                            &query));
   
   // Query that returns 6 skills
-  // CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
-  //                            L"(:weapon-holes 2)"
-  //                            L"(:skill 25 15)"
-  //                            L"(:skill 1 10)"
-  //                            L"(:skill 40 15)"
-  //                            L"(:skill 41 10)"
-  //                            L"(:skill 36 10)" 
-  //                            L"(:skill 30 10)" 
-  //                            L"(:amulet 2 (1 4 30 10))",
-  //                            &query));
+  CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
+                             L"(:weapon-holes 2)"
+                             L"(:skill 25 15)"
+                             L"(:skill 1 10)"
+                             L"(:skill 40 15)"
+                             L"(:skill 41 10)"
+                             L"(:skill 36 10)" 
+                             L"(:skill 30 10)" 
+                             L"(:amulet 2 (1 4 30 10))",
+                             &query));
   
   // Query that does not return anything (time consuming)
   // CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")"
@@ -77,7 +76,7 @@ int main(int argc, char **argv) {
   ArmorUp armor_up("/home/breakds/pf/projects/monster-avengers/dataset/MH4GU");
   double init_duration = timer.Toc();
   timer.Tic();
-  armor_up.Search(query, "");
+  armor_up.Search<SCREEN>(query);
   double duration = timer.Toc();
   armor_up.Summarize();
   wprintf(L"Initialization: %.4lf seconds.\n", init_duration);
