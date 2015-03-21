@@ -8,7 +8,7 @@
 #include <map>
 #include <unordered_map>
 
-#include "aux/helpers.h"
+#include "supp/helpers.h"
 #include "lisp/lisp_object.h"
 #include "lisp/reader.h"
 

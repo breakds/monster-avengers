@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "aux/timer.h"
+#include "supp/timer.h"
 #include "utils/query.h"
 #include "utils/signature.h"
 #include "utils/jewels_query.h"

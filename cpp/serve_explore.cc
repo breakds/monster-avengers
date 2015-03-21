@@ -1,8 +1,8 @@
 #include "data/data_set.h"
 #include "utils/query.h"
 #include "core/armor_up.h"
-#include "aux/helpers.h"
-#include "aux/timer.h"
+#include "supp/helpers.h"
+#include "supp/timer.h"
 
 using namespace monster_avengers;
 

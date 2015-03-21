@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "aux/helpers.h"
+#include "supp/helpers.h"
 #include "lisp/parser.h"
 #include "data/data_set.h"
 
