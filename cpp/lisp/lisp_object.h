@@ -181,7 +181,7 @@ namespace monster_avengers {
         const ObjectHolder &children = GetMap();
         auto it = children.find(slot);
         if (children.end() == it) {
-          Log(ERROR, L"No slot \"%s\" found in the following object:", 
+          Log(FATAL, L"No slot \"%s\" found in the following object:", 
               slot.c_str());
           std::wcout << (*this) << L"\n";
           exit(-1);
@@ -344,7 +344,7 @@ namespace monster_avengers {
           if (default_) {
             return *default_;
           } else {
-            Log(ERROR, L"\"%ls\" does not translate to a known enum value.",
+            Log(FATAL, L"\"%ls\" does not translate to a known enum value.",
                 buffer.c_str());
             exit(-1);
           }

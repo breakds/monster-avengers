@@ -10,14 +10,14 @@ namespace monster_avengers {
     INFO = 0,
     OK = 1,
     WARNING = 2,
-    ERROR = 3,
+    FATAL = 3,
   };
 
   void Log(LogLevel level, const wchar_t *format, ...) {
     fwprintf(stderr, L"%c[%dm", 27, 0);
 
     switch (level) {
-    case ERROR: 
+    case FATAL: 
       fwprintf(stderr, L"%c[%d;%dm[Fail] %c[%dm", 27, 1, 31, 27, 0);
       break;
     case WARNING:
@@ -79,7 +79,7 @@ namespace monster_avengers {
 
 #define CHECK(predicate) {                              \
     if (!(predicate)) {                                 \
-      Log(ERROR, L"CHECK failed at %s:%d -> %s",        \
+      Log(FATAL, L"CHECK failed at %s:%d -> %s",        \
           __FILE__, __LINE__, #predicate);              \
       exit(-1);                                         \
     }                                                   \
@@ -87,8 +87,8 @@ namespace monster_avengers {
 
   void CheckSuccess(Status status, const char *file, int line) {
     if (!status.Success()) {
-      Log(ERROR, L"CHECK_SUCCESS failed at %s:%d.", file, line);
-      Log(ERROR, L"%s", status.message().c_str());
+      Log(FATAL, L"CHECK_SUCCESS failed at %s:%d.", file, line);
+      Log(FATAL, L"%s", status.message().c_str());
       exit(-1);
     }
   }

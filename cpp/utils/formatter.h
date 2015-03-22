@@ -128,7 +128,7 @@ namespace monster_avengers {
         data_(data) {
       output_stream_.reset(new std::wofstream(file_name));
       if (!output_stream_->good()) {
-        Log(ERROR, L"error while opening %s.", file_name.c_str());
+        Log(FATAL, L"error while opening %s.", file_name.c_str());
         exit(-1);
       }
       output_stream_->imbue(std::locale("en_US.UTF-8"));
@@ -159,7 +159,7 @@ namespace monster_avengers {
         data_(data) {
       output_stream_.reset(new std::wofstream(file_name));
       if (!output_stream_->good()) {
-        Log(ERROR, L"error while opening %s.", file_name.c_str());
+        Log(FATAL, L"error while opening %s.", file_name.c_str());
         exit(-1);
       }
       output_stream_->imbue(std::locale("en_US.UTF-8"));
@@ -189,7 +189,7 @@ namespace monster_avengers {
       if (!to_screen_) {
         output_stream_.reset(new std::wofstream(file_name));
         if (!output_stream_->good()) {
-          Log(ERROR, L"error while opening %s.", file_name.c_str());
+          Log(FATAL, L"error while opening %s.", file_name.c_str());
           exit(-1);
         }
         output_stream_->imbue(std::locale("en_US.UTF-8"));

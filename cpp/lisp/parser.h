@@ -91,7 +91,7 @@ namespace monster_avengers {
       static Tokenizer FromFile(const std::string &file_name) {
         std::wifstream *input_stream = new std::wifstream(file_name);
         if (!input_stream->good()) {
-          Log(ERROR, L"error while opening %s.", file_name.c_str());
+          Log(FATAL, L"error while opening %s.", file_name.c_str());
           exit(-1);
         }
         return Tokenizer(input_stream);
@@ -231,7 +231,7 @@ namespace monster_avengers {
             }
           }
           if (L'"' != buffer_) {
-            Log(ERROR, L"Invalid String.");
+            Log(FATAL, L"Invalid String.");
           }
           GetChar();
           return true;
