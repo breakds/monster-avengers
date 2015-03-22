@@ -15,6 +15,16 @@
 #include "supp/helpers.h"
 
 namespace monster_avengers {
+
+  namespace {
+    inline bool IsSpace(const wchar_t &character) {
+#if _WIN32
+      return std::isspace(character, std::locale("en_US.UTF-8"));
+#else
+      return std::isspace(character);
+#endif
+    }
+  }  // namespace
   
   namespace lisp {
     
@@ -106,7 +116,7 @@ namespace monster_avengers {
       // Returns false if end of file. Returns true otherwise, even if
       // the read token may be invalid.
       bool Next(Token *token) {
-        while (!end_of_file_ && std::isspace(buffer_)) GetChar();
+        while (!end_of_file_ && IsSpace(buffer_)) GetChar();
         if (!end_of_file_) {
           if (!(Read<OPEN_PARENTHESIS>(token) ||
                 Read<CLOSE_PARENTHESIS>(token) ||
@@ -199,7 +209,7 @@ namespace monster_avengers {
         if (L':' == buffer_) {
           result->name = KEYWORD;
           result->value = L"";
-          while (!std::isspace(GetChar())) {
+          while (!IsSpace(GetChar())) {
             result->value += buffer_;
           }
           return true;
