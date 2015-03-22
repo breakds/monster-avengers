@@ -12,6 +12,7 @@
 #include <vector>
 #include <unordered_map>
 #include <initializer_list>
+#include <functional>
 
 #include "supp/helpers.h"
 
