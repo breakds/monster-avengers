@@ -12,10 +12,12 @@ namespace monster_avengers {
     LanguageText name;
     int holes;
     std::vector<Effect> effects;
+    int external_id;
 
     Jewel(const lisp::Object &object) {
       object.AssignSlotTo("NAME", &name);
       object.AssignSlotTo("SLOTS", &holes);
+      object.AssignSlotTo("EXTERNAL-ID", &external_id, 0);
       object.AppendSlotTo("EFFECTS", &effects);
     }
 

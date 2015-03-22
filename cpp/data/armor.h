@@ -85,6 +85,7 @@ namespace monster_avengers {
     int max_defense;
     Resistence resistence;
     int holes;
+    int external_id;
     std::vector<Effect> effects;
     std::vector<int> material;
     
@@ -102,6 +103,7 @@ namespace monster_avengers {
       armor.max_defense = 0;
       armor.holes = holes;
       armor.effects = std::move(effects);
+      armor.external_id = 0;
       return armor;
     }
 
@@ -118,6 +120,7 @@ namespace monster_avengers {
       holes = other.holes;
       effects = other.effects;
       material = other.material;
+      external_id = other.external_id;
     }
 
     Armor(const lisp::Object &object) {
@@ -132,6 +135,7 @@ namespace monster_avengers {
       object.AssignSlotTo("RESISTENCE", &resistence);
       object.AppendSlotTo("MATERIAL", &material);
       object.AppendSlotTo("EFFECTS", &effects);
+      object.AssignSlotTo("EXTERNAL-ID", &external_id, 0);
     }
     
     void DebugPrint(int indent = 0) const {
