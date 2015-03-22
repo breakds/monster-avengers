@@ -23,7 +23,7 @@ namespace monster_avengers {
       CLOSE_PARENTHESIS, // )
       KEYWORD, // :keyword
       STRING, // "string"
-      TRUE, // T
+      TRUE_VALUE, // T
       NUMBER, // 1234
       NIL, // NIL
       INVALID_TOKEN, 
@@ -54,7 +54,7 @@ namespace monster_avengers {
         case STRING:
           wprintf(L"\"%Ls\"\n", value.c_str());
           break;
-        case TRUE:
+        case TRUE_VALUE:
           wprintf(L"T\n");
           break;
         case NUMBER:
@@ -112,7 +112,7 @@ namespace monster_avengers {
                 Read<CLOSE_PARENTHESIS>(token) ||
                 Read<KEYWORD>(token) ||
                 Read<STRING>(token) ||
-                Read<TRUE>(token) ||
+                Read<TRUE_VALUE>(token) ||
                 Read<NUMBER>(token) ||
                 Read<NIL>(token))) {
             token->name = INVALID_TOKEN;
@@ -242,10 +242,10 @@ namespace monster_avengers {
 
       template <TokenName Name>
       bool Read(Token *result,
-                Enabler<Name, TRUE> *unused = nullptr) {
+                Enabler<Name, TRUE_VALUE> *unused = nullptr) {
         if (L'T' == buffer_) {
           GetChar();
-          result->name = TRUE;
+          result->name = TRUE_VALUE;
           result->value = L"";
           return true;
         }

@@ -70,7 +70,7 @@ namespace monster_avengers {
             while (!complete) {
               if ("OBJ" == key) {
                 // We should skip ":OBJ T".
-                tokenizer_.Expect(lisp::TRUE);
+                tokenizer_.Expect(lisp::TRUE_VALUE);
               } else {
                 result[key] = ReadObject(Token {INVALID_TOKEN, L""});
               }
