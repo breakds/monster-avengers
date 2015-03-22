@@ -55,8 +55,15 @@ namespace monster_avengers {
       DataHolder data;
 
       Object() : data(nullptr), type(LISP_OBJ) {}
-
+      
+#if _WIN32
+      Object(Object &&other) {
+	type = other.type;
+	data = std::move(other.data);
+      }
+#else
       Object(Object &&other) = default;
+#endif
       
       Object(const Formattable &formattable) 
         : Object(std::move(formattable.Format())) {}
