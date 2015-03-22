@@ -1,14 +1,14 @@
-;;;; mh4gu.lisp
-;;;; The converter from sqlite db file to lisp dataset.
+;;;; ping_dex.lisp
+;;;; The adapter from pint's dex db to lisp dataset
 
-(in-package #:breakds.monster-avengers.mh4gu-converter)
+(in-package #:breakds.monster-avengers.mh4g-dex-adapter)
 
 (defparameter *dataset-folder* 
-  (merge-pathnames "dataset/MH4GU/"
+  (merge-pathnames "dataset/MH4GDEX/"
                    (asdf:system-source-directory 'monster-avengers)))
 
 (defparameter *database-path*
-  (merge-pathnames "dataset/MH4GU/mh4u.db"
+  (merge-pathnames "dataset/MH4GDEX/mh4gdex.sqlite"
                    (asdf:system-source-directory 'monster-avengers)))
 
 (defun get-dataset-file (filename)
@@ -16,35 +16,33 @@
                    *dataset-folder*))
 
 (defun update-skills (database)
-  (let ((query-result (sqlite:execute-to-list 
+  (let ((query-result (sqlite:execute-to-list
                        database
-                       (mkstr "SELECT skill_trees.jpn_name, skill_trees.name, "
-                              "skills.jpn_name, skills.name, skills.description, "
-                              "skills.required_skill_tree_points, skill_trees._id "
-                              "FROM skills "
-                              "INNER JOIN skill_trees "
-                              "ON skills.skill_tree_id = skill_trees._id "
-                              "ORDER BY skill_trees._id, required_skill_tree_points")))
+                       (mkstr "SELECT ID_SklTree_Name.SklTree_ID, SklTree_Name_0, "
+                              "SklTree_Name_3, Skl_Name_0, Skl_Name_3, Pt "
+                              "FROM ID_SklTree_Name "
+                              "INNER JOIN DB_Skl ON "
+                              "ID_SklTree_Name.SklTree_ID = DB_Skl.SklTree_ID "
+                              "INNER JOIN ID_Skl_Name ON "
+                              "ID_Skl_Name.Skl_ID = DB_Skl.Skl_ID ")))
         skill-systems)
     (loop 
        for previous-system = "" then system-en
-       for (system-jp system-en skill-jp skill-en description-en points id)
+       for (id system-en system-jp skill-en skill-jp points)
        in query-result
        do (if (equal system-en previous-system)
               (push (list :obj t
                           :name `(:obj t :jp ,skill-jp :en ,skill-en)
                           :points (if (string= "troso up" (string-downcase skill-en))
                                       0
-                                      points)
-                          :description `(:obj t :en ,description-en))
+                                      points))
                     (getf (car skill-systems) :skills))
               (push (list :obj t
                           :name `(:obj t :jp ,system-jp :en ,system-en)
                           :id (1- id)
                           :skills (list (list :obj t
                                               :name `(:obj t :jp ,skill-jp :en ,skill-en)
-                                              :points points
-                                              :description `(:obj t :en ,description-en))))
+                                              :points points)))
                     skill-systems)))
     (with-open-file (out (get-dataset-file "skills.lisp")
                          :direction :output
@@ -53,35 +51,35 @@
     (format t "[ ok ] ~a skills written to skills.lisp~%"
             (length skill-systems))))
 
-
 (defun update-jewels (database)
   (let ((query-result (sqlite:execute-to-list
                        database
-                       (mkstr "SELECT items.name, items.jpn_name, "
-                              "decorations.num_slots, "
-                              "skill_tree_id, point_value "
-                              "FROM decorations "
-                              "INNER JOIN items ON decorations._id = items._id "
-                              "INNER JOIN item_to_skill_tree "
-                              "ON item_to_skill_tree.item_id = items._id "
-                              "WHERE items._id < 1774 "
-                              "ORDER BY items.name")))
+                       (mkstr "SELECT Jew_ID, DB_Jew.Itm_ID, "
+                              "       Itm_Name_0, Itm_Name_3, Slot, "
+                              "       SklTree1_ID, SklTree1_Pt, "
+                              "       SklTree2_ID, SklTree2_Pt "
+                              "FROM DB_Jew "
+                              "INNER JOIN ID_Itm_Name ON "
+                              "ID_Itm_Name.Itm_ID = DB_Jew.Itm_ID "
+                              "WHERE DB_Jew.Itm_ID < 1774 "
+                              "GROUP BY DB_Jew.Itm_ID "
+                              "ORDER BY Itm_Name_0")))
         jewels)
     (loop 
-       for previous-jewel = "" then jewel-en
-       for (jewel-en jewel-jp slots skill-system-id points) in query-result
-       do (if (equal jewel-en previous-jewel)
-              (push (list :obj t
-                          :skill-id (1- skill-system-id)
-                          :points points)
-                    (getf (car jewels) :effects))
-              (push (list :obj t
-                          :name `(:obj t :en ,jewel-en :jp ,jewel-jp)
-                          :slots slots
-                          :effects (list (list :obj t 
-                                               :skill-id (1- skill-system-id)
-                                               :points points)))
-                    jewels)))
+       for (external-id item-id jewel-en jewel-jp slots a-id a-points b-id b-points) in query-result
+       do (push (list :obj t
+                      :external-id external-id
+                      :name `(:obj t :en ,jewel-en :jp ,jewel-jp)
+                      :slots slots
+                      :effects (append (when (> a-id -1)
+                                         (list (list :obj t
+                                                     :skill-id (1- a-id)
+                                                     :points a-points)))
+                                       (when (> b-id -1)
+                                         (list (list :obj t
+                                                     :skill-id (1- b-id)
+                                                     :points b-points)))))
+                jewels))
     (with-open-file (out (get-dataset-file "jewels.lisp")
                          :direction :output
                          :if-exists :supersede)
@@ -90,44 +88,40 @@
             (length jewels))))
 
 (defun update-items (database)
-    (let* ((query-result (sqlite:execute-to-list
-                         database
-                         (mkstr "SELECT _id, name, jpn_name "
-                                "FROM items "
-                                "ORDER BY _id")))
-           (items (loop for (id item-en item-jp) in query-result
-                    collect (list :obj t
-                                  :name `(:obj t :en ,item-en :jp ,item-jp)
-                                  :id (1- id)))))
-      (with-open-file (out (get-dataset-file "items.lisp")
-                           :direction :output
-                           :if-exists :supersede)
-        (write items :stream out))
-      (format t "[ ok ] ~a items written to items.lisp~%"
-              (length items))))
+  (let* ((query-result (sqlite:execute-to-list 
+                        database
+                        (mkstr "SELECT Itm_ID, Itm_Name_0, Itm_Name_3 "
+                               "FROM ID_Itm_Name ORDER BY Itm_ID")))
+         (items (loop for (id item-en item-jp) in query-result
+                   when (> id -1)
+                   collect (list :obj t
+                                 :name `(:obj t :en ,item-en :jp ,item-jp)
+                                 :id (1- id)))))
+    (with-open-file (out (get-dataset-file "items.lisp")
+                         :direction :output
+                         :if-exists :supersede)
+      (write items :stream out))
+    (format t "[ ok ] ~a items written to items.lisp~%"
+            (length items))))
 
 (defun update-armors (database)
   (let ((query-result (sqlite:execute-to-list
                        database
-                       (mkstr "SELECT items._id, items.name, items.jpn_name, armor.slot, "
-                              "armor.num_slots, "
-                              "items.rarity, armor.hunter_type, armor.gender, "
-                              "armor.defense, armor.max_defense, "
-                              "armor.fire_res, armor.thunder_res, "
-                              "armor.dragon_res, armor.water_res, armor.ice_res, "
-                              "skill_tree_id, point_value "
-                              "FROM armor "
-                              "INNER JOIN items ON items._id = armor._id "
-                              "INNER JOIN item_to_skill_tree "
-                              "ON item_to_skill_tree.item_id = items._id "
-                              "ORDER BY items.name")))
+                       (mkstr "SELECT DB_Amr.Amr_ID, ID_Amr_Name.Amr_Name_0, "
+                              "ID_Amr_Name.Amr_Name_3, Part, Slot, Rare, "
+                              "BorG, MorF, Def, MaxDef, Res_Fire, "
+                              "Res_Thunder, Res_Dragon, Res_Water, "
+                              "Res_Ice, SklTree_ID, Pt "
+                              "FROM DB_Amr "
+                              "INNER JOIN ID_Amr_Name ON "
+                              "ID_Amr_Name.Amr_ID = DB_Amr.Amr_ID "
+                              "INNER JOIN DB_SklTreetoAmr ON "
+                              "DB_SklTreetoAmr.Amr_ID = DB_Amr.Amr_ID ")))
         (material-result (sqlite:execute-to-list
                           database
-                          (mkstr "SELECT items._id, component_item_id "
-                                 "FROM armor "
-                                 "INNER JOIN items ON items._id = armor._id "
-                                 "INNER JOIN components ON items._id = created_item_id "
-                                 "ORDER BY items._id")))
+                          (mkstr "SELECT Amr_ID, Itm_ID "
+                                 "FROM DB_ItmtoAmr "
+                                 "ORDER BY Amr_ID")))
         (materials (make-hash-table))
         armors)
     (loop for row in material-result
@@ -146,21 +140,33 @@
                           :points points)
                     (getf (car armors) :effects))
               (push (list :obj t
+                          :external-id armor-id
                           :name `(:obj t :en ,armor-en :jp ,armor-jp)
-                          :part part
-                          :gender gender
-                          :type type
+                          :part (case part
+                                  (1 "Head")
+                                  (2 "Body")
+                                  (3 "Arms")
+                                  (4 "Waist")
+                                  (5 "Legs"))
+                          :gender (case gender
+                                    (1 "Male")
+                                    (2 "Female")
+                                    (0 "Both"))
+                          :type (case type
+                                  (1 "Blade")
+                                  (2 "Gunner")
+                                  (0 "BOTH"))
                           :slots slots
                           :rare rare
                           :min-defense min-defense
-                          :max-defense max-defense
+                          :max-defense 120 ;; TODO(breakds) fix when have data
                           :resistence (list :obj t 
                                             :fire fire
                                             :thunder thunder
                                             :dragon dragon
                                             :water water
                                             :ice ice)
-                          :material (gethash armor-id materials)
+                          :material (gethash armor-id materials nil)
                           :effects (list (list :obj t 
                                                :skill-id (1- skill-system-id)
                                                :points points)))
@@ -172,6 +178,7 @@
                               (1 '(:obj t :en "Single Slot Weapon" :jp "单孔武器"))
                               (2 '(:obj t :en "Dual Slot Weapon" :jp "双孔武器"))
                               (3 '(:obj t :en "Triple Slot Weapon" :jp "三孔武器")))
+                      :external-id (+ 10000 slots)
                       :part "gear"
                       :gender "BOTH"
                       :type "BOTH"
@@ -185,6 +192,7 @@
                                         :dragon 0
                                         :water 0
                                         :ice 0)
+                      :material nil
                       :effects nil)
                 armors))
     (with-open-file (out (get-dataset-file "armors.lisp")
@@ -196,9 +204,9 @@
 
 (defun update-dataset ()
   (sqlite:with-open-database (database *database-path*)
-    (update-items database)
     (update-skills database)
     (update-jewels database)
+    (update-items database)
     (update-armors database)))
 
 

@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
   query.DebugPrint();
   Timer timer;
   timer.Tic();
-  ArmorUp armor_up("/home/breakds/pf/projects/monster-avengers/dataset/MH4GU");
+  ArmorUp armor_up("/home/breakds/pf/projects/monster-avengers/dataset/MH4GDEX");
   double init_duration = timer.Toc();
   timer.Tic();
   armor_up.Search<SCREEN>(query);
