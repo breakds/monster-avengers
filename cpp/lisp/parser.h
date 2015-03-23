@@ -118,13 +118,13 @@ namespace monster_avengers {
       bool Next(Token *token) {
         while (!end_of_file_ && IsSpace(buffer_)) GetChar();
         if (!end_of_file_) {
-          if (!(Read<OPEN_PARENTHESIS>(token) ||
-                Read<CLOSE_PARENTHESIS>(token) ||
-                Read<KEYWORD>(token) ||
-                Read<STRING>(token) ||
-                Read<TRUE_VALUE>(token) ||
-                Read<NUMBER>(token) ||
-                Read<NIL>(token))) {
+          if (!(ReadOpenParenthesis(token) ||
+                ReadCloseParenthesis(token) ||
+                ReadKeyword(token) ||
+                ReadString(token) ||
+                ReadTrueValue(token) ||
+                ReadNumber(token) ||
+                ReadNil(token))) {
             token->name = INVALID_TOKEN;
           }
           return true;
@@ -160,9 +160,6 @@ namespace monster_avengers {
       }
       
     private:
-      template <TokenName T, TokenName H>
-      using Enabler = typename std::enable_if<(T==H), void>::type;
-
       // Will obtain the ownership of input_stream.
       explicit Tokenizer(std::wistream *input_stream) 
         : input_stream_(input_stream), buffer_(), end_of_file_(false) {
@@ -178,9 +175,7 @@ namespace monster_avengers {
         return buffer_;
       }
 
-      template <TokenName Name>
-      bool Read(Token *result,
-                Enabler<Name, OPEN_PARENTHESIS> *unused = nullptr) {
+      bool ReadOpenParenthesis(Token *result) {
         if (L'(' == buffer_) {
           GetChar();
           result->name = OPEN_PARENTHESIS;
@@ -190,9 +185,7 @@ namespace monster_avengers {
         return false;
       }
 
-      template <TokenName Name>
-      bool Read(Token *result,
-                Enabler<Name, CLOSE_PARENTHESIS> *unused = nullptr) {
+      bool ReadCloseParenthesis(Token *result) {
         if (L')' == buffer_) {
           GetChar();
           result->name = CLOSE_PARENTHESIS;
@@ -203,9 +196,7 @@ namespace monster_avengers {
         return false;
       }
 
-      template <TokenName Name>
-      bool Read(Token *result,
-                Enabler<Name, KEYWORD> *unused = nullptr) {
+      bool ReadKeyword(Token *result) {
         if (L':' == buffer_) {
           result->name = KEYWORD;
           result->value = L"";
@@ -218,9 +209,7 @@ namespace monster_avengers {
         return false;
       }
 
-      template <TokenName Name>
-      bool Read(Token *result,
-                Enabler<Name, STRING> *unused = nullptr) {
+      bool ReadString(Token *result) {
         if (L'"' == buffer_) {
           result->name = STRING;
           result->value = L"";
@@ -250,9 +239,7 @@ namespace monster_avengers {
         return false;
       }
 
-      template <TokenName Name>
-      bool Read(Token *result,
-                Enabler<Name, TRUE_VALUE> *unused = nullptr) {
+      bool ReadTrueValue(Token *result) {
         if (L'T' == buffer_) {
           GetChar();
           result->name = TRUE_VALUE;
@@ -263,9 +250,7 @@ namespace monster_avengers {
         return false;
       }
 
-      template <TokenName Name>
-      bool Read(Token *result,
-                Enabler<Name, NUMBER> *unused = nullptr) {
+      bool ReadNumber(Token *result) {
         if (std::isdigit(buffer_) || L'-' == buffer_) {
           result->name = NUMBER;
           result->value = L"";
@@ -279,9 +264,7 @@ namespace monster_avengers {
         return false;
       }
 
-      template <TokenName Name>
-      bool Read(Token *result,
-                Enabler<Name, NIL> *unused = nullptr) {
+      bool ReadNil(Token *result) {
         if (L'N' == buffer_) {
           result->name = NIL;
           result->value = L"";
