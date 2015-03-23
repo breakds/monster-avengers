@@ -460,7 +460,7 @@ namespace monster_avengers {
 
       std::vector<Effect> effects;
       int query_size = query.effects.size();
-      for (int i = 0; i < std::min(query_size, FOUNDATION_NUM); ++i) {
+      for (int i = 0; i < (std::min)(query_size, FOUNDATION_NUM); ++i) {
         effects.push_back(query.effects[i]);
       }
       
