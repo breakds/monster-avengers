@@ -23,7 +23,7 @@ namespace monster_avengers {
   //
   // Notes: [x] stands for x bits in the byte.
   struct Signature {
-    static constexpr int EFFECTS_BEGIN = 3;
+    static const int EFFECTS_BEGIN = 3;
     char bytes[16];
 
     inline Signature() {
@@ -205,7 +205,7 @@ namespace monster_avengers {
 
   
   namespace sig {
-    constexpr int EFFECTS_BEGIN = Signature::EFFECTS_BEGIN;
+    const int EFFECTS_BEGIN = Signature::EFFECTS_BEGIN;
 
     inline Signature InverseKey(std::vector<Effect>::const_iterator begin,
                                 std::vector<Effect>::const_iterator end) {

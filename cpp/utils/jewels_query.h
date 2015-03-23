@@ -13,9 +13,9 @@ namespace monster_avengers {
   
   class HoleClient {
   public:
-    constexpr static int MAX_ONES = 24;
-    constexpr static int MAX_TWOS = 8;
-    constexpr static int MAX_THREES = 8;
+    const static int MAX_ONES = 24;
+    const static int MAX_TWOS = 8;
+    const static int MAX_THREES = 8;
 
     HoleClient(const DataSet &data, 
                const std::vector<int> &skill_ids,

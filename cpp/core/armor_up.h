@@ -18,7 +18,7 @@
 
 namespace monster_avengers {
 
-  constexpr int FOUNDATION_NUM = 2;
+  const int FOUNDATION_NUM = 2;
 
   class ListIterator : public TreeIterator {
   public:

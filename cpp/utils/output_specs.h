@@ -14,8 +14,8 @@
 
 
 namespace monster_avengers {
-  
-  constexpr int MAX_JEWEL_PLANS = 5;
+
+  const int MAX_JEWEL_PLANS = 5;
 
   enum OutputSpec {
     LISP = 0,
