@@ -24,6 +24,14 @@ namespace monster_avengers {
       return std::isspace(character);
 #endif
     }
+
+    inline bool IsDigit(const wchar_t &character) {
+#if _WIN32
+      return std::isdigit(character, std::locale("en_US.UTF-8"));
+#else
+      return std::isdigit(character);
+#endif
+    }
   }  // namespace
   
   namespace lisp {
@@ -251,13 +259,13 @@ namespace monster_avengers {
       }
 
       bool ReadNumber(Token *result) {
-        if (std::isdigit(buffer_) || L'-' == buffer_) {
+        if (IsDigit(buffer_) || L'-' == buffer_) {
           result->name = NUMBER;
           result->value = L"";
           do {
             result->value += buffer_;
             GetChar();
-          } while (std::isdigit(buffer_));
+          } while (IsDigit(buffer_));
           return true;
         }
         
