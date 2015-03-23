@@ -5,6 +5,7 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
 
 #include "supp/timer.h"
 #include "utils/query.h"
