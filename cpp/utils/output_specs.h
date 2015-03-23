@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <numeric>
 #include "lisp/lisp_object.h"
 #include "data/language_text.h"
 #include "data/armor.h"
