@@ -9,15 +9,15 @@
 #endif
 
 namespace monster_avengers {
-  // Locale
-  inline std::locale LocaleUTF8() {
+  // ---------- Locale ----------
+
 #if _WIN32
-    return std::locale(std::locale(), new std::codecvt_utf8_utf16<wchar_t>());
+  std::locale LOCALE_UTF8 = 
+    std::locale(std::locale(), new std::codecvt_utf8_utf16<wchar_t>());
 #else
-    return std::locale("en_US.UTF-8");
+  std::locale LOCALE_UTF8 = std::locale("en_US.UTF-8");
 #endif
-  }
-  
+    
   // ---------- Log ----------
 
   enum LogLevel {
