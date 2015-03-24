@@ -12,7 +12,7 @@ namespace monster_avengers {
   // Locale
   inline std::locale LocaleUTF8() {
 #if _WIN32
-    return std::locale(std::locale(), new std::convert_utf8_utf16<wchar_T>());
+    return std::locale(std::locale(), new std::codecvt_utf8_utf16<wchar_t>());
 #else
     return std::locale("en_US.UTF-8");
 #endif
