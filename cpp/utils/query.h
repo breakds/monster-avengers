@@ -61,7 +61,6 @@ namespace monster_avengers {
       int holes;
 
       while (tokenizer.Next(&token)) {
-        // Get "("
         if (lisp::OPEN_PARENTHESIS != token.name) {
           return Status(FAIL, "Query: Syntax Error - expect '('.");
         }

@@ -3,8 +3,22 @@
 
 #include <cstdio>
 #include <cwchar>
+#include <locale>
+#if _WIN32
+#include <codecvt>
+#endif
 
 namespace monster_avengers {
+  // Locale
+  inline std::locale LocaleUTF8() {
+#if _WIN32
+    return std::locale(std::locale(), new std::convert_utf8_utf16<wchar_T>());
+#else
+    return std::locale("en_US.UTF-8");
+#endif
+  }
+  
+  // ---------- Log ----------
 
   enum LogLevel {
     INFO = 0,

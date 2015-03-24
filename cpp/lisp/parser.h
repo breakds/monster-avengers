@@ -19,7 +19,7 @@ namespace monster_avengers {
   namespace {
     inline bool IsSpace(const wchar_t &character) {
 #if _WIN32
-      return std::isspace(character, std::locale("en_US.UTF-8"));
+      return std::isspace(character, LocaleUTF8());
 #else
       return std::isspace(character);
 #endif
@@ -27,7 +27,7 @@ namespace monster_avengers {
 
     inline bool IsDigit(const wchar_t &character) {
 #if _WIN32
-      return std::isdigit(character, std::locale("en_US.UTF-8"));
+      return std::isdigit(character, LocaleUTF8());
 #else
       return std::isdigit(character);
 #endif
@@ -171,7 +171,7 @@ namespace monster_avengers {
       // Will obtain the ownership of input_stream.
       explicit Tokenizer(std::wistream *input_stream) 
         : input_stream_(input_stream), buffer_(), end_of_file_(false) {
-        input_stream_->imbue(std::locale("en_US.UTF-8"));
+        input_stream_->imbue(LocaleUTF8());
         GetChar();
       }
       

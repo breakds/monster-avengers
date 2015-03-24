@@ -131,7 +131,7 @@ namespace monster_avengers {
         Log(FATAL, L"error while opening %s.", file_name.c_str());
         exit(-1);
       }
-      output_stream_->imbue(std::locale("en_US.UTF-8"));
+      output_stream_->imbue(LocaleUTF8());
     }
 
     void operator()(const ArmorSet &armor_set) {
@@ -162,7 +162,7 @@ namespace monster_avengers {
         Log(FATAL, L"error while opening %s.", file_name.c_str());
         exit(-1);
       }
-      output_stream_->imbue(std::locale("en_US.UTF-8"));
+      output_stream_->imbue(LocaleUTF8());
     }
 
     void operator()(const ArmorSet &armor_set) {
@@ -192,7 +192,7 @@ namespace monster_avengers {
           Log(FATAL, L"error while opening %s.", file_name.c_str());
           exit(-1);
         }
-        output_stream_->imbue(std::locale("en_US.UTF-8"));
+        output_stream_->imbue(LocaleUTF8());
       }
     }
 
