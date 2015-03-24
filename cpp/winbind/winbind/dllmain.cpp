@@ -22,13 +22,14 @@ extern "C"
 	}
 	__declspec(dllexport) void DoSearch(const wchar_t* text) {
 		std::wstring query_text = text;
-		setlocale(LC_ALL, "en_US.UTF-8");
-		Query query;
-		wprintf(L"sizeof(wchar_t): %d\n", sizeof(wchar_t));
-		wprintf(L"Get %lc\n", a);
 		
-		// ArmorUp armor_up("d:/pf/projects/monster-avengers/dataset/MH4GU");
-		// armor_up.Search<SCREEN>("(:weaopn-type ");
+		Query query;
+		CHECK_SUCCESS(Query::Parse(query_text, &query));
+		query.DebugPrint();
+		
+		ArmorUp armor_up("d:/pf/projects/monster-avengers/dataset/MH4GU");
+		armor_up.Summarize();
+		armor_up.Search<SCREEN>(query);
 	}
 }
 
@@ -40,6 +41,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
+		setlocale(LC_ALL, "en_US.UTF-8");
 		timer.Tic();
 		a.reset(new int(24));
 		break;
