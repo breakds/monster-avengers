@@ -13,7 +13,9 @@ namespace winbind_wrapper
         {
             // Wrapper.Initialize should be called only once for the whole lifetime 
             // of your program. Do not call it every time when you do a search :)
-            Wrapper.Initialize("d:/pf/projects/monster-avengers/dataset/MH4GU");
+            //
+            // The parameter to Initialize() is the path to the dataset file.
+            Wrapper.Initialize("d:/pf/projects/monster-avengers/dataset/MH4GDEX");
 
             // Wrapper.Search is the entry point of the wrapper. It returns a list of 
             // ArmorSet objects as result. Please See definition of ArmorSet for details.
