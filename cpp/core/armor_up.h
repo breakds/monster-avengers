@@ -331,11 +331,34 @@ namespace monster_avengers {
       
       int count = 0;
       while (count < query.max_results && !output_iterators_.back()->empty()) {
-        const OR &or_node = pool_.Or(output_iterators_.back()->BaseIndex());
         formatter(**output_iterators_.back());
 	++count;
         ++(*output_iterators_.back());
       }
+    }
+
+    std::string SearchEncoded(const Query &query) {
+      // Optimize the Query
+      Query optimized_query = OptimizeQuery(query);
+
+      SearchCore(optimized_query);
+
+      // Prepare formatter
+      EncodeFormatter formatter(&data_, optimized_query);
+
+      ArmorSetFormatter<SCREEN> formatter1("", &data_, 
+					   optimized_query);
+
+      
+      std::string output;
+      int count = 0;
+      while (count < query.max_results && !output_iterators_.back()->empty()) {
+        formatter(**output_iterators_.back(), &output);
+	formatter1(**output_iterators_.back());
+	++count;
+        ++(*output_iterators_.back());
+      }
+      return output;
     }
     
     // Iterate is for speed test only.

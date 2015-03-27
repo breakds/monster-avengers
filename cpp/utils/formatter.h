@@ -216,6 +216,76 @@ namespace monster_avengers {
     std::unique_ptr<std::wofstream> output_stream_;
   };
 
+
+  class EncodeFormatter {
+  public:
+    EncodeFormatter(const DataSet *data,
+		    const Query &query)
+      : data_(data), solver_(*data, query.effects) {}
+    
+    void operator()(const ArmorSet &armor_set, std::string *output) {
+      EncodedArmorSet encoded(*data_, solver_, armor_set);
+      *output += "(";
+	
+      // AppendGear(encoded[GEAR], output);
+      AppendPiece(":GEAR", encoded[GEAR], output);
+      AppendPiece(":HEAD", encoded[HEAD], output);
+      AppendPiece(":BODY", encoded[BODY], output);
+      AppendPiece(":ARMS", encoded[HANDS], output);
+      AppendPiece(":WAIST", encoded[WAIST], output);
+      AppendPiece(":LEGS", encoded[FEET], output);
+      AppendPiece(":AMULET", encoded[AMULET], output);
+      // AppendAmulet(encoded[AMULET], output);
+      
+      *output += ")\n";
+    }
+
+  private:
+
+    void AppendGear(const EncodedArmorPiece &gear, std::string *output) {
+      *output += ":GEAR (";
+      *output += std::to_string(data_->armor(gear.id).holes);
+      *output += " ";
+      AppendNumberVector(gear.jewel_ids, output);
+      *output += ") ";
+    }
+    
+    void AppendPiece(const std::string &name,
+		     const EncodedArmorPiece &piece,
+		     std::string *output) {
+      *output += name + " (";
+      *output += std::to_string(piece.id);
+      *output += " ";
+      AppendNumberVector(piece.jewel_ids, output);
+      *output += ") ";
+    }
+
+    void AppendAmulet(const EncodedArmorPiece &amulet, std::string *output) {
+      *output += ":AMULET (";
+      std::vector<int> effects;
+      for (const Effect &effect : data_->armor(amulet.id).effects) {
+	effects.push_back(effect.skill_id);
+	effects.push_back(effect.points);
+      }
+      AppendNumberVector(effects, output);
+      *output += " ";
+      AppendNumberVector(amulet.jewel_ids, output);
+      *output += ") ";
+    }
+
+    void AppendNumberVector(const std::vector<int> &input, 
+			    std::string *output) {
+      *output += " (";
+      if (!input.empty()) *output += std::to_string(input[0]);
+      for (int i = 1; i < input.size(); ++i) {
+	*output += " " + std::to_string(input[i]);
+      }
+      *output += ")";
+    }
+    
+    const DataSet *data_;
+    const JewelSolver solver_;
+};
 }  // namespace monster_avengers
 
 

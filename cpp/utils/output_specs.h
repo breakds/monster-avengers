@@ -377,6 +377,143 @@ namespace monster_avengers {
     }
   };
 
+  // ---------- Encode ----------
+
+  struct EncodedArmorPiece {
+    int id;
+    std::vector<int> jewel_ids;
+
+    EncodedArmorPiece() 
+      : id(0), jewel_ids() {}
+  };
+
+  class JewelAssigner {
+  public:
+    JewelAssigner(const DataSet *data)
+      : holes_part_(), holes_jewel_(), data_(data), holes_(3) {}
+
+    inline void AddPart(int part, int id) {
+      const Armor &armor = data_->armor(id);
+      holes_part_[armor.holes].push_back(part);
+    }
+
+    inline void AddJewel(int id, int quantity) {
+      const Jewel &jewel = data_->jewel(id);
+      for (int i = 0; i < quantity; ++i) {
+	holes_jewel_[jewel.holes].push_back(id);
+      }
+    }
+
+    inline bool Pop(int *part, int *jewel_id) {
+      // Default return value for jewel_id. This happens when there is
+      // no next assignment.
+      while (holes_ > 0 && holes_jewel_[holes_].empty()) {
+	holes_--;
+      }
+      if (0 < holes_) {
+	for (int used_holes = holes_; used_holes < 4; ++used_holes) {
+	  if (holes_part_[used_holes].empty()) continue;
+	  *part = holes_part_[used_holes].back();
+	  *jewel_id = holes_jewel_[holes_].back();
+	  holes_part_[used_holes].pop_back();
+	  holes_jewel_[holes_].pop_back();
+	  if (used_holes > holes_) {
+	    holes_part_[used_holes - holes_].push_back(*part);
+	  }
+	  return true;
+	}
+      }
+      return false;
+    }
+
+    // void DebugPrint() {
+    //   for (int i = 3; i > 0; --i) {
+    // 	wprintf(L"Part[%d] ", i);
+    // 	for (const int part : holes_part_[i]) {
+    // 	  wprintf(L" %d", part);
+    // 	}
+    // 	wprintf(L"\n");
+    //   }
+
+    //   for (int i = 3; i > 0; --i) {
+    // 	wprintf(L"Jewel[%d] ", i);
+    // 	for (const int id : jewels_) {
+    // 	  wprintf(L" %d", part);
+    // 	}
+    // 	wprintf(L"\n");
+    //   }
+    // }
+
+  private:
+    std::array<std::vector<int>, 4> holes_part_;
+    std::array<std::vector<int>, 4> holes_jewel_;
+    const DataSet *data_;
+    int holes_;
+  };
+  
+
+  class EncodedArmorSet {
+  public:
+    EncodedArmorSet(const DataSet &data, 
+                    const JewelSolver &solver, 
+                    const ArmorSet &armor_set) 
+      : result() {
+      for (int i = 0; i < PART_NUM; ++i) {
+	result[i].id = armor_set.ids[PART_NUM - i - 1];
+      }
+
+      int multiplier = 
+        std::accumulate(armor_set.ids.begin(),
+                        armor_set.ids.end(),
+                        1, // initially we have 1 for body itself
+                        [&data](int accu, int id) {
+                          return accu + (data.armor(id).TorsoUp() ? 1 : 0);
+                        });
+      
+      const JewelSolver::JewelPlan jewel_plan = 
+	std::move(solver.Solve(armor_set.jewel_keys[0], multiplier));
+
+      // Assign body-only jewels.
+      if (multiplier > 1) {
+	for (const auto &item : jewel_plan.second) {
+	  for (int j = 0; j < item.second; ++j) {
+	    result[BODY].jewel_ids.push_back(item.first);
+	  }
+	}
+      }
+
+      // Assign other jewels.
+      JewelAssigner assigner(&data);
+
+      for (int i = 0; i < PART_NUM; ++i) {
+	if (!(BODY == i && multiplier > 1)) {
+	  assigner.AddPart(i, armor_set.ids[PART_NUM - i - 1]);
+	}
+      }
+      
+      for (const auto &item : jewel_plan.first) {
+	assigner.AddJewel(item.first, item.second);
+      }
+
+      int part = 0;
+      int jewel_id = 0;
+      while (assigner.Pop(&part, &jewel_id)) {
+	result[part].jewel_ids.push_back(jewel_id);
+      }
+    }
+
+    inline const EncodedArmorPiece &operator[](ArmorPart part) {
+      return result[part];
+    }
+
+    inline const EncodedArmorPiece &operator[](int part) {
+      return result[part];
+    }
+
+    private:
+    std::array<EncodedArmorPiece, PART_NUM> result;
+  };
+
   // ---------- Explore ----------
 
   struct ExploreResult : public lisp::Formattable {

@@ -77,6 +77,7 @@ int main(int argc, char **argv) {
   double init_duration = timer.Toc();
   timer.Tic();
   armor_up.Search<SCREEN>(query);
+  // wprintf(L"%s", armor_up.SearchEncoded(query).c_str());
   double duration = timer.Toc();
   armor_up.Summarize();
   wprintf(L"Initialization: %.4lf seconds.\n", init_duration);
