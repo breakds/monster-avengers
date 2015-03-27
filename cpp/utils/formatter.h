@@ -227,15 +227,13 @@ namespace monster_avengers {
       EncodedArmorSet encoded(*data_, solver_, armor_set);
       *output += "(";
 	
-      // AppendGear(encoded[GEAR], output);
-      AppendPiece(":GEAR", encoded[GEAR], output);
+      AppendGear(encoded[GEAR], output);
       AppendPiece(":HEAD", encoded[HEAD], output);
       AppendPiece(":BODY", encoded[BODY], output);
       AppendPiece(":ARMS", encoded[HANDS], output);
       AppendPiece(":WAIST", encoded[WAIST], output);
       AppendPiece(":LEGS", encoded[FEET], output);
-      AppendPiece(":AMULET", encoded[AMULET], output);
-      // AppendAmulet(encoded[AMULET], output);
+      AppendAmulet(encoded[AMULET], output);
       
       *output += ")\n";
     }

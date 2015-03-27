@@ -346,15 +346,10 @@ namespace monster_avengers {
       // Prepare formatter
       EncodeFormatter formatter(&data_, optimized_query);
 
-      ArmorSetFormatter<SCREEN> formatter1("", &data_, 
-					   optimized_query);
-
-      
       std::string output;
       int count = 0;
       while (count < query.max_results && !output_iterators_.back()->empty()) {
         formatter(**output_iterators_.back(), &output);
-	formatter1(**output_iterators_.back());
 	++count;
         ++(*output_iterators_.back());
       }

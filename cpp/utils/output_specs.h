@@ -426,24 +426,6 @@ namespace monster_avengers {
       return false;
     }
 
-    // void DebugPrint() {
-    //   for (int i = 3; i > 0; --i) {
-    // 	wprintf(L"Part[%d] ", i);
-    // 	for (const int part : holes_part_[i]) {
-    // 	  wprintf(L" %d", part);
-    // 	}
-    // 	wprintf(L"\n");
-    //   }
-
-    //   for (int i = 3; i > 0; --i) {
-    // 	wprintf(L"Jewel[%d] ", i);
-    // 	for (const int id : jewels_) {
-    // 	  wprintf(L" %d", part);
-    // 	}
-    // 	wprintf(L"\n");
-    //   }
-    // }
-
   private:
     std::array<std::vector<int>, 4> holes_part_;
     std::array<std::vector<int>, 4> holes_jewel_;
