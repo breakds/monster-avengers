@@ -78,6 +78,7 @@ There are currently some limitations in the current implementations, and I will 
 
 ## Acknoledgement
 
+1. Credit to Ping An, the author of [Ping's Dex](https://sites.google.com/site/pingsdex/pingsmh4gdex). His effort on composing the data are source to many other related projects.
 1. Credit to the project [MonsterHunter4UDatabase](https://github.com/kamegami13/MonsterHunter4UDatabase), where all the data (armors, skills and decorations) are from their database. Completing the database requires a lot of work and without their effort, I would not have accomplished this.
 2. Credit to Cassandra Qi, my wife and my Monster Hunter game partner, for working on the art and design of the UI.
 3. Thanks to my friends who inspired me, encouraged me, disccussed the ideas with me and helped with the tests:
