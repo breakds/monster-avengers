@@ -28,6 +28,14 @@ There is currently one instance of this tool running on a server with very limit
 
 Located in [csharp/winbind_wrapper](https://github.com/breakds/monster-avengers/tree/master/csharp/winbind_wrapper). A C# wrapper class implemented via DLLImport.
 
+### RESTful API
+
+Work in progress.
+
+## Algorithm
+
+I am working on a [series of posts](http://blog.breakds.org/armor-up-the-algorithm-behind-monster-hunter-armor-search/) discussing the algorithm behind this project on my blog. Take a look if you are curious and interested.
+
 ## Codebase
 
 For those who is interested in either the algorithm or the implementaion, you can find a brief description below. Note that the code is still not very well documented yet, and I am working on adding the comments and documentations to the code as much as possible with the limited time budget.
