@@ -89,6 +89,7 @@ There are currently some limitations in the current implementations, and I will 
   * To be honest, I am not experienced enough to implement this efficiently and securely. Will add those features in the future, but with no promise.
 4. Hunter progress options.
   * I think it is a good idea to filter out armors based the player's progress. I am lacking the data to implement this feature.
+5. JSON and Lisp parser/composer should go into other packages (or not?).
 
 ## Acknoledgement
 
