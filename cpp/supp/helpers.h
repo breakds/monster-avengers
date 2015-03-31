@@ -49,6 +49,7 @@ namespace monster_avengers {
     vfwprintf(stderr, format, argptr);
     va_end(argptr);
     fwprintf(stderr, L"%c[%dm\n", 27, 0);
+    fflush(stderr);
   }
 
   // ---------- Status ----------

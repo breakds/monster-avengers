@@ -256,38 +256,38 @@ namespace monster_avengers {
         return (*static_cast<ObjectHolder*>(data.get()));
       }
 
-      void OutputJson(std::wostream &out) {
+      void OutputJson(std::wostream *out) {
         switch (type) {
         case Object::LISP_NIL:
-          out << "{}";
+          (*out) << "{}";
           break;
         case Object::LISP_NUM: 
-          out << std::to_wstring(*static_cast<int*>(data.get())); 
+          (*out) << std::to_wstring(*static_cast<int*>(data.get())); 
           break;
         case Object::LISP_STR: 
-          out << "\"" << *static_cast<std::wstring*>(data.get())
+          (*out) << "\"" << *static_cast<std::wstring*>(data.get())
               << "\"";
           break;
         case Object::LISP_LIST:
-          out << "[";
+          (*out) << "[";
           for (int i = 0; i < Size(); ++i) {
-            if (i > 0) out << ", ";
+            if (i > 0) (*out) << ", ";
             (*this)[i].OutputJson(out);
           }
-          out << "]";
+          (*out) << "]";
           break;
         case Object::LISP_OBJ:
-          out << "{";
+          (*out) << "{";
           int i = 0;
           for (auto &item : GetMap()) {
             std::wstring name;
             name.assign(item.first.begin(), item.first.end());
-            if (i > 0) out << ", ";
-            out << "\"" << name << "\": ";
+            if (i > 0) (*out) << ", ";
+            (*out) << "\"" << name << "\": ";
             item.second.OutputJson(out);
             i++;
           }
-          out << "}";
+          (*out) << "}";
           break;
         }
       }

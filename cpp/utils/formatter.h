@@ -174,12 +174,41 @@ namespace monster_avengers {
     void ToFile(const ArmorSet &armor_set) {
       lisp::Object result = 
         JsonArmorResult(*data_, solver_, armor_set).Format();
-      result.OutputJson(*output_stream_);
+      result.OutputJson(output_stream_.get());
     }
 
     std::unique_ptr<std::wofstream> output_stream_;
     const JewelSolver solver_;
     const DataSet *data_;
+  };
+
+  class ResultSerializer {
+  public:
+    ResultSerializer(const DataSet *data,
+                     const Query &query)
+      : solver_(*data, query.effects), 
+        data_(data) {
+      result_ = lisp::Object::List();
+    }
+    
+    void Add(const ArmorSet &armor_set) {
+      result_.Push(JsonArmorResult(*data_,
+                                   solver_,
+                                   armor_set).Format());
+    }
+
+    std::wstring ToString() {
+      std::wostringstream output_;
+      output_.imbue(LOCALE_UTF8);
+      result_.OutputJson(&output_);
+      return output_.str();
+    }
+
+  private:
+
+    const JewelSolver solver_;
+    const DataSet *data_;
+    lisp::Object result_;
   };
 
   class ExploreFormatter {
@@ -283,7 +312,7 @@ namespace monster_avengers {
     
     const DataSet *data_;
     const JewelSolver solver_;
-};
+  };
 }  // namespace monster_avengers
 
 

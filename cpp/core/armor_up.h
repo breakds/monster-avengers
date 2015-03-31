@@ -355,7 +355,26 @@ namespace monster_avengers {
       }
       return output;
     }
-    
+
+    std::wstring SearchSerialized(const Query &query) {
+      // Optimize the Query
+      Query optimized_query = OptimizeQuery(query);
+
+      SearchCore(optimized_query);
+
+      // Prepare formatter
+      ResultSerializer serializer(&data_, optimized_query);
+
+      std::string output;
+      int count = 0;
+      while (count < query.max_results && !output_iterators_.back()->empty()) {
+        serializer.Add(**output_iterators_.back());
+	++count;
+        ++(*output_iterators_.back());
+      }
+      return serializer.ToString();
+    }
+
     // Iterate is for speed test only.
     void Iterate(const Query &input_query) {
       // Optimize the Query

@@ -16,11 +16,10 @@ include_directories("~/pf/projects" ".")
 
 option (BUILD_TESTS "build executables in purpose of unittest." ON)
 
-SET(CMAKE_CXX_FLAGS "${OPENCV_FLAGS} -std=c++11")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -DNDEBUG -O3")
 SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
 SET(CMAKE_CXX_FLAGS_GPROF "-O1 -pg")
-
 
 IF(BUILD_TESTS)
   ADD_EXECUTABLE(test core/test.cc)
@@ -30,6 +29,10 @@ ENDIF(BUILD_TESTS)
 
 ADD_EXECUTABLE(serve_query serve_query.cc)
 ADD_EXECUTABLE(serve_explore serve_explore.cc)
+
+ADD_EXECUTABLE(armor_up_server server/armor_up_server.cc)
+TARGET_LINK_LIBRARIES(armor_up_server -lmicrohttpd)
+
 
 
 
