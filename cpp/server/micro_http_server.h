@@ -85,25 +85,6 @@ namespace micro_http_server {
     std::unique_ptr<char[]> buffer_;
   };
   
-  class SpecialPostHandler : public PostHandler{
-  public:
-    
-    int ProcessKeyValue(const std::string &key, 
-                        const std::string &value) override {
-      if (key == "query") {
-        query_cache_ = value;
-        return MHD_NO;
-      }
-      return MHD_YES;
-    }
-
-    std::string GenerateResponse() override {
-      std::string content = "{query: " + query_cache_ + "};\n";
-      return content;
-    }
-    std::string query_cache_;
-  };
-  
   template <typename Handler>
   class SimplePostServer {
   public:

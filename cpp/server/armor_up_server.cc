@@ -55,6 +55,25 @@ void StartDaemon(const std::string &working_directory) {
   std::freopen("/home/breakds/tmp/process.txt", "w", stderr);
 }
 
+class SpecialPostHandler : public PostHandler{
+public:
+    
+  int ProcessKeyValue(const std::string &key, 
+		      const std::string &value) override {
+    if (key == "query") {
+      query_cache_ = value;
+      return MHD_NO;
+    }
+    return MHD_YES;
+  }
+
+  std::string GenerateResponse() override {
+    std::string content = "{query: " + query_cache_ + "};\n";
+    return content;
+  }
+  std::string query_cache_;
+};
+
 
 int main(int argc, char **argv) {
   if (argc < 2) {
