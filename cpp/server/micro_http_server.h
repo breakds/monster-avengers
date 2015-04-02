@@ -5,6 +5,8 @@
 #include <sys/stat.h>
 #include <sys/select.h>
 #include <sys/socket.h>
+#include <cwchar>
+#include <cstdio>
 #include <microhttpd.h>
 #include <memory>
 #include "supp/helpers.h"
@@ -15,62 +17,88 @@ namespace micro_http_server {
 
   const int MAX_POST_DATA_SIZE = 512;
 
+  template <typename Handler> struct PostCycleInfo;
 
-  class SpecialPostHandler {
-  public:
-    static int IteratePostData(void *coninfo, MHD_ValueKind kind, 
-		    const char *key, const char *filename,
-		    const char *content_type, const char *transfer_encoding,
-		    const char *data, uint64_t off, size_t size) {
-      Log(INFO, L"called with %s = %s.", key, data); 
-      if (0 == strcmp(key, "query")) {
-	return MHD_NO;
-      }
-      return MHD_YES;
+  namespace {
+    template <typename Handler>
+    int IteratePostData(void *coninfo, MHD_ValueKind kind, 
+                        const char *key, const char *filename,
+                        const char *content_type, 
+                        const char *transfer_encoding,
+                        const char *data, uint64_t off, size_t size) {
+      PostCycleInfo<Handler> *info = 
+        static_cast<PostCycleInfo<Handler>*>(coninfo);
+      return info->handler->ProcessKeyValue(key, data);
     }
 
-    void Initialize(MHD_Connection *connection) {
-      post_processor_ = MHD_create_post_processor(connection, 
-						  MAX_POST_DATA_SIZE,
-						  IteratePostData,
-						  static_cast<void*>(this));
-    }
-
-    void ProcessPostData(const char *data, size_t *size) {
-      MHD_post_process(post_processor_, data, *size);
-      *size = 0;
-    }
-
-    int HandleRequest(MHD_Connection *connection) {
-      std::wstring json_result = L"{result: 12, success: true}";
-      wchar_t buffer[512];
-      wcscpy(buffer, json_result.c_str());
+    int SendResponse(MHD_Connection *connection, char *content) {
+      Log(INFO, L"writing response %s", content);
       MHD_Response *response = 
-	MHD_create_response_from_buffer(json_result.size() * sizeof(wchar_t),
-					static_cast<void*>(buffer),
-					MHD_RESPMEM_PERSISTENT);
-      MHD_add_response_header(response, "Content-Type", "application/json; char-set=utf-8");
-      MHD_add_response_header(response, "Connection", "Keep-Alive");
+        MHD_create_response_from_buffer(strlen(content),
+        				static_cast<void*>(content),
+        				MHD_RESPMEM_PERSISTENT);
+      MHD_add_response_header(response, "Content-Type", "application/json");
+      // MHD_add_response_header(response, "Connection", "Keep-Alive");
       int ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
       MHD_destroy_response(response);
       return ret;
     }
+  }  // namespace
 
-  private:
-    MHD_PostProcessor *post_processor_;
+
+  template <typename Handler>
+  struct PostCycleInfo {
+    Handler* handler;
+    MHD_PostProcessor *post_processor;
+
+    PostCycleInfo(MHD_Connection *connection) :
+      handler(new Handler()),
+      post_processor(MHD_create_post_processor(connection,
+                                               MAX_POST_DATA_SIZE,
+                                               IteratePostData<Handler>,
+                                               static_cast<void*>(this)))
+    {}
+
+
+    ~PostCycleInfo() {
+      delete handler;
+      MHD_destroy_post_processor(post_processor);
+    }
   };
   
-  template <typename PostHandler>
-  class MicroHttpServer {
+  class SpecialPostHandler {
   public:
-    MicroHttpServer(int port) {
+    
+    int ProcessKeyValue(const std::string &key, 
+                        const std::string &value) {
+      if (key == "query") {
+        query_cache_ = value;
+        return MHD_NO;
+      }
+      return MHD_YES;
+    }
+
+    int HandleRequest(MHD_Connection *connection) {
+      answer_text.reset(new char[100]);
+      snprintf(answer_text.get(), 100, "hahahehe");
+      return SendResponse(connection, answer_text.get());
+    }
+
+    std::unique_ptr<char[]> answer_text;
+    std::string query_cache_;
+  };
+  
+  template <typename Handler>
+  class SimplePostServer {
+  public:
+    SimplePostServer(int port) {
       daemon_ = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, port,
 				 nullptr, nullptr, &EntryPoint, nullptr, 
 				 MHD_OPTION_NOTIFY_COMPLETED, &RequestComplete, 
 				 nullptr, MHD_OPTION_END);
     }
 
-    ~MicroHttpServer() {
+    ~SimplePostServer() {
       MHD_stop_daemon(daemon_);
     }
     
@@ -79,10 +107,11 @@ namespace micro_http_server {
 			 void **con_cls, 
 			 MHD_RequestTerminationCode toe) {
       Log(INFO, L"RequestComplete called.");
-      PostHandler *handler = static_cast<PostHandler*>(*con_cls);
-      if (nullptr != handler) {
-	delete handler;	
-	*con_cls = nullptr;
+      PostCycleInfo<Handler> *info = 
+        static_cast<PostCycleInfo<Handler>*>(*con_cls);
+      if (nullptr != info) {
+        delete info;
+        *con_cls = nullptr;
       }
     }
 
@@ -94,21 +123,26 @@ namespace micro_http_server {
 			  const char *upload_data,
 			  size_t *upload_data_size,
 			  void **con_cls) {
+      Log(INFO, L"Entry");
       if (nullptr == *con_cls) {
 	if (0 == strcmp(method, "POST")) {
-	  PostHandler *handler = new PostHandler();
-	  *con_cls = handler;
+          PostCycleInfo<Handler> *info = 
+            new PostCycleInfo<Handler>(connection);
+	  *con_cls = info;
+          return MHD_YES;
 	}
-	return MHD_YES;
       }
 
       if (0 == strcmp(method, "POST")) {
-	PostHandler *handler = static_cast<PostHandler*>(*con_cls);
+        PostCycleInfo<Handler> *info = 
+          static_cast<PostCycleInfo<Handler>*>(*con_cls);
 	if (*upload_data_size > 0) {
-	  handler->ProcessPostData(upload_data, upload_data_size);
+          MHD_post_process(info->post_processor, upload_data, 
+                           *upload_data_size);
+          *upload_data_size = 0;
 	  return MHD_YES;
 	} else {
-	  return handler->HandleRequest(connection);
+	  return info->handler->HandleRequest(connection);
 	}
       }
       return MHD_NO;

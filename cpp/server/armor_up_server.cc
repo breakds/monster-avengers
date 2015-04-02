@@ -61,12 +61,12 @@ int main(int argc, char **argv) {
     Log(FATAL, L"Please specifcy the dataset folder.");
   }
 
-  StartDaemon(argv[1]);
+  // StartDaemon(argv[1]);
   
   // Initialize the armor up engine.
   armor_up.reset(new ArmorUp(argv[1]));
 
-  MicroHttpServer<SpecialPostHandler> server(8887);
+  SimplePostServer<SpecialPostHandler> server(8887);
 
   while (true) {
     sleep(1);
