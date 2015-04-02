@@ -43,6 +43,7 @@ namespace micro_http_server {
       MHD_destroy_response(response);
       return ret;
     }
+
   }  // namespace
 
 
@@ -65,12 +66,30 @@ namespace micro_http_server {
       MHD_destroy_post_processor(post_processor);
     }
   };
+
+  class PostHandler {
+  public:
+    virtual int ProcessKeyValue(const std::string &key,
+				const std::string &value) = 0;
+    virtual std::string GenerateResponse() = 0;
+    
+    virtual int HandleRequest(MHD_Connection *connection) {
+      std::string content = std::move(GenerateResponse());
+      int size = content.size() + 4;
+      buffer_.reset(new char[size]);
+      snprintf(buffer_.get(), size, "%s", content.c_str());
+      return SendResponse(connection, buffer_.get());
+    }
+
+  private:
+    std::unique_ptr<char[]> buffer_;
+  };
   
-  class SpecialPostHandler {
+  class SpecialPostHandler : public PostHandler{
   public:
     
     int ProcessKeyValue(const std::string &key, 
-                        const std::string &value) {
+                        const std::string &value) override {
       if (key == "query") {
         query_cache_ = value;
         return MHD_NO;
@@ -78,13 +97,10 @@ namespace micro_http_server {
       return MHD_YES;
     }
 
-    int HandleRequest(MHD_Connection *connection) {
-      answer_text.reset(new char[100]);
-      snprintf(answer_text.get(), 100, "hahahehe");
-      return SendResponse(connection, answer_text.get());
+    std::string GenerateResponse() override {
+      std::string content = "{query: " + query_cache_ + "};\n";
+      return content;
     }
-
-    std::unique_ptr<char[]> answer_text;
     std::string query_cache_;
   };
   
