@@ -36,7 +36,6 @@ namespace micro_http_server {
     }
 
     int SendResponse(MHD_Connection *connection, char *content) {
-      Log(INFO, L"writing response %s", content);
       MHD_Response *response = 
         MHD_create_response_from_buffer(strlen(content),
         				static_cast<void*>(content),
@@ -109,7 +108,6 @@ namespace micro_http_server {
     static void RequestComplete(void *cls, MHD_Connection *connection, 
 			 void **con_cls, 
 			 MHD_RequestTerminationCode toe) {
-      Log(INFO, L"RequestComplete called.");
       PostCycleInfo<Handler> *info = 
         static_cast<PostCycleInfo<Handler>*>(*con_cls);
       if (nullptr != info) {
@@ -126,7 +124,6 @@ namespace micro_http_server {
 			  const char *upload_data,
 			  size_t *upload_data_size,
 			  void **con_cls) {
-      Log(INFO, L"Entry");
       if (nullptr == *con_cls) {
 	if (0 == strcmp(method, "POST")) {
           PostCycleInfo<Handler> *info = 
