@@ -1,25 +1,29 @@
-#ifndef _MICROHTTPD_WRAPPER_
-#define _MICROHTTPD_WRAPPER_
+#ifndef _MICRO_HTTP_SERVER_
+#define _MICRO_HTTP_SERVER_
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/select.h>
 #include <sys/socket.h>
+#include <cstring>
 #include <cwchar>
 #include <cstdio>
 #include <microhttpd.h>
 #include <memory>
+#include <type_traits>
 #include "supp/helpers.h"
 
 using namespace monster_avengers;
 
 namespace micro_http_server {
 
-  const int MAX_POST_DATA_SIZE = 512;
+  const int MAX_POST_DATA_SIZE = 2048;
 
-  template <typename Handler> struct PostCycleInfo;
-
+  
   namespace {
+
+    template <typename Handler> struct PostCycleInfo;
+    
     template <typename Handler>
     int IteratePostData(void *coninfo, MHD_ValueKind kind, 
                         const char *key, const char *filename,
@@ -44,28 +48,30 @@ namespace micro_http_server {
       return ret;
     }
 
+    template <typename Handler>
+    struct PostCycleInfo {
+      Handler* handler;
+      MHD_PostProcessor *post_processor;
+
+      PostCycleInfo(MHD_Connection *connection) :
+	handler(new Handler()),
+	post_processor(MHD_create_post_processor(connection,
+						 MAX_POST_DATA_SIZE,
+						 IteratePostData<Handler>,
+						 static_cast<void*>(this)))
+      {}
+
+
+      ~PostCycleInfo() {
+	delete handler;
+	MHD_destroy_post_processor(post_processor);
+      }
+    };
+
+    constexpr char ERROR_GET_MESSAGE[] = 
+      "GET is not supported by SimplePostServer.";
   }  // namespace
 
-
-  template <typename Handler>
-  struct PostCycleInfo {
-    Handler* handler;
-    MHD_PostProcessor *post_processor;
-
-    PostCycleInfo(MHD_Connection *connection) :
-      handler(new Handler()),
-      post_processor(MHD_create_post_processor(connection,
-                                               MAX_POST_DATA_SIZE,
-                                               IteratePostData<Handler>,
-                                               static_cast<void*>(this)))
-    {}
-
-
-    ~PostCycleInfo() {
-      delete handler;
-      MHD_destroy_post_processor(post_processor);
-    }
-  };
 
   class PostHandler {
   public:
@@ -130,6 +136,10 @@ namespace micro_http_server {
 	}
       }
 
+      if (0 == strcmp(method, "GET")) {
+	return SendResponse(connection, const_cast<char*>(ERROR_GET_MESSAGE));
+      }
+
       if (0 == strcmp(method, "POST")) {
         PostCycleInfo<Handler> *info = 
           static_cast<PostCycleInfo<Handler>*>(*con_cls);
@@ -150,4 +160,4 @@ namespace micro_http_server {
   
 }  // namespace microhttpd
 
-#endif  // _MICROHTTPD_WRAPPER_
+#endif  // _MICRO_HTTP_SERVER_
