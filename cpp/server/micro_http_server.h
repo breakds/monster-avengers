@@ -41,7 +41,7 @@ namespace micro_http_server {
         				static_cast<void*>(content),
         				MHD_RESPMEM_PERSISTENT);
       MHD_add_response_header(response, "Content-Type", "application/json");
-      // MHD_add_response_header(response, "Connection", "Keep-Alive");
+      MHD_add_response_header(response, "Connection", "Keep-Alive");
       int ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
       MHD_destroy_response(response);
       return ret;

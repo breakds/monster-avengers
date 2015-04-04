@@ -47,10 +47,23 @@ public:
 
 int main(int argc, char **argv) {
   if (argc < 2) {
-    Log(FATAL, L"Please specifcy the dataset folder.");
+    Log(FATAL, L"Please call the command as: armor_up_server [dataset folder] [port]");
   }
 
-  Daemon daemon("/home/breakds/tmp/log.txt", "/home/breakds/tmp/log.txt", argv[1]);
+  int port = 8887;
+  
+  if (argc >= 3) {
+    try {
+      port = std::stoi(argv[2]);
+    } catch (std::invalid_argument&) {
+      Log(FATAL, L"Invalid port %s.", argv[2]);
+      _exit(-1);
+    }
+  }
+  
+  Log(INFO, L"Starting Server.");
+
+  Daemon daemon("/tmp/armor_up_log.txt", "/tmp/armor_up_log.txt", argv[1]);
   daemon.Start();
 
   Log(INFO, L"Server Started.");
@@ -60,7 +73,7 @@ int main(int argc, char **argv) {
 
   Log(INFO, L"armor up!");
 
-  SimplePostServer<SpecialPostHandler> server(8887);
+  SimplePostServer<SpecialPostHandler> server(port);
 
   while (true) {
     sleep(10);
