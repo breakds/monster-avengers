@@ -91,7 +91,7 @@ There are currently some limitations in the current implementations, and I will 
   * I think it is a good idea to filter out armors based the player's progress. I am lacking the data to implement this feature.
 5. JSON and Lisp parser/composer should go into other packages (or not?).
 
-## Acknoledgement
+## Ackno我ledgement
 
 1. Credit to Ping An, the author of [Ping's Dex](https://sites.google.com/site/pingsdex/pingsmh4gdex). His effort on composing the data are source to many other related projects.
 1. Credit to the project [MonsterHunter4UDatabase](https://github.com/kamegami13/MonsterHunter4UDatabase), where all the data (armors, skills and decorations) are from their database. Completing the database requires a lot of work and without their effort, I would not have accomplished this.
