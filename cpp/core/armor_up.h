@@ -574,23 +574,6 @@ namespace monster_avengers {
       return Status(SUCCESS);
     }
 
-    // Status ApplyJewelFilter(const std::vector<Effect> &effects) {
-    //   std::vector<int> skill_ids;
-    //   int actual_size = std::min(static_cast<int>(effects.size()),
-    //                              FOUNDATION_NUM);
-    //   for (int i = 0; i < actual_size; ++i) {
-    //     skill_ids.push_back(effects[i].skill_id);
-    //   }
-    //   TreeIterator *new_iter = 
-    //     new JewelFilterIterator(iterators_.back().get(),
-    //                             data_,
-    //                             &pool_,
-    //                             skill_ids,
-    //                             effects);
-    //   iterators_.emplace_back(new_iter);
-    //   return Status(SUCCESS);
-    // }
-
     Status ApplySingleJewelFilter(const std::vector<Effect> &effects, 
                                   int effect_id) {
       TreeIterator *new_iter = 
