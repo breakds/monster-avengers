@@ -8,10 +8,6 @@
 #include <map>
 #include <unordered_map>
 
-#include "supp/helpers.h"
-#include "lisp/lisp_object.h"
-#include "lisp/reader.h"
-
 #include "language_text.h"
 #include "effect.h"
 #include "skill.h"
@@ -19,31 +15,35 @@
 #include "item.h"
 #include "armor.h"
 
+#include "data_loader.h"
+
 namespace monster_avengers {
   
   class DataSet {
   public:
     int torso_up_id;
     
-    DataSet(const std::string &data_folder) 
+    DataSet(const std::string &descriptor) 
       : skill_systems_(), jewels_(), armors_(),
         armor_indices_by_parts_() {
+      DataLoader loader;
+      loader.Initialize(descriptor);
+
       // ---------- Skills ----------
       // TROSO UP is alwasy the skill system with id 0.
       torso_up_id = 0; 
-      skill_systems_ = lisp::ReadList<SkillSystem>(data_folder + 
-                                                   "/skills.lisp");
-
+      skill_systems_ = loader.Get()->LoadSkillSystems();
+      
       // ---------- Jewels ----------
-      jewels_ = lisp::ReadList<Jewel>(data_folder + "/jewels.lisp");
+      jewels_ = loader.Get()->LoadJewels();
       
       // ---------- Items ----------
-      items_ = lisp::ReadList<Item>(data_folder + "/items.lisp");
+      items_ = loader.Get()->LoadItems();
 
 
       // ---------- Armors ----------
       {
-        armors_ = lisp::ReadList<Armor>(data_folder + "/armors.lisp");
+        armors_ = loader.Get()->LoadArmors();
         // Add the dummy amulet.
         armors_.push_back(Armor::Amulet(0, {}));
         // Initialize armor_indices_by_parts_
