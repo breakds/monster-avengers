@@ -4,7 +4,12 @@
 #include <string>
 #include <memory>
 #include <vector>
+#if _WIN32
+#include "sqlite/sqlite3.h"
+#else
 #include <sqlite3.h>
+#endif
+
 #include <unordered_map>
 
 #include "supp/helpers.h"
@@ -59,7 +64,11 @@ namespace monster_avengers {
   // ---------- Dex SQLite Loader Core ----------
   void ToWstring(const std::string &input,
                  std::wstring *output) {
+#if _WIN32
+	wchar_t buffer[255];
+#else
     wchar_t buffer[input.size()];
+#endif
     swprintf(buffer, input.size(), L"%s", input.c_str());
     *output = buffer;
   }
