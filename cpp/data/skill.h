@@ -14,6 +14,9 @@ namespace monster_avengers {
     int points;
     LanguageText name;
 
+    Skill(int points_, LanguageText name_)
+      : points(points_), name(name_) {}
+    
     Skill(const lisp::Object &object) {
       object.AssignSlotTo("NAME", &name);
       object.AssignSlotTo("POINTS", &points);
@@ -35,6 +38,9 @@ namespace monster_avengers {
     LanguageText name;
     std::vector<Skill> skills;
     int id;
+
+    SkillSystem(const LanguageText &name_, int id_) 
+      : name(name_), skills(), id(id_) {}
     
     explicit SkillSystem(const lisp::Object &object) {
       object.AssignSlotTo("NAME", &name);

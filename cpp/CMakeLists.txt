@@ -23,15 +23,21 @@ SET(CMAKE_CXX_FLAGS_GPROF "-O1 -pg")
 
 IF(BUILD_TESTS)
   ADD_EXECUTABLE(test core/test.cc)
+  TARGET_LINK_LIBRARIES(test -lsqlite3)
   ADD_EXECUTABLE(explore_test core/explore_test.cc)
+  TARGET_LINK_LIBRARIES(explore_test -lsqlite3)
   ADD_EXECUTABLE(signature_test utils/signature_test.cc)
+  TARGET_LINK_LIBRARIES(signature_test -lsqlite3)
 ENDIF(BUILD_TESTS)
 
 ADD_EXECUTABLE(serve_query serve_query.cc)
+TARGET_LINK_LIBRARIES(serve_query -lsqlite3)
+
 ADD_EXECUTABLE(serve_explore serve_explore.cc)
+TARGET_LINK_LIBRARIES(serve_explore -lsqlite3)
 
 ADD_EXECUTABLE(armor_up_server server/armor_up_server.cc)
-TARGET_LINK_LIBRARIES(armor_up_server -lmicrohttpd)
+TARGET_LINK_LIBRARIES(armor_up_server -lmicrohttpd -lsqlite3)
 
 
 

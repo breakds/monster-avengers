@@ -11,6 +11,8 @@ namespace monster_avengers {
     LanguageText name;
     int id;
 
+    Item() : name(), id(0) {}
+
     Item(const lisp::Object &object) {
       object.AssignSlotTo("NAME", &name);
       object.AssignSlotTo("ID", &id);

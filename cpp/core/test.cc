@@ -73,7 +73,8 @@ int main(int argc, char **argv) {
   query.DebugPrint();
   Timer timer;
   timer.Tic();
-  ArmorUp armor_up("standard:/home/breakds/pf/projects/monster-avengers/dataset/MH4GU");
+  // ArmorUp armor_up("standard:/home/breakds/pf/projects/monster-avengers/dataset/MH4GDEX");
+  ArmorUp armor_up("dex:/home/breakds/Downloads/linq.db");
   double init_duration = timer.Toc();
   timer.Tic();
   armor_up.Search<SCREEN>(query);

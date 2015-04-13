@@ -14,6 +14,8 @@ namespace monster_avengers {
     std::vector<Effect> effects;
     int external_id;
 
+    Jewel() : name(), holes(0), effects(), external_id(0) {}
+
     Jewel(const lisp::Object &object) {
       object.AssignSlotTo("NAME", &name);
       object.AssignSlotTo("SLOTS", &holes);
