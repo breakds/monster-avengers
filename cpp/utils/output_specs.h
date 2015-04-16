@@ -388,7 +388,7 @@ namespace monster_avengers {
 
     // Convert to dex's ids.
     void ConvertToDex(const DataSet &data) {
-      id--;
+      id++;
       for (int &jewel_id : jewel_ids) {
         jewel_id = data.jewel(jewel_id).external_id;
       }
