@@ -26,6 +26,14 @@ namespace winbind_wrapper
                 answer.DebugPrint();
                 Console.WriteLine("--------------------");
             }
+
+            result = Wrapper.Search("(:weapon-type \"melee\") (:weapon-holes 2) (:skill 25 15) (:skill 1 10) (:skill 40 15) (:skill 41 10) (:skill 36 10) (:skill 30 10) (:amulet 2 (1 4 30 10))");
+            // Iterate over the answers, and print them.
+            foreach (ArmorSet answer in result)
+            {
+                answer.DebugPrint();
+                Console.WriteLine("--------------------");
+            }
         }
     }
 }
