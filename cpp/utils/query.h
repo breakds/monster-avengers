@@ -25,7 +25,8 @@ namespace monster_avengers {
       ADD_AMULET,
       MAX_RESULTS,
       BLACKLIST,
-      JEWEL_BLACKLIST
+      JEWEL_BLACKLIST,
+      GENDER
     };
 
     static const std::unordered_map<std::wstring, Command> COMMAND_TRANSLATOR;
@@ -51,6 +52,7 @@ namespace monster_avengers {
       query->armor_filter.weapon_holes = 0; // by default do not allow weapon holes.
       query->armor_filter.min_rare = 0; // by default there is no rare limit.
       query->armor_filter.max_rare = 11; // by default there is no rare limit.
+      query->armor_filter.gender = MALE; // by default we look for male's armors.
       query->armor_filter.blacklist.clear();
       
       // Jewel Filter
@@ -89,6 +91,10 @@ namespace monster_avengers {
           break;
         case WEAPON_TYPE:
           status = ReadWeaponType(&tokenizer, &query->armor_filter.weapon_type);
+          if (!status.Success()) return status;
+          break;
+        case GENDER:
+          status = ReadGender(&tokenizer, &query->armor_filter.gender);
           if (!status.Success()) return status;
           break;
         case WEAPON_HOLES:
@@ -254,6 +260,26 @@ namespace monster_avengers {
       }
       return Status(SUCCESS);
     }
+
+    static Status ReadGender(lisp::Tokenizer *tokenizer, 
+			     Gender *gender) {
+      lisp::Token token;
+      if (!tokenizer->Next(&token)) {
+        return Status(FAIL, "Query: Unexpected end of query.");
+      }
+      if (lisp::STRING != token.name) {
+        return Status(FAIL, "Query: Syntax Error - expect STRING.");
+      }
+      if (L"male" == token.value) {
+        *gender = MALE;
+      } else if (L"female" == token.value) {
+        *gender = FEMALE;
+      } else {
+        return Status(FAIL, "Query: Invalid Gender.");
+      }
+      return Status(SUCCESS);
+    }
+    
   };
 
   const std::unordered_map<std::wstring, Query::Command> 
@@ -267,6 +293,7 @@ namespace monster_avengers {
      {L"max-results", MAX_RESULTS},
      {L"amulet", ADD_AMULET},
      {L"blacklist", BLACKLIST},
+     {L"gender", GENDER},
      {L"ban-jewels", JEWEL_BLACKLIST},
     };
 }

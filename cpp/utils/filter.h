@@ -10,6 +10,7 @@ namespace monster_avengers {
     int max_rare;
     WeaponType weapon_type;
     int weapon_holes;
+    Gender gender;
     std::unordered_set<int> blacklist;
 
     bool Validate(const DataSet &data, int id) const {
@@ -18,6 +19,9 @@ namespace monster_avengers {
       // Weapon Type should match.
       if (armor.type != weapon_type && BOTH != armor.type) return false;
 
+      // Gender constraint.
+      if (armor.gender != gender && BOTH_GENDER != armor.gender) return false;
+ 
       // Rarity Constraint should be enforced on non GEAR/AMULET.
       if (GEAR != armor.part && AMULET != armor.part) {
 	if (armor.rare < min_rare || armor.rare > max_rare) {
