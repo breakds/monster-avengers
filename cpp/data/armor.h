@@ -135,7 +135,7 @@ namespace monster_avengers {
       object.AssignSlotTo("RESISTENCE", &resistence);
       object.AppendSlotTo("MATERIAL", &material);
       object.AppendSlotTo("EFFECTS", &effects);
-      object.AssignSlotTo("EXTERNAL-ID", &external_id, 0);
+      object.AssignSlotTo("EXTERNAL-ID", &external_id, -1);
     }
     
     void DebugPrint(int indent = 0) const {

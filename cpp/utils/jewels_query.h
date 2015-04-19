@@ -19,18 +19,22 @@ namespace monster_avengers {
 
     HoleClient(const DataSet &data, 
                const std::vector<int> &skill_ids,
-               const std::vector<Effect> &effects)
+               const std::vector<Effect> &effects, 
+	       const JewelFilter &filter)
       : jewel_keys_() {
       bool valid = false;
 
-      for (const Jewel &jewel : data.jewels()) {
-        Signature key = Signature(jewel, skill_ids, 
-                                  effects, &valid);
-        if (valid) {
-          jewel_keys_[jewel.holes].insert(key);
-        }
+      for (int i = 0; i < data.jewels().size(); ++i) {
+	const Jewel &jewel = data.jewel(i);
+	if (filter.Validate(data, i)) {
+	  Signature key = Signature(jewel, skill_ids, 
+				    effects, &valid);
+	  if (valid) {
+	    jewel_keys_[jewel.holes].insert(key);
+	  }
+	}
       }
-      
+
       buffer_[0].insert(Signature());
       fixed_buffer_[1][0].insert(Signature());
       fixed_buffer_[2][0].insert(Signature());
@@ -38,13 +42,15 @@ namespace monster_avengers {
     }
     
     HoleClient(const DataSet &data, 
-               const std::vector<Effect> &effects) 
-      : HoleClient(data, SkillIdsFromEffects(effects), effects) {}
+               const std::vector<Effect> &effects, 
+	       const JewelFilter &filter) 
+      : HoleClient(data, SkillIdsFromEffects(effects), effects, filter) {}
     
     HoleClient(const DataSet &data, int skill_id, 
-               const std::vector<Effect> &effects) 
+               const std::vector<Effect> &effects, 
+	       const JewelFilter &filter) 
       : HoleClient(data, std::vector<int>({skill_id}), 
-                   effects) {}
+                   effects, filter) {}
     
     inline const std::unordered_set<Signature> &Query(Signature input) {
       int i(0), j(0), k(0);
@@ -305,7 +311,8 @@ namespace monster_avengers {
 
     
     JewelSolver(const DataSet &data, 
-                const std::vector<Effect> &effects)
+                const std::vector<Effect> &effects, 
+		const JewelFilter &filter)
       : jewel_keys_() {
       bool valid = false;
       std::vector<int> skill_ids;
@@ -314,12 +321,14 @@ namespace monster_avengers {
       }
       
       for (int i = 0; i < data.jewels().size(); ++i) {
-        const Jewel &jewel = data.jewel(i);
-        Signature key = Signature(jewel, skill_ids, effects, &valid);
-        if (valid) {
-          jewel_keys_[jewel.holes].push_back(key);
-          jewel_ids_[jewel.holes].push_back(i);
-        }
+	if (filter.Validate(data, i)) {
+	  const Jewel &jewel = data.jewel(i);
+	  Signature key = Signature(jewel, skill_ids, effects, &valid);
+	  if (valid) {
+	    jewel_keys_[jewel.holes].push_back(key);
+	    jewel_ids_[jewel.holes].push_back(i);
+	  }
+	}
       }
     }
 

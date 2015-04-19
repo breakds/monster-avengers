@@ -19,7 +19,7 @@ namespace monster_avengers {
     Jewel(const lisp::Object &object) {
       object.AssignSlotTo("NAME", &name);
       object.AssignSlotTo("SLOTS", &holes);
-      object.AssignSlotTo("EXTERNAL-ID", &external_id, 0);
+      object.AssignSlotTo("EXTERNAL-ID", &external_id, -1);
       object.AppendSlotTo("EFFECTS", &effects);
     }
 

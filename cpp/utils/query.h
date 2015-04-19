@@ -9,6 +9,8 @@
 #include "lisp/parser.h"
 #include "data/data_set.h"
 
+#include "filter.h"
+
 namespace monster_avengers {
 
   struct Query {
@@ -23,32 +25,37 @@ namespace monster_avengers {
       ADD_AMULET,
       MAX_RESULTS,
       BLACKLIST,
+      JEWEL_BLACKLIST
     };
 
     static const std::unordered_map<std::wstring, Command> COMMAND_TRANSLATOR;
     
     std::vector<Effect> effects;
-    int defense;
-    WeaponType weapon_type;
-    int weapon_holes;
-    int min_rare;
-    int max_rare;
-    int max_results;
     std::vector<Armor> amulets;
-    std::unordered_set<int> blacklist;
-
-    Query() : effects(), defense(0), weapon_type(MELEE) {}
+    int defense;
+    int max_results;
+    ArmorFilter armor_filter;
+    JewelFilter jewel_filter;
+    
+    Query() : effects(), defense(0), armor_filter() {}
 
     // Implies conversion from string as well.
     static Status Parse(const std::wstring &query_text, Query *query) {
       query->defense = 0;
-      query->weapon_type = MELEE;
       query->effects.clear();
-      query->weapon_holes = 0; // by default do not allow weapon holes.
-      query->min_rare = 0; // by default there is no rare limit.
-      query->max_rare = 11; // by default there is no rare limit.
-      query->max_results = 10; // by default we are expecting 10 results.
       query->amulets.clear();
+      query->max_results = 10; // by default we are expecting 10 results.
+
+      // Armor Filter
+      query->armor_filter.weapon_type = MELEE;
+      query->armor_filter.weapon_holes = 0; // by default do not allow weapon holes.
+      query->armor_filter.min_rare = 0; // by default there is no rare limit.
+      query->armor_filter.max_rare = 11; // by default there is no rare limit.
+      query->armor_filter.blacklist.clear();
+      
+      // Jewel Filter
+      query->jewel_filter.blacklist.clear();
+
 
       auto tokenizer = lisp::Tokenizer::FromText(query_text);
       lisp::Token token;
@@ -81,19 +88,19 @@ namespace monster_avengers {
           if (!status.Success()) return status;
           break;
         case WEAPON_TYPE:
-          status = ReadWeaponType(&tokenizer, &query->weapon_type);
+          status = ReadWeaponType(&tokenizer, &query->armor_filter.weapon_type);
           if (!status.Success()) return status;
           break;
         case WEAPON_HOLES:
-          status = ReadInt(&tokenizer, &query->weapon_holes);
+          status = ReadInt(&tokenizer, &query->armor_filter.weapon_holes);
           if (!status.Success()) return status;
           break;
 	case MIN_RARE:
-	  status = ReadInt(&tokenizer, &query->min_rare);
+	  status = ReadInt(&tokenizer, &query->armor_filter.min_rare);
           if (!status.Success()) return status;
           break;
         case MAX_RARE:
-	  status = ReadInt(&tokenizer, &query->max_rare);
+	  status = ReadInt(&tokenizer, &query->armor_filter.max_rare);
           if (!status.Success()) return status;
           break;
         case MAX_RESULTS:
@@ -115,7 +122,14 @@ namespace monster_avengers {
           nums.clear();
           nums = lisp::ParseList<int>::Do(&tokenizer);
           for (int i : nums) {
-            query->blacklist.insert(i);
+            query->armor_filter.blacklist.insert(i);
+          }
+          break;
+        case JEWEL_BLACKLIST:
+          nums.clear();
+          nums = lisp::ParseList<int>::Do(&tokenizer);
+          for (int i : nums) {
+            query->jewel_filter.blacklist.insert(i);
           }
           break;
         default:
@@ -143,7 +157,9 @@ namespace monster_avengers {
     const Query &operator=(const Query &other) {
       effects = other.effects;
       defense = other.defense;
-      weapon_type = other.weapon_type;
+      max_results = other.max_results;
+      amulets = other.amulets;
+      armor_filter = other.armor_filter;
       return *this;
     }
 
@@ -161,13 +177,13 @@ namespace monster_avengers {
         wprintf(L" %d(%d)", effect.skill_id, effect.points);
       }
       wprintf(L"\n");
-      if (MELEE == weapon_type) {
+      if (MELEE == armor_filter.weapon_type) {
         wprintf(L"weapon_type: MELEE\n");
       } else {
         wprintf(L"weapon_type: RANGE\n");
       }
-      wprintf(L"weapon_holes: %d\n", weapon_holes);
-      wprintf(L"mininum rare: %d\n", min_rare);
+      wprintf(L"weapon_holes: %d\n", armor_filter.weapon_holes);
+      wprintf(L"mininum rare: %d\n", armor_filter.min_rare);
       wprintf(L"defense: %d\n", defense);
       for (auto &amulet : amulets) {
         amulet.DebugPrint();
@@ -250,7 +266,9 @@ namespace monster_avengers {
      {L"max-rare", MAX_RARE},
      {L"max-results", MAX_RESULTS},
      {L"amulet", ADD_AMULET},
-     {L"blacklist", BLACKLIST}};
+     {L"blacklist", BLACKLIST},
+     {L"ban-jewels", JEWEL_BLACKLIST},
+    };
 }
 
 #endif  // _MONSTER_AVENGERS_QUERY_

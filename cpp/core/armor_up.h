@@ -15,7 +15,6 @@
 #include "utils/output_specs.h"
 #include "or_and_tree.h"
 #include "iterator.h"
-#include "explore.h"
 
 namespace monster_avengers {
 
@@ -51,10 +50,11 @@ namespace monster_avengers {
                                  const DataSet &data,
                                  const NodePool *pool,
                                  int effect_id,
-                                 const std::vector<Effect> &effects)
+                                 const std::vector<Effect> &effects, 
+				 const JewelFilter &jewel_filter)
       : base_iter_(base_iter), 
         pool_(pool),
-        hole_client_(data, {effects[effect_id].skill_id}, effects),
+        hole_client_(data, {effects[effect_id].skill_id}, effects, jewel_filter),
         current_(0),
         inverse_points_(sig::InverseKey(effects.begin(),
                                         effects.begin() + effect_id + 1)) {
@@ -135,7 +135,8 @@ namespace monster_avengers {
       : base_iter_(base_iter), pool_(pool), 
         splitter_(data, pool, effect_id, 
                   query.effects[effect_id].skill_id),
-        hole_client_(data, query.effects[effect_id].skill_id, query.effects),
+        hole_client_(data, query.effects[effect_id].skill_id, query.effects, 
+		     query.jewel_filter),
         effect_id_(effect_id),
         required_points_(query.effects[effect_id].points),
       inverse_points_(sig::InverseKey(query.effects.begin(), 
@@ -309,7 +310,7 @@ namespace monster_avengers {
       // Core Search
       CHECK_SUCCESS(ApplyFoundation(query));
       for (int i = 0; i < FOUNDATION_NUM; ++i) {
-        CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, i));
+        CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, i, query.jewel_filter));
       }
       for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
         CHECK_SUCCESS(ApplySkillSplitter(query, i));	
@@ -375,30 +376,6 @@ namespace monster_avengers {
       return serializer.ToString();
     }
 
-    // Iterate is for speed test only.
-    void Iterate(const Query &input_query) {
-      // Optimize the Query
-      Query query = OptimizeQuery(input_query);
-
-      // Add in custom armors
-      InitializeExtraArmors(query);
-
-      // Core Search
-      CHECK_SUCCESS(ApplyFoundation(query));
-      CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, 0));
-      CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, 1));
-      for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
-        CHECK_SUCCESS(ApplySkillSplitter(query, i));	
-      }
-      CHECK_SUCCESS(PrepareOutput());
-      CHECK_SUCCESS(ApplyDefenseFilter(query));
-      
-      // Prepare formatter
-      while (!output_iterators_.back()->empty()) {
-        ++(*output_iterators_.back());
-      }
-    }
-    
     void Explore(const Query &input_query,
                  const std::string output_path = "") {
       Timer overall_timer;
@@ -430,7 +407,8 @@ namespace monster_avengers {
         // Core Search
         CHECK_SUCCESS(ApplyFoundation(query));
         for (int i = 0; i < FOUNDATION_NUM; ++i) {
-          CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, i));
+          CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, i, 
+					       query.jewel_filter));
         }
         for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
           CHECK_SUCCESS(ApplySkillSplitter(query, i));	
@@ -502,29 +480,17 @@ namespace monster_avengers {
       }
       
       for (int id : data_.ArmorIds(part)) {
-        const Armor &armor = data_.armor(id);
-        if (armor.type == query.weapon_type || BOTH == armor.type) {
-          Signature key(armor, effects);
-          
-          // Rare blacklist
-          if (GEAR != part && AMULET != part) {
-            if (armor.rare < query.min_rare ||
-                armor.rare > query.max_rare) continue;
-          }
-          
-          // Blacklist filter
-          if (0 != query.blacklist.count(id)) continue;
-          
-          // Weapon holes match
-          if (GEAR == part && armor.holes != query.weapon_holes) continue;
-          
-          auto it = armor_map.find(key);
-          if (armor_map.end() == it) {
-            armor_map[key] = {id};
-          } else {
-            it->second.push_back(id);
-          }
-        }
+	if (query.armor_filter.Validate(data_, id)) {
+	  const Armor &armor = data_.armor(id);
+	  Signature key(armor, effects);
+	  
+	  auto it = armor_map.find(key);
+	  if (armor_map.end() == it) {
+	    armor_map[key] = {id};
+	  } else {
+	    it->second.push_back(id);
+	  }
+	}
       }
       
       std::vector<int> forest;
@@ -575,13 +541,15 @@ namespace monster_avengers {
     }
 
     Status ApplySingleJewelFilter(const std::vector<Effect> &effects, 
-                                  int effect_id) {
+                                  int effect_id, 
+				  const JewelFilter &filter) {
       TreeIterator *new_iter = 
         new JewelFilterIterator(iterators_.back().get(),
                                 data_,
                                 &pool_,
                                 effect_id,
-                                effects);
+                                effects,
+				filter);
       iterators_.emplace_back(new_iter);
       return Status(SUCCESS);
     }

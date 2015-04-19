@@ -27,7 +27,7 @@ namespace monster_avengers {
     ArmorSetFormatter(const std::string &unused_path,
                       const DataSet *data,
                       const Query &query)
-      : solver_(*data, query.effects), 
+      : solver_(*data, query.effects, query.jewel_filter), 
         data_(data) {}
 
     void operator()(const ArmorSet &armor_set) {
@@ -124,7 +124,7 @@ namespace monster_avengers {
     ArmorSetFormatter(const std::string file_name, 
                       const DataSet *data,
                       const Query &query)
-      : solver_(*data, query.effects), 
+      : solver_(*data, query.effects, query.jewel_filter), 
         data_(data) {
       output_stream_.reset(new std::wofstream(file_name));
       if (!output_stream_->good()) {
@@ -155,7 +155,7 @@ namespace monster_avengers {
     ArmorSetFormatter(const std::string file_name, 
                       const DataSet *data,
                       const Query &query)
-      : solver_(*data, query.effects), 
+      : solver_(*data, query.effects, query.jewel_filter), 
         data_(data) {
       output_stream_.reset(new std::wofstream(file_name));
       if (!output_stream_->good()) {
@@ -186,7 +186,7 @@ namespace monster_avengers {
   public:
     ResultSerializer(const DataSet *data,
                      const Query &query)
-      : solver_(*data, query.effects), 
+      : solver_(*data, query.effects, query.jewel_filter), 
         data_(data) {
       result_ = lisp::Object::List();
     }
@@ -250,7 +250,7 @@ namespace monster_avengers {
   public:
     EncodeFormatter(const DataSet *data,
 		    const Query &query)
-      : data_(data), solver_(*data, query.effects) {}
+      : data_(data), solver_(*data, query.effects, query.jewel_filter) {}
     
     void operator()(const ArmorSet &armor_set, std::string *output) {
       EncodedArmorSet encoded(*data_, solver_, armor_set);

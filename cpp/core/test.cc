@@ -55,7 +55,8 @@ int main(int argc, char **argv) {
                              L"(:skill 41 10)"
                              L"(:skill 36 10)" 
                              L"(:skill 30 10)" 
-                             L"(:amulet 2 (1 4 30 10))",
+                             L"(:amulet 2 (1 4 30 10))"
+			     L"(:ban-jewels (163 164))",
                              &query));
   
   // Query that does not return anything (time consuming)
