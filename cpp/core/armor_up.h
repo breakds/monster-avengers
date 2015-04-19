@@ -481,9 +481,14 @@ namespace monster_avengers {
         effects.push_back(query.effects[i]);
       }
       
+      int count = 0;
       for (int id : data_.ArmorIds(part)) {
 	if (query.armor_filter.Validate(data_, id)) {
 	  const Armor &armor = data_.armor(id);
+	  if (part == GEAR) {
+	    wprintf(L"holes: %d\n", armor.holes);
+	  }
+	  count++;
 	  Signature key(armor, effects);
 	  
 	  auto it = armor_map.find(key);
@@ -493,6 +498,9 @@ namespace monster_avengers {
 	    it->second.push_back(id);
 	  }
 	}
+      }
+      if (part == GEAR) {
+	wprintf(L"count: %d\n", count);
       }
       
       std::vector<int> forest;

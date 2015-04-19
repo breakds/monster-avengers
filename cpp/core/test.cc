@@ -47,16 +47,14 @@ int main(int argc, char **argv) {
   //                            &query));
   
   // Query that returns 6 skills
-  CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
-                             L"(:weapon-holes 2)"
-                             L"(:skill 25 15)"
-                             L"(:skill 1 10)"
-                             L"(:skill 40 15)"
-                             L"(:skill 41 10)"
-                             L"(:skill 36 10)" 
-                             L"(:skill 30 10)" 
-                             L"(:amulet 2 (1 4 30 10))"
-			     L"(:ban-jewels (163 164))",
+  CHECK_SUCCESS(Query::Parse(L"(:max-results 1)"
+			     L"(:weapon-type \"melee\")" 
+                             L"(:weapon-holes 0)"
+			     L"(:blacklist (0))"
+                             L"(:amulet 0 (27 5 -1 0))"
+                             L"(:amulet 2 (31 6 25 -2))"
+                             L"(:skill 18 10)" 
+                             L"(:skill 21 20)",
                              &query));
   
   // Query that does not return anything (time consuming)
@@ -78,8 +76,8 @@ int main(int argc, char **argv) {
   ArmorUp armor_up("dex:/home/breakds/Downloads/linq.db");
   double init_duration = timer.Toc();
   timer.Tic();
-  armor_up.Search<SCREEN>(query);
-  // wprintf(L"%s", armor_up.SearchEncoded(query).c_str());
+  // armor_up.Search<SCREEN>(query);
+  wprintf(L"%s", armor_up.SearchEncoded(query).c_str());
   double duration = timer.Toc();
   armor_up.Summarize();
   wprintf(L"Initialization: %.4lf seconds.\n", init_duration);

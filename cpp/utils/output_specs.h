@@ -492,7 +492,7 @@ namespace monster_avengers {
       }
 
       for (int part = 0; part < PART_NUM; ++part) {
-	if (GEAR != part) {
+	if (GEAR != part && AMULET != part) {
 	  result[part].ConvertToDex(data);
 	}
       }
