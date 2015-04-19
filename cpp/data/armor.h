@@ -103,7 +103,7 @@ namespace monster_avengers {
       armor.max_defense = 0;
       armor.holes = holes;
       armor.effects = std::move(effects);
-      armor.external_id = 0;
+      armor.external_id = -1;
       return armor;
     }
 

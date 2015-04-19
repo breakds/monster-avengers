@@ -300,6 +300,7 @@ namespace monster_avengers {
         result.emplace_back();
         result.back().name.en = L"Weapon";
         result.back().part = GEAR;
+        result.back().external_id = -1;
         result.back().gender = BOTH_GENDER;
         result.back().type = BOTH;
         result.back().holes = slot;
