@@ -309,10 +309,12 @@ namespace monster_avengers {
 
       // Core Search
       CHECK_SUCCESS(ApplyFoundation(query));
-      for (int i = 0; i < FOUNDATION_NUM; ++i) {
+      int foundations = (query.effects.size() < FOUNDATION_NUM)
+          ? query.effects.size() : FOUNDATION_NUM;
+      for (int i = 0; i < foundations; ++i) {
         CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, i, query.jewel_filter));
       }
-      for (int i = FOUNDATION_NUM; i < query.effects.size(); ++i) {
+      for (int i = foundations; i < query.effects.size(); ++i) {
         CHECK_SUCCESS(ApplySkillSplitter(query, i));	
       }
       CHECK_SUCCESS(PrepareOutput());
