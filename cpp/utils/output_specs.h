@@ -491,8 +491,10 @@ namespace monster_avengers {
 	result[part].jewel_ids.push_back(jewel_id);
       }
 
-      for (EncodedArmorPiece &piece : result) {
-        piece.ConvertToDex(data);
+      for (int part = 0; part < PART_NUM; ++part) {
+	if (GEAR != part) {
+	  result[part].ConvertToDex(data);
+	}
       }
     }
 
