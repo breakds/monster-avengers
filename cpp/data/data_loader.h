@@ -65,7 +65,7 @@ namespace monster_avengers {
   void ToWstring(const std::string &input,
                  std::wstring *output) {
 #if _WIN32
-	wchar_t buffer[255];
+    wchar_t buffer[255];
 #else
     wchar_t buffer[input.size()];
 #endif
