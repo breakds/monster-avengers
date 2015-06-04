@@ -415,7 +415,11 @@ template <>
 WeaponType ReadBinaryObject<WeaponType>(std::ifstream *in) {
   int buffer;
   in->read(reinterpret_cast<char*>(&buffer), sizeof(int32_t));
-  return static_cast<WeaponType>(2 - buffer);
+  switch (buffer) {
+  case 1: return MELEE;
+  case 2: return RANGE;
+  default: return BOTH;
+  }
 }
 
 template <>

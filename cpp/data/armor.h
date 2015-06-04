@@ -144,6 +144,8 @@ namespace monster_avengers {
       for (int i = 0; i < indent + 2; ++i) wprintf(L" ");
       wprintf(L"name: %ls\n", name.c_str());
       for (int i = 0; i < indent + 2; ++i) wprintf(L" ");
+      wprintf(L"external_id: %d\n", external_id);
+      for (int i = 0; i < indent + 2; ++i) wprintf(L" ");
       wprintf(L"type: %ls\n", BOTH == type ? L"BOTH" 
               : (MELEE == type ? L"MELEE" : L"RANGE"));
       for (int i = 0; i < indent + 2; ++i) wprintf(L" ");
