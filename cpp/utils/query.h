@@ -13,71 +13,71 @@
 
 namespace monster_avengers {
 
-  struct Query {
+struct Query {
 
-    enum Command {
-      SKILL = 0,
-      DEFENSE,
-      WEAPON_TYPE,
-      WEAPON_HOLES,
-      MIN_RARE,
-      MAX_RARE,
-      ADD_AMULET,
-      MAX_RESULTS,
-      BLACKLIST,
-      JEWEL_BLACKLIST,
-      GENDER
-    };
+  enum Command {
+    SKILL = 0,
+    DEFENSE,
+    WEAPON_TYPE,
+    WEAPON_HOLES,
+    MIN_RARE,
+    MAX_RARE,
+    ADD_AMULET,
+    MAX_RESULTS,
+    BLACKLIST,
+    JEWEL_BLACKLIST,
+    GENDER
+  };
 
-    static const std::unordered_map<std::wstring, Command> COMMAND_TRANSLATOR;
+  static const std::unordered_map<std::wstring, Command> COMMAND_TRANSLATOR;
     
-    std::vector<Effect> effects;
-    std::vector<Armor> amulets;
-    int defense;
-    int max_results;
-    ArmorFilter armor_filter;
-    JewelFilter jewel_filter;
+  std::vector<Effect> effects;
+  std::vector<Armor> amulets;
+  int defense;
+  int max_results;
+  ArmorFilter armor_filter;
+  JewelFilter jewel_filter;
     
-    Query() : effects(), defense(0), armor_filter() {}
+  Query() : effects(), defense(0), armor_filter() {}
 
-    // Implies conversion from string as well.
-    static Status Parse(const std::wstring &query_text, Query *query) {
-      query->defense = 0;
-      query->effects.clear();
-      query->amulets.clear();
-      query->max_results = 10; // by default we are expecting 10 results.
+  // Implies conversion from string as well.
+  static Status Parse(const std::wstring &query_text, Query *query) {
+    query->defense = 0;
+    query->effects.clear();
+    query->amulets.clear();
+    query->max_results = 10; // by default we are expecting 10 results.
 
-      // Armor Filter
-      query->armor_filter.weapon_type = MELEE;
-      query->armor_filter.weapon_holes = 0; // by default do not allow weapon holes.
-      query->armor_filter.min_rare = 0; // by default there is no rare limit.
-      query->armor_filter.max_rare = 11; // by default there is no rare limit.
-      query->armor_filter.gender = MALE; // by default we look for male's armors.
-      query->armor_filter.blacklist.clear();
+    // Armor Filter
+    query->armor_filter.weapon_type = MELEE;
+    query->armor_filter.weapon_holes = 0; // by default do not allow weapon holes.
+    query->armor_filter.min_rare = 0; // by default there is no rare limit.
+    query->armor_filter.max_rare = 11; // by default there is no rare limit.
+    query->armor_filter.gender = MALE; // by default we look for male's armors.
+    query->armor_filter.blacklist.clear();
       
-      // Jewel Filter
-      query->jewel_filter.blacklist.clear();
+    // Jewel Filter
+    query->jewel_filter.blacklist.clear();
 
 
-      auto tokenizer = lisp::Tokenizer::FromText(query_text);
-      lisp::Token token;
-      Command command;
-      Status status(SUCCESS);
-      int skill_id = 0;
-      int skill_points = 0;
-      std::vector<Effect> effects;
-      std::vector<int> nums;
-      int holes;
+    auto tokenizer = lisp::Tokenizer::FromText(query_text);
+    lisp::Token token;
+    Command command;
+    Status status(SUCCESS);
+    int skill_id = 0;
+    int skill_points = 0;
+    std::vector<Effect> effects;
+    std::vector<int> nums;
+    int holes;
 
-      while (tokenizer.Next(&token)) {
-        if (lisp::OPEN_PARENTHESIS != token.name) {
-          return Status(FAIL, "Query: Syntax Error - expect '('.");
-        }
+    while (tokenizer.Next(&token)) {
+      if (lisp::OPEN_PARENTHESIS != token.name) {
+        return Status(FAIL, "Query: Syntax Error - expect '('.");
+      }
 
-        status = ReadCommand(&tokenizer, &command);
-        if (!status.Success()) return status;
+      status = ReadCommand(&tokenizer, &command);
+      if (!status.Success()) return status;
 
-        switch (command) {
+      switch (command) {
         case SKILL:
           status = ReadInt(&tokenizer, &skill_id);
           if (!status.Success()) return status;
@@ -140,162 +140,162 @@ namespace monster_avengers {
           break;
         default:
           return Status(FAIL, "Query: Invalid command.");
-        }
-        ExpectCloseParen(&tokenizer);
       }
-      return Status(SUCCESS);
+      ExpectCloseParen(&tokenizer);
     }
+    return Status(SUCCESS);
+  }
 
-    static Status ParseFile(const std::string file_name, Query *query) {
-      std::wifstream input_stream(file_name);
-      if (!input_stream.good()) {
-        Log(FATAL, L"error while opening %s.", file_name.c_str());
-        return Status(FAIL, "error while opening query file.");
-      }
-      std::wstring text = L"";
-      wchar_t buffer;
-      while (input_stream.get(buffer)) {
-        text += buffer;
-      }
-      return Parse(text, query);
+  static Status ParseFile(const std::string file_name, Query *query) {
+    std::wifstream input_stream(file_name);
+    if (!input_stream.good()) {
+      Log(FATAL, L"error while opening %s.", file_name.c_str());
+      return Status(FAIL, "error while opening query file.");
     }
+    std::wstring text = L"";
+    wchar_t buffer;
+    while (input_stream.get(buffer)) {
+      text += buffer;
+    }
+    return Parse(text, query);
+  }
 
-    const Query &operator=(const Query &other) {
-      effects = other.effects;
-      defense = other.defense;
-      max_results = other.max_results;
-      amulets = other.amulets;
-      armor_filter = other.armor_filter;
-      return *this;
-    }
+  const Query &operator=(const Query &other) {
+    effects = other.effects;
+    defense = other.defense;
+    max_results = other.max_results;
+    amulets = other.amulets;
+    armor_filter = other.armor_filter;
+    return *this;
+  }
 
-    bool HasSkill(int skill_id) const {
-      for (const Effect &effect : effects) {
-        if (skill_id == effect.skill_id) return true;
-      }
-      return false;
+  bool HasSkill(int skill_id) const {
+    for (const Effect &effect : effects) {
+      if (skill_id == effect.skill_id) return true;
     }
+    return false;
+  }
     
-    void DebugPrint() {
-      wprintf(L"---------- Query ----------\n");
-      wprintf(L"skill:");
-      for (const Effect &effect :effects) {
-        wprintf(L" %d(%d)", effect.skill_id, effect.points);
-      }
-      wprintf(L"\n");
-      if (MELEE == armor_filter.weapon_type) {
-        wprintf(L"weapon_type: MELEE\n");
-      } else {
-        wprintf(L"weapon_type: RANGE\n");
-      }
-      wprintf(L"weapon_holes: %d\n", armor_filter.weapon_holes);
-      wprintf(L"mininum rare: %d\n", armor_filter.min_rare);
-      wprintf(L"defense: %d\n", defense);
-      for (auto &amulet : amulets) {
-        amulet.DebugPrint();
-      }
-      wprintf(L"\n");
+  void DebugPrint() {
+    wprintf(L"---------- Query ----------\n");
+    wprintf(L"skill:");
+    for (const Effect &effect :effects) {
+      wprintf(L" %d(%d)", effect.skill_id, effect.points);
     }
+    wprintf(L"\n");
+    if (MELEE == armor_filter.weapon_type) {
+      wprintf(L"weapon_type: MELEE\n");
+    } else {
+      wprintf(L"weapon_type: RANGE\n");
+    }
+    wprintf(L"weapon_holes: %d\n", armor_filter.weapon_holes);
+    wprintf(L"mininum rare: %d\n", armor_filter.min_rare);
+    wprintf(L"defense: %d\n", defense);
+    for (auto &amulet : amulets) {
+      amulet.DebugPrint();
+    }
+    wprintf(L"\n");
+  }
 
-  private:
-    static Status ReadInt(lisp::Tokenizer *tokenizer, int *number) {
-      lisp::Token token;
-      if (!tokenizer->Next(&token)) {
-        return Status(FAIL, "Query: Unexpected end of query.");
-      }
-      if (lisp::NUMBER != token.name) {
-        return Status(FAIL, "Query: Syntax Error - expect NUMBER.");
-      }
-      *number = std::stoi(token.value);
-      return Status(SUCCESS);
+ private:
+  static Status ReadInt(lisp::Tokenizer *tokenizer, int *number) {
+    lisp::Token token;
+    if (!tokenizer->Next(&token)) {
+      return Status(FAIL, "Query: Unexpected end of query.");
     }
+    if (lisp::NUMBER != token.name) {
+      return Status(FAIL, "Query: Syntax Error - expect NUMBER.");
+    }
+    *number = std::stoi(token.value);
+    return Status(SUCCESS);
+  }
     
-    static Status ExpectCloseParen(lisp::Tokenizer *tokenizer) {
-      lisp::Token token;
-      if (!tokenizer->Next(&token)) {
-        return Status(FAIL, "Query: Unexpected end of query.");
-      }
-      if (lisp::CLOSE_PARENTHESIS != token.name) {
-        return Status(FAIL, "Query: Syntax Error - "
-                      "expect CLOSE_PARENTHESIS.");
-      }
-      return Status(SUCCESS);
+  static Status ExpectCloseParen(lisp::Tokenizer *tokenizer) {
+    lisp::Token token;
+    if (!tokenizer->Next(&token)) {
+      return Status(FAIL, "Query: Unexpected end of query.");
     }
+    if (lisp::CLOSE_PARENTHESIS != token.name) {
+      return Status(FAIL, "Query: Syntax Error - "
+                    "expect CLOSE_PARENTHESIS.");
+    }
+    return Status(SUCCESS);
+  }
 
-    static Status ReadCommand(lisp::Tokenizer *tokenizer, Command *command) {
-      lisp::Token token;
-      if (!tokenizer->Next(&token)) {
-        return Status(FAIL, "Query: Unexpected end of query.");
-      }
+  static Status ReadCommand(lisp::Tokenizer *tokenizer, Command *command) {
+    lisp::Token token;
+    if (!tokenizer->Next(&token)) {
+      return Status(FAIL, "Query: Unexpected end of query.");
+    }
       
-      if (lisp::KEYWORD != token.name) {
-        return Status(FAIL, "Query: Syntax Error - expect KEYWORD.");
-      }
-
-      auto it = COMMAND_TRANSLATOR.find(token.value);
-
-      if (COMMAND_TRANSLATOR.end() != it) {
-        *command = it->second;
-      } else {
-        return Status(FAIL, "Query: Invalid command.");
-      }
-      return Status(SUCCESS);
+    if (lisp::KEYWORD != token.name) {
+      return Status(FAIL, "Query: Syntax Error - expect KEYWORD.");
     }
 
-    static Status ReadWeaponType(lisp::Tokenizer *tokenizer, 
-                                 WeaponType *type) {
-      lisp::Token token;
-      if (!tokenizer->Next(&token)) {
-        return Status(FAIL, "Query: Unexpected end of query.");
-      }
-      if (lisp::STRING != token.name) {
-        return Status(FAIL, "Query: Syntax Error - expect STRING.");
-      }
-      if (L"melee" == token.value) {
-        *type = MELEE;
-      } else if (L"range" == token.value) {
-        *type = RANGE;
-      } else {
-        return Status(FAIL, "Query: Invalid weapon type.");
-      }
-      return Status(SUCCESS);
-    }
+    auto it = COMMAND_TRANSLATOR.find(token.value);
 
-    static Status ReadGender(lisp::Tokenizer *tokenizer, 
-			     Gender *gender) {
-      lisp::Token token;
-      if (!tokenizer->Next(&token)) {
-        return Status(FAIL, "Query: Unexpected end of query.");
-      }
-      if (lisp::STRING != token.name) {
-        return Status(FAIL, "Query: Syntax Error - expect STRING.");
-      }
-      if (L"male" == token.value) {
-        *gender = MALE;
-      } else if (L"female" == token.value) {
-        *gender = FEMALE;
-      } else {
-        return Status(FAIL, "Query: Invalid Gender.");
-      }
-      return Status(SUCCESS);
+    if (COMMAND_TRANSLATOR.end() != it) {
+      *command = it->second;
+    } else {
+      return Status(FAIL, "Query: Invalid command.");
     }
+    return Status(SUCCESS);
+  }
+
+  static Status ReadWeaponType(lisp::Tokenizer *tokenizer, 
+                               WeaponType *type) {
+    lisp::Token token;
+    if (!tokenizer->Next(&token)) {
+      return Status(FAIL, "Query: Unexpected end of query.");
+    }
+    if (lisp::STRING != token.name) {
+      return Status(FAIL, "Query: Syntax Error - expect STRING.");
+    }
+    if (L"melee" == token.value) {
+      *type = MELEE;
+    } else if (L"range" == token.value) {
+      *type = RANGE;
+    } else {
+      return Status(FAIL, "Query: Invalid weapon type.");
+    }
+    return Status(SUCCESS);
+  }
+
+  static Status ReadGender(lisp::Tokenizer *tokenizer, 
+                           Gender *gender) {
+    lisp::Token token;
+    if (!tokenizer->Next(&token)) {
+      return Status(FAIL, "Query: Unexpected end of query.");
+    }
+    if (lisp::STRING != token.name) {
+      return Status(FAIL, "Query: Syntax Error - expect STRING.");
+    }
+    if (L"male" == token.value) {
+      *gender = MALE;
+    } else if (L"female" == token.value) {
+      *gender = FEMALE;
+    } else {
+      return Status(FAIL, "Query: Invalid Gender.");
+    }
+    return Status(SUCCESS);
+  }
     
-  };
+};
 
-  const std::unordered_map<std::wstring, Query::Command> 
-  Query::COMMAND_TRANSLATOR =
-    {{L"skill", SKILL}, 
-     {L"defense", DEFENSE}, 
-     {L"weapon-type", WEAPON_TYPE},
-     {L"weapon-holes", WEAPON_HOLES},
-     {L"rare", MIN_RARE},
-     {L"max-rare", MAX_RARE},
-     {L"max-results", MAX_RESULTS},
-     {L"amulet", ADD_AMULET},
-     {L"blacklist", BLACKLIST},
-     {L"gender", GENDER},
-     {L"ban-jewels", JEWEL_BLACKLIST},
-    };
+const std::unordered_map<std::wstring, Query::Command> 
+Query::COMMAND_TRANSLATOR =
+{{L"skill", SKILL}, 
+ {L"defense", DEFENSE}, 
+ {L"weapon-type", WEAPON_TYPE},
+ {L"weapon-holes", WEAPON_HOLES},
+ {L"rare", MIN_RARE},
+ {L"max-rare", MAX_RARE},
+ {L"max-results", MAX_RESULTS},
+ {L"amulet", ADD_AMULET},
+ {L"blacklist", BLACKLIST},
+ {L"gender", GENDER},
+ {L"ban-jewels", JEWEL_BLACKLIST},
+};
 }
 
 #endif  // _MONSTER_AVENGERS_QUERY_
