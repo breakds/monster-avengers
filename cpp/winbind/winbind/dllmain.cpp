@@ -16,7 +16,6 @@ extern "C"
 {
 	__declspec(dllexport) void Initialize(const char *dataset) {
 		armor_up.reset(new ArmorUp(dataset));
-		armor_up->Summarize();
 	}
 	__declspec(dllexport) const char *DoSearch(const wchar_t* text) {
 		std::wstring query_text = text;

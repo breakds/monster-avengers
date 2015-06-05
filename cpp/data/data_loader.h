@@ -467,7 +467,7 @@ Armor ReadBinaryObject<Armor>(std::ifstream *in) {
 class BinaryLoaderCore : public LoaderCore {
  public:
   BinaryLoaderCore(const std::string &path_specifier) {
-    std::ifstream in(path_specifier, std::ifstream::in);
+    std::ifstream in(path_specifier, std::ifstream::in | std::ios::binary);
     int buffer;
     in.read(reinterpret_cast<char*>(&buffer), sizeof(int32_t));
     CHECK(7 == buffer);
