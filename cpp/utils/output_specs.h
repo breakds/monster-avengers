@@ -388,11 +388,17 @@ namespace monster_avengers {
 
     // Convert to dex's ids.
     void ConvertToDex(const DataSet &data) {
-      id++;
+	  id = data.armor(id).external_id;
       for (int &jewel_id : jewel_ids) {
         jewel_id = data.jewel(jewel_id).external_id;
       }
     }
+
+	void ConvertAmuletToDex(const DataSet &data) {
+		for (int &jewel_id : jewel_ids) {
+			jewel_id = data.jewel(jewel_id).external_id;
+		}
+	}
   };
 
   class JewelAssigner {
@@ -496,6 +502,7 @@ namespace monster_avengers {
 	  result[part].ConvertToDex(data);
 	}
       }
+	  result[AMULET].ConvertAmuletToDex(data);
     }
 
     inline const EncodedArmorPiece &operator[](ArmorPart part) {

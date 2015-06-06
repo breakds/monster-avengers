@@ -291,7 +291,7 @@ namespace monster_avengers {
       *output += ":AMULET (";
       std::vector<int> effects;
       for (const Effect &effect : data_->armor(amulet.id).effects) {
-	effects.push_back(effect.skill_id);
+	effects.push_back(effect.skill_id + 1);
 	effects.push_back(effect.points);
       }
       AppendNumberVector(effects, output);
