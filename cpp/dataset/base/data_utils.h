@@ -2,12 +2,17 @@
 #define _MONSTER_AVENGERS_DATASET_BASE_DATA_UTILS_H_
 
 #include <string>
+#include <array>
 
 #include "supp/helpers.h"
 
+namespace monster_avengers {
+
+namespace dataset {
+
 template <typename Enum>
-EnumStringTable {
-  static const std::Array<std::string, 1> names;
+struct EnumStringTable {
+  static const std::array<std::string, 1> names;
 };
 
 template <typename Enum>
@@ -24,9 +29,13 @@ Enum ParseEnum(const std::string &input) {
     }
     i++;
   }
-  Log(ERROR, L"\"%s\" is not a valid enum.", input.c_str());
+  Log(FATAL, L"\"%s\" is not a valid enum.", input.c_str());
   CHECK(false);
   return static_cast<Enum>(0); 
 }
+
+}  // namesapce dataset 
+
+}  // namespace monster_avengers
 
 #endif  // _MONSTER_AVENGERS_DATASET_BASE_DATA_UTILS_H_
