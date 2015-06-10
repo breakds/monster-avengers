@@ -58,11 +58,9 @@ const std::array<std::string, 3> EnumStringTable<Gender>::names =
 {"male", "female", "both"};
 
 
-
-
-// Resistence is a struct of five integers representing the
-// degrees to which the buff (debuff) is towards fire. thunder,
-// dragon, water and ice, respectively.
+// Resistence is a struct of five integers representing the degrees to
+// which the buff (debuff) is towards fire. thunder, dragon, water and
+// ice, respectively.
 struct Resistence {
 
   Resistence() = default;

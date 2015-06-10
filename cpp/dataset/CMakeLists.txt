@@ -9,4 +9,5 @@ MESSAGE(STATUS "Sub Project Binary: ${PROJECT_BINARY_DIR}")
 INCLUDE_DIRECTORIES(".")
 
 ADD_EXECUTABLE(properties_test base/properties_test.cc)
+ADD_EXECUTABLE(reindexed_table_test base/reindexed_table_test.cc)
 
