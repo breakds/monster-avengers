@@ -76,8 +76,8 @@ int main(int argc, char **argv) {
   Timer timer;
   timer.Tic();
   // ArmorUp armor_up("standard:/home/breakds/pf/projects/monster-avengers/dataset/MH4GDEX");
-  // ArmorUp armor_up("dex:/home/breakds/Downloads/linq.db");
-  ArmorUp armor_up("binary:/home/breakds/tmp/dump.bin");
+  ArmorUp armor_up("dex:/home/breakds/Downloads/mh4g.db");
+  // ArmorUp armor_up("binary:/home/breakds/tmp/dump.bin");
   double init_duration = timer.Toc();
   timer.Tic();
   armor_up.Search<SCREEN>(query);

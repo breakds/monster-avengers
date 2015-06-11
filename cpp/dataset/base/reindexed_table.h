@@ -38,6 +38,10 @@ class IndexMap {
     return forward_map_[internal_id];
   }
 
+  inline bool HasExternalId(int external_id) const {
+    return backward_map_.find(external_id) != backward_map_.end();
+  }
+
  private:
   std::vector<int> forward_map_; // internal_id -> external_id
   std::unordered_map<int, int> backward_map_; // external_id -> internal_id
@@ -72,6 +76,18 @@ class ReindexedTable {
     index_map_->Update(external_id, elements_.size() - 1);
   }
 
+  inline int Internalize(int external_id) const {
+    return index_map_->Internalize(external_id);
+  }
+
+  inline int Externalize(int internal_id) const {
+    return index_map_->Externalize(internal_id);
+  }
+
+  inline bool HasExternalId(int external_id) const {
+    return index_map_->HasExternalId(external_id);
+  }
+
   // Will not affect index_map_.
   inline void Update(const ElementType &element, int external_id) {
     CHECK(index_map_);
@@ -80,6 +96,10 @@ class ReindexedTable {
       elements_.resize(id + 1);
     }
     elements_[id] = element;
+  }
+
+  inline ElementType &Select(int external_id) {
+    return elements_[Internalize(external_id)];
   }
 
   inline ElementType &operator[](int internal_id) {

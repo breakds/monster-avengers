@@ -12,7 +12,6 @@ void EnumTest() {
   CHECK(WEAPON_TYPE_BOTH == ParseEnum<WeaponType>("both"));
 }
 
-
 int main() {
   EnumTest();
   Log(OK, L"Test properties_test completed.");

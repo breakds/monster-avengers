@@ -1,7 +1,9 @@
 #ifndef _MONSTER_AVENGERS_DATASET_BASE_PROPERTIES_H_
 #define _MONSTER_AVENGERS_DATASET_BASE_PROPERTIES_H_
 
+#include <map>
 #include <string>
+#include <vector>
 #include "base/data_utils.h"
 
 namespace monster_avengers {
@@ -19,9 +21,6 @@ template <>
 struct EnumStringTable<WeaponType> {
   static const std::array<std::string, 3> names;
 };
-const std::array<std::string, 3> EnumStringTable<WeaponType>::names =
-{"melee", "range", "both"};
-
 
 // Enum ArmorPart
 enum ArmorPart {
@@ -39,9 +38,6 @@ template <>
 struct EnumStringTable<ArmorPart> {
   static const std::array<std::string, 7> names;
 };
-const std::array<std::string, 7> EnumStringTable<ArmorPart>::names =
-{"head", "hands", "waist", "feet", "gear", "amulet", "body"};
-
 
 // Enum Gender
 enum Gender {
@@ -54,9 +50,6 @@ template <>
 struct EnumStringTable<Gender> {
   static const std::array<std::string, 3> names;
 };
-const std::array<std::string, 3> EnumStringTable<Gender>::names =
-{"male", "female", "both"};
-
 
 // Resistence is a struct of five integers representing the degrees to
 // which the buff (debuff) is towards fire. thunder, dragon, water and
@@ -71,6 +64,33 @@ struct Resistence {
   int water;
   int ice;
 };
+
+struct Effect {
+
+  Effect() = default;
+
+  int id;
+  int points;
+};
+
+typedef std::vector<Effect> EffectList;
+
+
+// Language Text
+
+enum Language {
+  ENGLISH = 0,
+  CHINESE,
+  JAPANESE,
+  LANGUAGE_NUM
+};
+
+template <>
+struct EnumStringTable<Language> {
+  static const std::array<std::string, LANGUAGE_NUM> names;
+};
+
+typedef std::array<std::string, LANGUAGE_NUM> LangText;
 
 }  // namespace dataset
 
