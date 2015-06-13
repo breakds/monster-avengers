@@ -58,15 +58,17 @@ void Data::Initialize(const std::string &spec) {
 
   sqlite3 *database;
   CHECK(!sqlite3_open(spec.c_str(), &database));
+
+  // Skills
   RunSQLiteQuery(database,
                  "SELECT ID_SklTree_Name.SklTree_ID AS external_id, "
-                 "SklTree_Name_0 AS en, "
-                 "SklTree_Name_1 AS zh, "
-                 "SklTree_Name_3 AS jp, "
-                 "Skl_Name_0 AS sub_en, "
-                 "Skl_Name_1 AS sub_zh, "
-                 "Skl_Name_3 AS sub_jp, "
-                 "Pt AS points "
+                 "       SklTree_Name_0 AS en, "
+                 "       SklTree_Name_1 AS zh, "
+                 "       SklTree_Name_3 AS jp, "
+                 "       Skl_Name_0 AS sub_en, "
+                 "       Skl_Name_1 AS sub_zh, "
+                 "       Skl_Name_3 AS sub_jp, "
+                 "       Pt AS points "
                  "FROM ID_SklTree_Name "
                  "INNER JOIN DB_Skl ON "
                  "ID_SklTree_Name.SklTree_ID = DB_Skl.SklTree_ID "
@@ -103,6 +105,55 @@ void Data::Initialize(const std::string &spec) {
                    }
                    return 0;
                  });
+
+  // Jewels
+  RunSQLiteQuery(database,
+                 "SELECT Jew_ID AS external_id, "
+                 "       DB_Jew.Itm_ID AS item_id, "
+                 "       Itm_Name_0 AS en, "
+                 "       Itm_Name_1 AS zh, "
+                 "       Itm_Name_3 AS jp, "
+                 "       Slot AS slots, "
+                 "       SklTree1_ID AS skill_id_1, "
+                 "       SklTree1_Pt AS points_1, "
+                 "       SklTree2_ID AS skill_id_2, "
+                 "       SklTree2_Pt AS points_2 "
+                 "FROM DB_Jew "
+                 "INNER JOIN ID_Itm_Name ON "
+                 "ID_Itm_Name.Itm_ID = DB_Jew.Itm_ID "
+                 "WHERE DB_Jew.Itm_ID < 1774 "
+                 "GROUP BY DB_Jew.Itm_ID "
+                 "ORDER BY Itm_Name_0",
+                 [](void *data, int argc, char **argv, char **caption) {
+                   std::unordered_map<std::string, std::string> row;
+                   GetRow(argc, argv, caption, &row);
+                   int external_id = std::stoi(row["external_id"]);
+                   CHECK(!skills_.HasExternalId(external_id));
+
+                   Jewel jewel;
+                   jewel.slots = std::stoi(row["slots"]);
+                   if ("-1" != row["skill_id_1"]) {
+                     jewel.effects.emplace();
+                     jewel.effects.back().id = skills_.Internalize(
+                         std::stoi(row["skill_id_1"]));
+                     jewel.effects.back().points = std::stoi(row["points_1"]);
+                   }
+                   if ("-1" != row["skill_id_2"]) {
+                     jewel.effects.emplace();
+                     jewel.effects.back().id = skills_.Internalize(
+                         std::stoi(row["skill_id_2"]));
+                     jewel.effects.back().points = std::stoi(row["points_2"]);
+                   }
+                   jewels_.Add(jewel, external_id);
+
+                   JewelAddon addon;
+                   addon.name[ENGLISH] = row["en"];
+                   addon.name[CHINESE] = row["zh"];
+                   addon.name[JAPANESE] = row["jp"];
+                   jewel_addons_.Update(addon, external_id);
+                   return 0;
+                 });
+  
 }
 
 }  // namespace dataset
