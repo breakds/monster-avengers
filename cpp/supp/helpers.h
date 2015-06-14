@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cwchar>
 #include <locale>
+#include <cstdarg>
 #if _WIN32
 #include <codecvt>
 #endif

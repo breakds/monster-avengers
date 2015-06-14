@@ -18,8 +18,6 @@ namespace dataset {
 
 class Data {
  public:
-  static void Initialize(const std::string &spec);
-
   inline static const Armor &armor(int internal_id) {
     return armors_[internal_id];
   }
@@ -43,7 +41,10 @@ class Data {
   inline static const ReindexedTable<SkillSystem> &skills() {
     return skills_;
   }
-  
+
+  // Data Loader 
+  static void LoadBinary(const std::string &spec);
+  static void LoadSQLite(const std::string &spec);
  private:
   // Core Data
   static ReindexedTable<Armor> armors_;
