@@ -1,3 +1,4 @@
+#include <cwchar>
 #include <string>
 #include <sqlite3.h>
 #include <unordered_map>
@@ -63,6 +64,17 @@ Gender ParseGender(const std::string &input) {
   }
 }
 
+std::wstring ToWstring(const std::string &input) {
+#if _WIN32
+  wchar_t buffer[255];
+#else
+  wchar_t buffer[input.size()];
+#endif
+  swprintf(buffer, input.size(), L"%s", input.c_str());
+  std::wstring result = buffer;
+  return result;
+}
+
 }  // namespace
 
 void Data::LoadSQLite(const std::string &spec) {
@@ -77,7 +89,7 @@ void Data::LoadSQLite(const std::string &spec) {
 
   sqlite3 *database;
   CHECK(!sqlite3_open(spec.c_str(), &database));
-
+  
   // Skills
   RunSQLiteQuery(database,
                  "SELECT ID_SklTree_Name.SklTree_ID AS external_id, "
@@ -104,22 +116,22 @@ void Data::LoadSQLite(const std::string &spec) {
                      skill_system.skills.emplace_back();
                      skill_system.skills.back().points = std::stoi(row["points"]);
                      addon.skill_names.emplace_back();
-                     addon.skill_names.back()[ENGLISH] = row["sub_en"];
-                     addon.skill_names.back()[ENGLISH] = row["sub_zh"];
-                     addon.skill_names.back()[ENGLISH] = row["sub_jp"];
+                     addon.skill_names.back()[ENGLISH] = ToWstring(row["sub_en"]);
+                     addon.skill_names.back()[CHINESE] = ToWstring(row["sub_zh"]);
+                     addon.skill_names.back()[JAPANESE] = ToWstring(row["sub_jp"]);
                    } else {
                      SkillSystem skill_system;
                      skill_system.skills.emplace_back();
                      skill_system.skills[0].points = std::stoi(row["points"]);
                      skills_.Add(skill_system, external_id);
                      SkillSystemAddon addon;
-                     addon.name[ENGLISH] = row["en"];
-                     addon.name[CHINESE] = row["zh"];
-                     addon.name[JAPANESE] = row["jp"];
+                     addon.name[ENGLISH] = ToWstring(row["en"]);
+                     addon.name[CHINESE] = ToWstring(row["zh"]);
+                     addon.name[JAPANESE] = ToWstring(row["jp"]);
                      addon.skill_names.emplace_back();
-                     addon.skill_names[0][ENGLISH] = row["sub_en"];
-                     addon.skill_names[0][CHINESE] = row["sub_zh"];
-                     addon.skill_names[0][JAPANESE] = row["sub_jp"];
+                     addon.skill_names[0][ENGLISH] = ToWstring(row["sub_en"]);
+                     addon.skill_names[0][CHINESE] = ToWstring(row["sub_zh"]);
+                     addon.skill_names[0][JAPANESE] = ToWstring(row["sub_jp"]);
                      skill_addons_.Update(addon, external_id);
                    }
                    return 0;
@@ -165,9 +177,9 @@ void Data::LoadSQLite(const std::string &spec) {
                    }
                    jewels_.Add(jewel, external_id);
                    JewelAddon addon;
-                   addon.name[ENGLISH] = row["en"];
-                   addon.name[CHINESE] = row["zh"];
-                   addon.name[JAPANESE] = row["jp"];
+                   addon.name[ENGLISH] = ToWstring(row["en"]);
+                   addon.name[CHINESE] = ToWstring(row["zh"]);
+                   addon.name[JAPANESE] = ToWstring(row["jp"]);
                    jewel_addons_.Update(addon, external_id);
                    return 0;
                  });
@@ -186,9 +198,9 @@ void Data::LoadSQLite(const std::string &spec) {
 
                    int external_id = std::stoi(row["external_id"]);
                    Item item;
-                   item.name[ENGLISH] = row["en"];
-                   item.name[CHINESE] = row["zh"];
-                   item.name[JAPANESE] = row["jp"];
+                   item.name[ENGLISH] = ToWstring(row["en"]);
+                   item.name[CHINESE] = ToWstring(row["zh"]);
+                   item.name[JAPANESE] = ToWstring(row["jp"]);
                    items_.Add(item, external_id);
                    return 0;
                  });
@@ -220,19 +232,19 @@ void Data::LoadSQLite(const std::string &spec) {
                    armor.rare = std::stoi(row["rare"]);
                    armor.min_defense = std::stoi(row["min_def"]);
                    armor.max_defense = std::stoi(row["max_def"]);
-                   armor.resistence.fire = std::stoi(row["fire"]);
-                   armor.resistence.thunder = std::stoi(row["thunder"]);
-                   armor.resistence.dragon = std::stoi(row["dragon"]);
-                   armor.resistence.water = std::stoi(row["water"]);
-                   armor.resistence.ice = std::stoi(row["ice"]);
+                   armor.resistance.fire = std::stoi(row["fire"]);
+                   armor.resistance.thunder = std::stoi(row["thunder"]);
+                   armor.resistance.dragon = std::stoi(row["dragon"]);
+                   armor.resistance.water = std::stoi(row["water"]);
+                   armor.resistance.ice = std::stoi(row["ice"]);
                    armor.slots = std::stoi(row["slots"]);
 
                    armors_.Add(armor, external_id);
 
                    ArmorAddon addon;
-                   addon.name[ENGLISH] = row["en"];
-                   addon.name[CHINESE] = row["zh"];
-                   addon.name[JAPANESE] = row["jp"];
+                   addon.name[ENGLISH] = ToWstring(row["en"]);
+                   addon.name[CHINESE] = ToWstring(row["zh"]);
+                   addon.name[JAPANESE] = ToWstring(row["jp"]);
 
                    armor_addons_.Update(addon, external_id);
                    
@@ -276,9 +288,7 @@ void Data::LoadSQLite(const std::string &spec) {
                    return 0;
                  });
 
-
-
-  
+  ClassifyParts();
 }
 
 }  // namespace dataset

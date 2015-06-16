@@ -69,6 +69,14 @@ class ReindexedTable {
     return index_map_;
   }
 
+  inline const std::vector<ElementType> &all() const {
+    return elements_;
+  }
+
+  inline int size() const {
+    return static_cast<int>(elements_.size());
+  }
+
   // Will update index_map_.
   inline void Add(const ElementType &element, int external_id) {
     CHECK(index_map_);

@@ -25,6 +25,9 @@ TARGET_LINK_LIBRARIES(binary_loader dataset helpers)
 ADD_LIBRARY(sqlite_loader STATIC loader/sqlite_loader.cc)
 TARGET_LINK_LIBRARIES(sqlite_loader dataset helpers -lsqlite3)
 
+ADD_LIBRARY(data_service STATIC data_service.cc)
+TARGET_LINK_LIBRARIES(data_service properties dataset helpers -lsqlite3)
+
 ADD_EXECUTABLE(dataset_test dataset_test.cc)
-TARGET_LINK_LIBRARIES(dataset_test dataset helpers sqlite_loader binary_loader)
+TARGET_LINK_LIBRARIES(dataset_test dataset helpers data_service sqlite_loader binary_loader)
 

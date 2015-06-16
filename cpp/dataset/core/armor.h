@@ -17,7 +17,7 @@ struct Armor {
   int rare;
   int min_defense;
   int max_defense;
-  Resistence resistence;
+  Resistance resistance;
   int slots;
   EffectList effects;
 };

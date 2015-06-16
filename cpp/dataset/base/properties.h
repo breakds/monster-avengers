@@ -51,12 +51,12 @@ struct EnumStringTable<Gender> {
   static const std::array<std::string, 3> names;
 };
 
-// Resistence is a struct of five integers representing the degrees to
+// Resistance is a struct of five integers representing the degrees to
 // which the buff (debuff) is towards fire. thunder, dragon, water and
 // ice, respectively.
-struct Resistence {
+struct Resistance {
 
-  Resistence() = default;
+  Resistance() = default;
       
   int fire;
   int thunder;
@@ -90,7 +90,7 @@ struct EnumStringTable<Language> {
   static const std::array<std::string, LANGUAGE_NUM> names;
 };
 
-typedef std::array<std::string, LANGUAGE_NUM> LangText;
+typedef std::array<std::wstring, LANGUAGE_NUM> LangText;
 
 }  // namespace dataset
 

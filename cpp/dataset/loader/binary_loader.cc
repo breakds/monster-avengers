@@ -128,14 +128,14 @@ Gender ReadBinaryObject<Gender>(std::ifstream *in) {
 }
 
 template <>
-Resistence ReadBinaryObject<Resistence>(std::ifstream *in) {
-  Resistence resistence;
-  in->read(reinterpret_cast<char*>(&resistence.fire), sizeof(int32_t));
-  in->read(reinterpret_cast<char*>(&resistence.thunder), sizeof(int32_t));
-  in->read(reinterpret_cast<char*>(&resistence.dragon), sizeof(int32_t));
-  in->read(reinterpret_cast<char*>(&resistence.water), sizeof(int32_t));
-  in->read(reinterpret_cast<char*>(&resistence.ice), sizeof(int32_t));
-  return resistence;
+Resistance ReadBinaryObject<Resistance>(std::ifstream *in) {
+  Resistance resistance;
+  in->read(reinterpret_cast<char*>(&resistance.fire), sizeof(int32_t));
+  in->read(reinterpret_cast<char*>(&resistance.thunder), sizeof(int32_t));
+  in->read(reinterpret_cast<char*>(&resistance.dragon), sizeof(int32_t));
+  in->read(reinterpret_cast<char*>(&resistance.water), sizeof(int32_t));
+  in->read(reinterpret_cast<char*>(&resistance.ice), sizeof(int32_t));
+  return resistance;
 }
 
 
@@ -150,7 +150,7 @@ Armor ReadBinaryObject<Armor>(std::ifstream *in, int *external_id) {
   armor.gender = ReadBinaryObject<Gender>(in);
   in->read(reinterpret_cast<char*>(&armor.min_defense), sizeof(int32_t));
   in->read(reinterpret_cast<char*>(&armor.max_defense), sizeof(int32_t));
-  armor.resistence = ReadBinaryObject<Resistence>(in);
+  armor.resistance = ReadBinaryObject<Resistance>(in);
   armor.effects = std::move(ReadBinaryList<Effect>(in));
   return armor;
 }
