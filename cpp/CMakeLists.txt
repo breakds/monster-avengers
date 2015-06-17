@@ -13,7 +13,7 @@ MESSAGE(STATUS "Hostname:               ${HOSTNAME}")
 MESSAGE(STATUS "Build Type:             ${CMAKE_BUILD_TYPE}")
 MESSAGE(STATUS "GCC:                    ${CMAKE_CXX_COMPILER}")
 
-INCLUDE_DIRECTORIES(".")
+INCLUDE_DIRECTORIES("." "dataset/")
 
 option (BUILD_TESTS "build executables in purpose of unittest." ON)
 
@@ -25,24 +25,25 @@ SET(CMAKE_CXX_FLAGS_GPROF "-O1 -pg")
 MESSAGE(STATUS "\n-------------------- Modules --------------------")
 ADD_SUBDIRECTORY(dataset)
 ADD_SUBDIRECTORY(supp)
+ADD_SUBDIRECTORY(utils)
 
 IF(BUILD_TESTS)
   ADD_EXECUTABLE(test core/test.cc)
-  TARGET_LINK_LIBRARIES(test -lsqlite3 helpers)
-  ADD_EXECUTABLE(explore_test core/explore_test.cc)
-  TARGET_LINK_LIBRARIES(explore_test -lsqlite3 helpers)
-  ADD_EXECUTABLE(signature_test utils/signature_test.cc)
-  TARGET_LINK_LIBRARIES(signature_test -lsqlite3 helpers)
+  TARGET_LINK_LIBRARIES(test -lsqlite3 helpers dataset sqlite_loader)
+  # ADD_EXECUTABLE(explore_test core/explore_test.cc)
+  # TARGET_LINK_LIBRARIES(explore_test -lsqlite3 helpers)
+  # ADD_EXECUTABLE(signature_test utils/signature_test.cc)
+  # TARGET_LINK_LIBRARIES(signature_test -lsqlite3 helpers)
 ENDIF(BUILD_TESTS)
 
-ADD_EXECUTABLE(serve_query serve_query.cc)
-TARGET_LINK_LIBRARIES(serve_query -lsqlite3 helpers)
+# ADD_EXECUTABLE(serve_query serve_query.cc)
+# TARGET_LINK_LIBRARIES(serve_query -lsqlite3 helpers)
 
-ADD_EXECUTABLE(serve_explore serve_explore.cc)
-TARGET_LINK_LIBRARIES(serve_explore -lsqlite3 helpers)
+# ADD_EXECUTABLE(serve_explore serve_explore.cc)
+# TARGET_LINK_LIBRARIES(serve_explore -lsqlite3 helpers)
 
-ADD_EXECUTABLE(armor_up_server server/armor_up_server.cc)
-TARGET_LINK_LIBRARIES(armor_up_server -lmicrohttpd -lsqlite3 helpers)
+# ADD_EXECUTABLE(armor_up_server server/armor_up_server.cc)
+# TARGET_LINK_LIBRARIES(armor_up_server -lmicrohttpd -lsqlite3 helpers)
 
 
 

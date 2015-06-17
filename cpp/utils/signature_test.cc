@@ -5,13 +5,13 @@ using namespace monster_avengers;
 
 int main() {
   // InverseKeyTest
-  Signature key_a = sig::HolesToKey(4, 1, 0);
+  Signature key_a = sig::SlotsToKey(4, 1, 0);
   key_a = sig::AddPoints(key_a, 0, 15);
   key_a = sig::AddPoints(key_a, 1, -2);
   key_a = sig::AddPoints(key_a, 2, 0);
   sig::ExplainSignature(key_a, {{46, 10}, {43, 10}, {91, 15}});
 
-  Signature key_b = sig::HolesToKey(4, 0, 0);
+  Signature key_b = sig::SlotsToKey(4, 0, 0);
   key_b = sig::AddPoints(key_b, 0, 2);
   key_b = sig::AddPoints(key_b, 1, 2);
   key_b = sig::AddPoints(key_b, 2, 0);
@@ -26,6 +26,6 @@ int main() {
                         {{46, 10}, {43, 10}, {91, 15}});
 
   CHECK(!sig::Satisfy(key_a | key_b, inverse_key));
-  
+  Log(OK, L"Test signature_test completed.");
   return 0;
 }

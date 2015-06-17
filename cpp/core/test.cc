@@ -1,4 +1,3 @@
-#include "data/data_set.h"
 #include "utils/query.h"
 #include "core/armor_up.h"
 #include "supp/timer.h"
@@ -75,17 +74,16 @@ int main(int argc, char **argv) {
   query.DebugPrint();
   Timer timer;
   timer.Tic();
-  // ArmorUp armor_up("standard:/home/breakds/pf/projects/monster-avengers/dataset/MH4GDEX");
-  ArmorUp armor_up("dex:/home/breakds/Downloads/mh4g.db");
-  // ArmorUp armor_up("binary:/home/breakds/tmp/dump.bin");
-  double init_duration = timer.Toc();
-  timer.Tic();
-  armor_up.Search<SCREEN>(query);
-  // wprintf(L"%s", armor_up.SearchEncoded(query).c_str());
-  double duration = timer.Toc();
-  armor_up.Summarize();
-  wprintf(L"Initialization: %.4lf seconds.\n", init_duration);
-  wprintf(L"Computation: %.4lf seconds.\n", duration);
+  Data::LoadSQLite("/home/breakds/Downloads/mh4g.db");
+  ArmorUp armor_up();
+  // double init_duration = timer.Toc();
+  // timer.Tic();
+  // armor_up.Search(query);
+  // // wprintf(L"%s", armor_up.SearchEncoded(query).c_str());
+  // double duration = timer.Toc();
+  // armor_up.Summarize();
+  // wprintf(L"Initialization: %.4lf seconds.\n", init_duration);
+  // wprintf(L"Computation: %.4lf seconds.\n", duration);
 
   return 0;
 }

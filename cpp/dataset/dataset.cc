@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "dataset.h"
 
 namespace monster_avengers {
@@ -51,6 +53,33 @@ void Data::AddPredefinedArmors() {
     armors_.Add(amulet, ++external_id);
     armor_addons_.Update(addon, external_id);
   }
+}
+
+
+double Data::EffectScore(const Effect &effect) {
+  int armor_count = 0;
+  
+  for (int i = 0; i < armors_.size(); ++i) {
+    for (const Effect &armor_effect : armors_[i].effects) {
+      if (armor_effect.id == effect.id) {
+        armor_count++;
+        break;
+      }
+    }
+  }
+
+  double jewel_index = 0;
+  for (int i = 0; i < jewels_.size(); ++i) {
+    const Jewel &jewel = jewels_[i];
+    for (const Effect &jewel_effect : jewel.effects) {
+      if (jewel_effect.id == effect.id) {
+        jewel_index += static_cast<double>(jewel_effect.points) / jewel.slots
+            * std::exp(-jewel.slots * 0.1);
+      }
+    }
+  }
+  
+  return std::exp(0.1 * jewel_index - 0.3 * effect.points) * armor_count;
 }
 
 void Data::ClassifyParts() {

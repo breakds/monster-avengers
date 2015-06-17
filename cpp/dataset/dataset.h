@@ -9,6 +9,7 @@
 #include "base/reindexed_table.h"
 #include "base/properties.h"
 #include "core/armor.h"
+#include "core/armor_set.h"
 #include "core/jewel.h"
 #include "core/skill.h"
 
@@ -43,6 +44,8 @@ class Data {
     return skills_;
   }
 
+  static double EffectScore(const Effect &effect);
+  
   // Data Loader 
   static void LoadBinary(const std::string &spec);
   static void LoadSQLite(const std::string &spec);
@@ -69,6 +72,42 @@ class Data {
 
   static void AddPredefinedArmors();
   static void ClassifyParts();
+};
+
+class Arsenal {
+ public:
+  Arsenal() = default;
+  
+  inline const Armor &operator[](int id) const {
+    if (id >= Data::armors().size()) {
+      return armors_[id - Data::armors().size()];
+    }
+    return Data::armor(id);
+  }
+
+  inline int size() const {
+    return Data::armors().size() + static_cast<int>(armors_.size());
+  }
+
+  inline void clear() {
+    armors_.clear();
+  }
+
+  inline void AddArmor(const Armor &armor) {
+    armors_.push_back(armor);
+  }
+
+  static bool IsTorsoUp(const Armor &armor) {
+    return 0 == armor.effects[0].id && 1 == armor.effects.size();
+  }
+
+  inline bool IsTorsoUp(int id) {
+    return IsTorsoUp((operator[])(id));
+  }
+
+ private:
+  std::vector<Armor> armors_;
+  static std::array<std::vector<int>, PART_NUM> armor_by_parts_;  
 };
 
 }  // namespace dataset

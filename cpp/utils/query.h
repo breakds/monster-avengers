@@ -1,15 +1,18 @@
-#ifndef _MONSTER_AVENGERS_QUERY_
-#define _MONSTER_AVENGERS_QUERY_
+#ifndef _MONSTER_AVENGERS_UTILS_QUERY_
+#define _MONSTER_AVENGERS_UTILS_QUERY_
 
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 #include "supp/helpers.h"
 #include "lisp/parser.h"
-#include "data/data_set.h"
+#include "dataset/dataset.h"
 
 #include "filter.h"
+
+using namespace monster_avengers::dataset;
 
 namespace monster_avengers {
 
@@ -19,7 +22,7 @@ struct Query {
     SKILL = 0,
     DEFENSE,
     WEAPON_TYPE,
-    WEAPON_HOLES,
+    WEAPON_SLOTS,
     MIN_RARE,
     MAX_RARE,
     ADD_AMULET,
@@ -48,11 +51,11 @@ struct Query {
     query->max_results = 10; // by default we are expecting 10 results.
 
     // Armor Filter
-    query->armor_filter.weapon_type = MELEE;
-    query->armor_filter.weapon_holes = 0; // by default do not allow weapon holes.
+    query->armor_filter.weapon_type = WEAPON_TYPE_MELEE;
+    query->armor_filter.weapon_slots = 0; // by default do not allow weapon slots.
     query->armor_filter.min_rare = 0; // by default there is no rare limit.
     query->armor_filter.max_rare = 11; // by default there is no rare limit.
-    query->armor_filter.gender = MALE; // by default we look for male's armors.
+    query->armor_filter.gender = GENDER_MALE; // by default we look for male's armors.
     query->armor_filter.blacklist.clear();
       
     // Jewel Filter
@@ -67,8 +70,9 @@ struct Query {
     int skill_points = 0;
     std::vector<Effect> effects;
     std::vector<int> nums;
-    int holes;
-
+    int slots;
+    Armor amulet;
+    
     while (tokenizer.Next(&token)) {
       if (lisp::OPEN_PARENTHESIS != token.name) {
         return Status(FAIL, "Query: Syntax Error - expect '('.");
@@ -83,7 +87,9 @@ struct Query {
           if (!status.Success()) return status;
           status = ReadInt(&tokenizer, &skill_points);
           if (!status.Success()) return status;
-          query->effects.emplace_back(skill_id, skill_points);
+          query->effects.emplace_back();
+          query->effects.back().id = Data::skills().Internalize(skill_id);
+          query->effects.back().points = skill_points;
           break;
         case DEFENSE:
           status = ReadInt(&tokenizer, &query->defense);
@@ -97,8 +103,8 @@ struct Query {
           status = ReadGender(&tokenizer, &query->armor_filter.gender);
           if (!status.Success()) return status;
           break;
-        case WEAPON_HOLES:
-          status = ReadInt(&tokenizer, &query->armor_filter.weapon_holes);
+        case WEAPON_SLOTS:
+          status = ReadInt(&tokenizer, &query->armor_filter.weapon_slots);
           if (!status.Success()) return status;
           break;
 	case MIN_RARE:
@@ -114,28 +120,42 @@ struct Query {
           if (!status.Success()) return status;
           break;
         case ADD_AMULET:
-          status = ReadInt(&tokenizer, &holes);
+          status = ReadInt(&tokenizer, &slots);
           if (!status.Success()) return status;
           nums.clear();
-          effects.clear();
+          amulet.effects.clear();
           nums = lisp::ParseList<int>::Do(&tokenizer);
           for (int i = 0; i < (nums.size() >> 1); ++i) {
-            effects.emplace_back(nums[i << 1], nums[(i << 1) + 1]);
+            amulet.effects.emplace_back();
+            amulet.effects.back().id = Data::skills().Internalize(nums[i << 1]);
+            amulet.effects.back().points = nums[(i << 1) + 1];
           }
-          query->amulets.push_back(Armor::Amulet(holes, effects));
+
+          // Create an amulet
+          amulet.part = AMULET;
+          amulet.weapon_type = WEAPON_TYPE_BOTH;
+          amulet.gender = GENDER_BOTH;
+          amulet.rare = 10;
+          amulet.min_defense = 0;
+          amulet.max_defense = 0;
+          amulet.resistance = Resistance {0, 0, 0, 0, 0};
+          amulet.slots = slots;
+          query->amulets.push_back(amulet);
           break;
         case BLACKLIST:
           nums.clear();
           nums = lisp::ParseList<int>::Do(&tokenizer);
           for (int i : nums) {
-            query->armor_filter.blacklist.insert(i);
+            query->armor_filter.blacklist.insert(
+                Data::armors().Internalize(i));
           }
           break;
         case JEWEL_BLACKLIST:
           nums.clear();
           nums = lisp::ParseList<int>::Do(&tokenizer);
           for (int i : nums) {
-            query->jewel_filter.blacklist.insert(i);
+            query->jewel_filter.blacklist.insert(
+                Data::jewels().Internalize(i));
           }
           break;
         default:
@@ -171,7 +191,7 @@ struct Query {
 
   bool HasSkill(int skill_id) const {
     for (const Effect &effect : effects) {
-      if (skill_id == effect.skill_id) return true;
+      if (skill_id == effect.id) return true;
     }
     return false;
   }
@@ -180,20 +200,17 @@ struct Query {
     wprintf(L"---------- Query ----------\n");
     wprintf(L"skill:");
     for (const Effect &effect :effects) {
-      wprintf(L" %d(%d)", effect.skill_id, effect.points);
+      wprintf(L" %d(%d)", effect.id, effect.points);
     }
     wprintf(L"\n");
-    if (MELEE == armor_filter.weapon_type) {
+    if (WEAPON_TYPE_MELEE == armor_filter.weapon_type) {
       wprintf(L"weapon_type: MELEE\n");
     } else {
       wprintf(L"weapon_type: RANGE\n");
     }
-    wprintf(L"weapon_holes: %d\n", armor_filter.weapon_holes);
+    wprintf(L"weapon_slots: %d\n", armor_filter.weapon_slots);
     wprintf(L"mininum rare: %d\n", armor_filter.min_rare);
     wprintf(L"defense: %d\n", defense);
-    for (auto &amulet : amulets) {
-      amulet.DebugPrint();
-    }
     wprintf(L"\n");
   }
 
@@ -252,9 +269,9 @@ struct Query {
       return Status(FAIL, "Query: Syntax Error - expect STRING.");
     }
     if (L"melee" == token.value) {
-      *type = MELEE;
+      *type = WEAPON_TYPE_MELEE;
     } else if (L"range" == token.value) {
-      *type = RANGE;
+      *type = WEAPON_TYPE_RANGE;
     } else {
       return Status(FAIL, "Query: Invalid weapon type.");
     }
@@ -271,9 +288,9 @@ struct Query {
       return Status(FAIL, "Query: Syntax Error - expect STRING.");
     }
     if (L"male" == token.value) {
-      *gender = MALE;
+      *gender = GENDER_MALE;
     } else if (L"female" == token.value) {
-      *gender = FEMALE;
+      *gender = GENDER_FEMALE;
     } else {
       return Status(FAIL, "Query: Invalid Gender.");
     }
@@ -287,7 +304,7 @@ Query::COMMAND_TRANSLATOR =
 {{L"skill", SKILL}, 
  {L"defense", DEFENSE}, 
  {L"weapon-type", WEAPON_TYPE},
- {L"weapon-holes", WEAPON_HOLES},
+ {L"weapon-slots", WEAPON_SLOTS},
  {L"rare", MIN_RARE},
  {L"max-rare", MAX_RARE},
  {L"max-results", MAX_RESULTS},
@@ -298,4 +315,4 @@ Query::COMMAND_TRANSLATOR =
 };
 }
 
-#endif  // _MONSTER_AVENGERS_QUERY_
+#endif  // _MONSTER_AVENGERS_UTILS_QUERY_
