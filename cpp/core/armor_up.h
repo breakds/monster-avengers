@@ -275,7 +275,6 @@ class ArmorUp {
         iterators_(), output_iterators_() {}
     
   std::vector<TreeRoot> Foundation(const Query &query) {
-
     // Forest with no torso up.
     std::array<std::vector<int>, PART_NUM> part_forests;
     for (int part = HEAD; part < PART_NUM; ++part) {
@@ -283,7 +282,7 @@ class ArmorUp {
           std::move(ClassifyArmors(static_cast<ArmorPart>(part),
                                    query));
     }
-      
+
     std::vector<int> current;
     for (int part = HEAD; part < PART_NUM; ++part) {
       if (HEAD == part) {
@@ -309,6 +308,7 @@ class ArmorUp {
 
     // Core Search
     CHECK_SUCCESS(ApplyFoundation(query));
+
     int foundations = (query.effects.size() < FOUNDATION_NUM)
         ? query.effects.size() : FOUNDATION_NUM;
     for (int i = 0; i < foundations; ++i) {
@@ -481,7 +481,6 @@ class ArmorUp {
       if (armor.part == part &&
           query.armor_filter.Validate(armor, id)) {
         Signature key(armor, effects);
-	  
         auto it = armor_map.find(key);
         if (armor_map.end() == it) {
           armor_map[key] = {id};
@@ -490,7 +489,7 @@ class ArmorUp {
         }
       }
     }
-      
+
     std::vector<int> forest;
     forest.reserve(armor_map.size());
     for (auto &item : armor_map) {

@@ -29,7 +29,7 @@ ADD_SUBDIRECTORY(utils)
 
 IF(BUILD_TESTS)
   ADD_EXECUTABLE(test core/test.cc)
-  TARGET_LINK_LIBRARIES(test -lsqlite3 helpers dataset sqlite_loader)
+  TARGET_LINK_LIBRARIES(test -lsqlite3 helpers dataset sqlite_loader properties)
   # ADD_EXECUTABLE(explore_test core/explore_test.cc)
   # TARGET_LINK_LIBRARIES(explore_test -lsqlite3 helpers)
   # ADD_EXECUTABLE(signature_test utils/signature_test.cc)

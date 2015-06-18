@@ -98,7 +98,7 @@ class Arsenal {
   }
 
   static bool IsTorsoUp(const Armor &armor) {
-    return 0 == armor.effects[0].id && 1 == armor.effects.size();
+    return 1 == armor.effects.size() && 0 == armor.effects[0].id;
   }
 
   inline bool IsTorsoUp(int id) {
