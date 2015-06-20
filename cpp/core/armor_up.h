@@ -589,7 +589,7 @@ class ArmorUp {
     finalizer_.reset(new FinalizeIterator(
         armor_set_iterators_.back().get(),
         query,
-        &arsenal_, 100));
+        &arsenal_, 1));
     return Status(SUCCESS);
   }
     

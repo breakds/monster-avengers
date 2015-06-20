@@ -6,12 +6,13 @@ using namespace monster_avengers;
 
 int main(int argc, char **argv) {
   std::setlocale(LC_ALL, "en_US.UTF-8");
-  Data::LoadSQLite("/home/breakds/Downloads/mh4g.db");
 
   Timer timer;
   timer.Tic();
-  Query query;
+  Data::LoadSQLite("/home/breakds/Downloads/mh4g.db");
   double init_duration = timer.Toc();
+
+  Query query;
   
   // CHECK_SUCCESS(Query::Parse(L"(:skill 51 10)"
   //                            L"(:skill 119 10)"
@@ -76,10 +77,10 @@ int main(int argc, char **argv) {
   ArmorUp armor_up;
   timer.Tic();
   std::vector<ArmorSet> result = std::move(armor_up.Search(query));
-  for (const ArmorSet &armor_set : result) {
-    Data::PrintArmorSet(armor_set, armor_up.GetArsenal());
-  }
   double duration = timer.Toc();
+  for (const ArmorSet &armor_set : result) {
+    Data::PrintArmorSet(armor_set, armor_up.GetArsenal(), 1, JAPANESE);
+  }
   armor_up.Summarize();
   wprintf(L"Initialization: %.4lf seconds.\n", init_duration);
   wprintf(L"Computation: %.4lf seconds.\n", duration);

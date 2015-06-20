@@ -103,7 +103,8 @@ std::vector<Effect> Data::GetSkillStats(
     int armor_id = armor_set.ids[i];
     for (const Effect &effect : arsenal[armor_id].effects) {
       auto iter = stats_map.find(effect.id);
-      int points = (BODY == i) ? effect.points * 2 : effect.points;
+      int points = (BODY == i) ? effect.points * multiplier
+          : effect.points;
       if (stats_map.end() != iter) {
         iter->second += points;
       } else {
@@ -115,7 +116,8 @@ std::vector<Effect> Data::GetSkillStats(
     for (int jewel_id : armor_set.jewels[i]) {
       for (const Effect &effect : jewels_[jewel_id].effects) {
         auto iter = stats_map.find(effect.id);
-        int points = (BODY == i) ? effect.points * 2 : effect.points;
+        int points = (BODY == i) ? effect.points * multiplier
+            : effect.points;
         if (stats_map.end() != iter) {
           iter->second += points;
         } else {
@@ -144,16 +146,45 @@ void Data::PrintArmorSet(const ArmorSet &armor_set,
   
   wprintf(L"__________ Armor Set __________\n");
   for (ArmorPart part : ordered_part) {
+    const Armor &armor = arsenal[armor_set.ids[part]];
+    
+    // Print ID
+    wprintf(L"[%04d] ", armor_set.ids[part]);
+
+    // Print Slots
+    wchar_t slots_text[4] = L"\u2013\u2013\u2013";
+    int occupied = std::accumulate(
+        armor_set.jewels[part].begin(),
+        armor_set.jewels[part].end(),
+        0, [](int sum, int id) {
+          return sum + Data::jewel(id).slots;
+        });
+    for (int i = 0; i < 3; ++i) {
+      if (i < occupied) {
+        slots_text[i] = L'\u25CF';
+      } else if (i < armor.slots) {
+        slots_text[i] = L'\u25CB';
+      }
+    }
+    wprintf(L"%ls ", slots_text);
+
+    // Print Name
     if (armor_set.ids[part] < armors_.size()) {
-      wprintf(L"%-24ls",
+      wprintf(L"%ls\n",
               armor_addons_[armor_set.ids[part]].name[language].c_str());
     } else {
-      wprintf(L"%-24s", StringifyEnum(part).c_str());
+      wprintf(L"%s\n", StringifyEnum(part).c_str());
     }
-    for (int jewel_id : armor_set.jewels[part]) {
-      wprintf(L"(%ls) ", jewel_addons_[jewel_id].name[language].c_str());
+    
+    if (verbose > 0 ) {
+      wprintf(L"%16s", "\u2559\u2500\u2500 ");
+      // Print Rarity
+      wprintf(L"Rare-%02d ", armor.rare);
+      for (int jewel_id : armor_set.jewels[part]) {
+        wprintf(L"   %ls", jewel_addons_[jewel_id].name[language].c_str());
+      }
+      wprintf(L"\n");
     }
-    wprintf(L"\n");
   }
   std::vector<Effect> stats = std::move(GetSkillStats(armor_set, arsenal));
   std::sort(stats.begin(), stats.end(),
