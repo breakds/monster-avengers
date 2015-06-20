@@ -272,7 +272,7 @@ class ArmorUp {
  public:
   ArmorUp() 
       : arsenal_(), pool_(),
-        iterators_(), output_iterators_() {}
+        iterators_(), armor_set_iterators_() {}
     
   std::vector<TreeRoot> Foundation(const Query &query) {
     // Forest with no torso up.
@@ -281,6 +281,8 @@ class ArmorUp {
       part_forests[part] = 
           std::move(ClassifyArmors(static_cast<ArmorPart>(part),
                                    query));
+      wprintf(L"%s: %d\n", StringifyEnum(static_cast<ArmorPart>(part)).c_str(),
+              part_forests[part].size());
     }
 
     std::vector<int> current;
@@ -308,7 +310,6 @@ class ArmorUp {
 
     // Core Search
     CHECK_SUCCESS(ApplyFoundation(query));
-
     int foundations = (query.effects.size() < FOUNDATION_NUM)
         ? query.effects.size() : FOUNDATION_NUM;
     for (int i = 0; i < foundations; ++i) {
@@ -319,24 +320,26 @@ class ArmorUp {
     }
     CHECK_SUCCESS(PrepareOutput());
     CHECK_SUCCESS(ApplyDefenseFilter(query));
+    CHECK_SUCCESS(ApplyFinalizeFilter(query));
   }
 
-  void Search(const Query &query, const std::string &output_path = "") {
+  std::vector<ArmorSet> Search(const Query &query) {
     // Optimize the Query
     Query optimized_query = OptimizeQuery(query);
 
     SearchCore(optimized_query);
 
-    // Prepare formatter
-    // ArmorSetFormatter<Spec> formatter(output_path, &data_, 
-    //                                   optimized_query);
-      
-    int count = 0;
-    // while (count < query.max_results && !output_iterators_.back()->empty()) {
-    //   formatter(**output_iterators_.back());
-    //   ++count;
-    //   ++(*output_iterators_.back());
-    // }
+    std::vector<ArmorSet> result;
+    while (result.size() < query.max_results && !finalizer_->empty()) {
+      result.push_back(**finalizer_);
+      ++(*finalizer_);
+    }
+    return result;
+  }
+
+  // TODO(breakds): Should not expose arsenal in this way.
+  inline const Arsenal &GetArsenal() {
+    return arsenal_;
   }
 
   // std::string SearchEncoded(const Query &query) {
@@ -350,10 +353,10 @@ class ArmorUp {
 
   //   std::string output;
   //   int count = 0;
-  //   while (count < query.max_results && !output_iterators_.back()->empty()) {
-  //     formatter(**output_iterators_.back(), &output);
+  //   while (count < query.max_results && !armor_set_iterators_.back()->empty()) {
+  //     formatter(**armor_set_iterators_.back(), &output);
   //     ++count;
-  //     ++(*output_iterators_.back());
+  //     ++(*armor_set_iterators_.back());
   //   }
   //   return output;
   // }
@@ -369,10 +372,10 @@ class ArmorUp {
 
   //   std::string output;
   //   int count = 0;
-  //   while (count < query.max_results && !output_iterators_.back()->empty()) {
-  //     serializer.Add(**output_iterators_.back());
+  //   while (count < query.max_results && !armor_set_iterators_.back()->empty()) {
+  //     serializer.Add(**armor_set_iterators_.back());
   //     ++count;
-  //     ++(*output_iterators_.back());
+  //     ++(*armor_set_iterators_.back());
   //   }
   //   return serializer.ToString();
   // }
@@ -563,23 +566,31 @@ class ArmorUp {
   }
 
   Status PrepareOutput() {
-    output_iterators_.emplace_back(new ExpansionIterator(iterators_.back().get(), 
-                                                         &pool_));
+    armor_set_iterators_.emplace_back(
+        new ExpansionIterator(iterators_.back().get(), &pool_));
     return Status(SUCCESS);
   }
 
   Status ApplyDefenseFilter(const Query &query) {
-    output_iterators_.emplace_back(new DefenseFilterIterator(
-        output_iterators_.back().get(),
+    armor_set_iterators_.emplace_back(new DefenseFilterIterator(
+        armor_set_iterators_.back().get(),
         &arsenal_,
         query.defense));
     return Status(SUCCESS);
+  }
+
+  Status ApplyFinalizeFilter(const Query &query) {
+    finalizer_.reset(new FinalizeIterator(
+        armor_set_iterators_.back().get(),
+        query,
+        &arsenal_, 1));
   }
     
   Arsenal arsenal_;
   NodePool pool_;
   std::vector<std::unique_ptr<TreeIterator> > iterators_;
-  std::vector<std::unique_ptr<ArmorSetIterator> > output_iterators_;
+  std::vector<std::unique_ptr<ArmorSetIterator> > armor_set_iterators_;
+  std::unique_ptr<FinalizeIterator> finalizer_;
 };
 }
 

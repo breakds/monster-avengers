@@ -8,10 +8,7 @@ namespace monster_avengers {
 
 namespace dataset {
 
-struct JewelSet {
-  JewelSet() = default;
-  std::vector<int> ids;
-};
+typedef std::vector<int> JewelSet;
 
 struct ArmorSet {
   ArmorSet() = default;

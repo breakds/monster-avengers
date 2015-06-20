@@ -288,6 +288,9 @@ void Data::LoadSQLite(const std::string &spec) {
                    return 0;
                  });
 
+  AddPredefinedArmors();
+
+  // TODO(breakds): remove ClassifyParts.
   ClassifyParts();
 }
 

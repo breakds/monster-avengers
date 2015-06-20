@@ -427,6 +427,53 @@ class JewelSolver {
   std::array<std::vector<int>, 4> jewel_ids_;
 };
 
-}
+class JewelAssigner {
+ public:
+  JewelAssigner(const Arsenal *arsenal)
+      : slots_part_(), slots_jewel_(),
+        arsenal_(arsenal), slots_(3) {}
+
+  inline void AddPart(int part, int id) {
+    const Armor &armor = (*arsenal_)[id];
+    slots_part_[armor.slots].push_back(part);
+  }
+
+  inline void AddJewel(int id, int quantity) {
+    const Jewel &jewel = Data::jewel(id);
+    for (int i = 0; i < quantity; ++i) {
+      slots_jewel_[jewel.slots].push_back(id);
+    }
+  }
+
+  inline bool Pop(int *part, int *jewel_id) {
+    // Default return value for jewel_id. This happens when there is
+    // no next assignment.
+    while (slots_ > 0 && slots_jewel_[slots_].empty()) {
+      slots_--;
+    }
+    if (0 < slots_) {
+      for (int used_slots = slots_; used_slots < 4; ++used_slots) {
+        if (slots_part_[used_slots].empty()) continue;
+        *part = slots_part_[used_slots].back();
+        *jewel_id = slots_jewel_[slots_].back();
+        slots_part_[used_slots].pop_back();
+        slots_jewel_[slots_].pop_back();
+        if (used_slots > slots_) {
+          slots_part_[used_slots - slots_].push_back(*part);
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
+ private:
+  std::array<std::vector<int>, 4> slots_part_;
+  std::array<std::vector<int>, 4> slots_jewel_;
+  const Arsenal *arsenal_;
+  int slots_;
+};
+
+}  // namespace monster_avengers
 
 #endif  // _MONSTER_AVENGERS_UTILS_JEWELS_QUERY_

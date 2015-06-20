@@ -196,24 +196,6 @@ struct Query {
     return false;
   }
     
-  void DebugPrint() {
-    wprintf(L"---------- Query ----------\n");
-    wprintf(L"skill:");
-    for (const Effect &effect :effects) {
-      wprintf(L" %d(%d)", effect.id, effect.points);
-    }
-    wprintf(L"\n");
-    if (WEAPON_TYPE_MELEE == armor_filter.weapon_type) {
-      wprintf(L"weapon_type: MELEE\n");
-    } else {
-      wprintf(L"weapon_type: RANGE\n");
-    }
-    wprintf(L"weapon_slots: %d\n", armor_filter.weapon_slots);
-    wprintf(L"mininum rare: %d\n", armor_filter.min_rare);
-    wprintf(L"defense: %d\n", defense);
-    wprintf(L"\n");
-  }
-
  private:
   static Status ReadInt(lisp::Tokenizer *tokenizer, int *number) {
     lisp::Token token;

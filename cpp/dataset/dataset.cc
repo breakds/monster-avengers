@@ -30,8 +30,8 @@ void Data::AddPredefinedArmors() {
     armor.resistance = Resistance{0, 0, 0, 0, 0};
     armor.slots = i;
     addon.name[ENGLISH] = L"Weapon";
-    addon.name[CHINESE] = L"Weapon";
-    addon.name[JAPANESE] = L"Weapon";
+    addon.name[CHINESE] = L"武器";
+    addon.name[JAPANESE] = L"武器";
     armors_.Add(armor, ++external_id);
     armor_addons_.Update(addon, external_id);
   }
@@ -48,8 +48,8 @@ void Data::AddPredefinedArmors() {
     amulet.resistance = Resistance{0, 0, 0, 0, 0};
     amulet.slots = 0;
     addon.name[ENGLISH] = L"Amulet";
-    addon.name[CHINESE] = L"Amulet";
-    addon.name[JAPANESE] = L"Amulet";
+    addon.name[CHINESE] = L"护石";
+    addon.name[JAPANESE] = L"护石";
     armors_.Add(amulet, ++external_id);
     armor_addons_.Update(addon, external_id);
   }

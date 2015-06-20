@@ -33,37 +33,37 @@ int main(int argc, char **argv) {
   //                            L"(:skill 30 20)",
   //                            &query));
 
-  // CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
-  //                            L"(:weapon-slots 2)"
-  //                            L"(:skill 36 10)"
-  //                            L"(:skill 41 10)"
-  //                            L"(:skill 40 15)",
-  //                            &query));
+  CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
+                             L"(:weapon-slots 2)"
+                             L"(:skill 37 10)"
+                             L"(:skill 42 10)"
+                             L"(:skill 41 15)",
+                             &query));
   
   // Query that returns 5 skills
   // CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
   //                            L"(:weapon-slots 2)"
   //                            L"(:rare 8)" 
-  //                            L"(:skill 1 10)"
-  //                            L"(:skill 40 15)"
-  //                            L"(:skill 41 10)"
-  //                            L"(:skill 137 10)" 
-  //                            L"(:amulet 2 (1 4 20 5))",
+  //                            L"(:skill 2 10)"
+  //                            L"(:skill 39 15)"
+  //                            L"(:skill 40 10)"
+  //                            L"(:skill 138 10)" 
+  //                            L"(:amulet 2 (2 4 21 5))",
   //                            &query));
 
   // Query that returns 6 skills
-  CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
-                             L"(:weapon-slots 2)"
-                             L"(:skill 26 15)"
-                             L"(:skill 2 10)"
-                             L"(:skill 41 15)"
-                             L"(:skill 42 10)"
-                             L"(:skill 37 10)" 
-                             L"(:skill 31 10)" 
-                             L"(:amulet 2 (1 4 30 10))"
-        		     L"(:gender \"female\")",
-        		     // L"(:ban-jewels (163 164))",
-                             &query));
+  // CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
+  //                            L"(:weapon-slots 2)"
+  //                            L"(:skill 26 15)"
+  //                            L"(:skill 2 10)"
+  //                            L"(:skill 41 15)"
+  //                            L"(:skill 42 10)"
+  //                            L"(:skill 37 10)" 
+  //                            L"(:skill 31 10)" 
+  //                            L"(:amulet 2 (2 4 31 10))"
+  //       		     L"(:gender \"female\")",
+  //       		     // L"(:ban-jewels (163 164))",
+  //                            &query));
   
   // Query that does not return anything (time consuming)
   // CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")"
@@ -77,11 +77,18 @@ int main(int argc, char **argv) {
   //                            L"(:amulet 2 (25 5))",
   //                            &query));
 
-  query.DebugPrint();
+  // Debug Print for Query
+  for (const Effect &effect : query.effects) {
+    wprintf(L"require %d ", effect.points);
+    Data::PrintSkill(effect.id, 0);
+  }
+
   ArmorUp armor_up;
   timer.Tic();
-  armor_up.Search(query);
-  // wprintf(L"%s", armor_up.SearchEncoded(query).c_str());
+  std::vector<ArmorSet> result = std::move(armor_up.Search(query));
+  for (const ArmorSet &armor_set : result) {
+    Data::PrintArmorSet(armor_set, armor_up.GetArsenal());
+  }
   double duration = timer.Toc();
   armor_up.Summarize();
   wprintf(L"Initialization: %.4lf seconds.\n", init_duration);

@@ -18,6 +18,8 @@ namespace monster_avengers {
 
 namespace dataset {
 
+class Arsenal;
+
 class Data {
  public:
   inline static const Armor &armor(int internal_id) {
@@ -54,6 +56,13 @@ class Data {
   static void PrintSkill(int id, int verbose = 0, Language language = CHINESE);
   static void PrintJewel(int id, int verbose = 0, Language language = CHINESE);
   static void PrintArmor(int id, int verbose = 0, Language language = CHINESE);
+  static int GetMultiplier(const ArmorSet &armor_set, const Arsenal &arsenal);
+  static std::vector<Effect> GetSkillStats(
+      const ArmorSet &armor_set, const Arsenal &arsenal);
+  static void PrintArmorSet(const ArmorSet &armor_set,
+                            const Arsenal &arsenal,
+                            int verbose = 0,
+                            Language language = CHINESE);
 
  private:
   // Core Data
@@ -101,12 +110,14 @@ class Arsenal {
     return 1 == armor.effects.size() && 0 == armor.effects[0].id;
   }
 
-  inline bool IsTorsoUp(int id) {
+  inline bool IsTorsoUp(int id) const {
     return IsTorsoUp((operator[])(id));
   }
 
  private:
   std::vector<Armor> armors_;
+
+  // TODO(breakds): remove this
   static std::array<std::vector<int>, PART_NUM> armor_by_parts_;  
 };
 
