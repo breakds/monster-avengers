@@ -14,11 +14,21 @@ struct ArmorFilter {
   WeaponType weapon_type;
   int weapon_slots;
   Gender gender;
+  // Blacklist has higher priority.
+  std::unordered_set<int> whitelist;
   std::unordered_set<int> blacklist;
 
   ArmorFilter() = default;
     
   bool Validate(const Armor &armor, int id) const {
+    // Armor ID Blacklist/Whitelist.
+    if (0 != blacklist.count(id)) return false;
+    if (armor.part != GEAR && armor.part != AMULET &&
+        0 < whitelist.size() &&
+        0 == whitelist.count(id)) {
+      return false;
+    }
+    
     // Weapon Type should match.
     if (armor.weapon_type != weapon_type &&
         WEAPON_TYPE_BOTH != armor.weapon_type) return false;
@@ -32,12 +42,10 @@ struct ArmorFilter {
         return false;
       }
     }
-
+    
     // Weapon slots contraint.
     if (GEAR == armor.part && armor.slots != weapon_slots) return false;
 
-    // Armor ID Blacklist.
-    if (0 != blacklist.count(id)) return false;
     return true;
   }
 };

@@ -14,6 +14,8 @@
 #include "or_and_tree.h"
 #include "iterator.h"
 
+#define DEBUG_VERBOSE 0
+
 namespace monster_avengers {
 
 using dataset::Arsenal;
@@ -281,8 +283,6 @@ class ArmorUp {
       part_forests[part] = 
           std::move(ClassifyArmors(static_cast<ArmorPart>(part),
                                    query));
-      wprintf(L"%s: %d\n", StringifyEnum(static_cast<ArmorPart>(part)).c_str(),
-              part_forests[part].size());
     }
 
     std::vector<int> current;
@@ -313,7 +313,8 @@ class ArmorUp {
     int foundations = (query.effects.size() < FOUNDATION_NUM)
         ? query.effects.size() : FOUNDATION_NUM;
     for (int i = 0; i < foundations; ++i) {
-      CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, i, query.jewel_filter));
+      CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, i,
+                                           query.jewel_filter));
     }
     for (int i = foundations; i < query.effects.size(); ++i) {
       CHECK_SUCCESS(ApplySkillSplitter(query, i));	
@@ -425,24 +426,22 @@ class ArmorUp {
   //   wprintf(L"Overall: %.4lf sec\n", overall_timer.Toc());
   // }
 
-  Query OptimizeQuery(const Query &query, bool verbose = true) {
+  Query OptimizeQuery(const Query &query) {
     std::vector<double> scores;
     std::vector<int> indices;
     for (int i = 0; i < query.effects.size(); ++i) {
       const Effect &effect = query.effects[i];
       indices.push_back(i);
       scores.push_back(Data::EffectScore(effect));
-      if (verbose) {
-        wprintf(L"(%03d): %.5lf\n", 
-                effect.id,
-                scores.back());
-      }
+#if DEBUG_VERBOSE > 0
+      wprintf(L"(%03d) %.05lf\n", effect.id, scores.back());
+#endif
     }
-
+      
     std::sort(indices.begin(), indices.end(), 
               [&scores](int a, int b) {
                 return scores[a] < scores[b];
-              });
+    });
     Query optimized = query;
     optimized.effects.clear();
     for (int i = 0; i < query.effects.size(); ++i) {
@@ -478,11 +477,18 @@ class ArmorUp {
       effects.push_back(query.effects[i]);
     }
 
+#if DEBUG_VERBOSE > 1
+    wprintf(L"---------- Classify %s ----------\n",
+            StringifyEnum(part).c_str());
+#endif
     // TODO(breakds): The for loop here needs optimization.
     for (int id = 0; id < arsenal_.size(); ++id) {
       const Armor &armor = arsenal_[id];
       if (armor.part == part &&
           query.armor_filter.Validate(armor, id)) {
+#if DEBUG_VERBOSE > 1
+        arsenal_.PrintArmor(id, 0);
+#endif
         Signature key(armor, effects);
         auto it = armor_map.find(key);
         if (armor_map.end() == it) {
@@ -583,7 +589,8 @@ class ArmorUp {
     finalizer_.reset(new FinalizeIterator(
         armor_set_iterators_.back().get(),
         query,
-        &arsenal_, 1));
+        &arsenal_, 100));
+    return Status(SUCCESS);
   }
     
   Arsenal arsenal_;

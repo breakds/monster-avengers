@@ -55,6 +55,8 @@ class Data {
   // Data Services
   static void PrintSkill(int id, int verbose = 0, Language language = CHINESE);
   static void PrintJewel(int id, int verbose = 0, Language language = CHINESE);
+  static void PrintArmor(const Armor &armor, int id, int verbose = 0,
+                         Language language = CHINESE);
   static void PrintArmor(int id, int verbose = 0, Language language = CHINESE);
   static int GetMultiplier(const ArmorSet &armor_set, const Arsenal &arsenal);
   static std::vector<Effect> GetSkillStats(
@@ -109,9 +111,19 @@ class Arsenal {
   static bool IsTorsoUp(const Armor &armor) {
     return 1 == armor.effects.size() && 0 == armor.effects[0].id;
   }
-
+  
   inline bool IsTorsoUp(int id) const {
     return IsTorsoUp((operator[])(id));
+  }
+
+  inline void PrintArmor(int id, int verbose = 0,
+                         Language language = CHINESE) {
+    if (id < Data::armors().size()) {
+      Data::PrintArmor(id, verbose, language);
+    } else {
+      Data::PrintArmor((operator[])(id),
+                       id, verbose, language);
+    }
   }
 
  private:

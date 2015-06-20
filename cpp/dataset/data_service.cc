@@ -41,14 +41,20 @@ void Data::PrintJewel(int id, int verbose, Language language) {
   wprintf(L"\n");
 }
 
-void Data::PrintArmor(int id, int verbose, Language language) {
-  const Armor &armor = armors_[id];
-  const ArmorAddon &addon = armor_addons_[id];
+void Data::PrintArmor(const Armor &armor, int id,
+                      int verbose, Language language) {
   char slots[4] = "---";
   for (int i = 0; i < armor.slots; ++i) slots[i] = 'O';
-  wprintf(L"[ARMOR %04d] [%s] RARE-%02d  %ls\n",
-          id, slots, armor.rare,
-          addon.name[language].c_str());
+  if (id >= armors_.size()) {
+    wprintf(L"[ARMOR %04d] [%s] RARE-%02d  Custom %s\n",
+            id, slots, armor.rare,
+            StringifyEnum(armor.part).c_str());
+  } else {
+    const ArmorAddon &addon = armor_addons_[id];
+    wprintf(L"[ARMOR %04d] [%s] RARE-%02d  %ls\n",
+            id, slots, armor.rare,
+            addon.name[language].c_str());
+  }
   if (verbose >= 1) {
     wprintf(L"             [Part: %s]\n", StringifyEnum(armor.part).c_str());
     wprintf(L"             [Type: %s]\n",
@@ -70,6 +76,11 @@ void Data::PrintArmor(int id, int verbose, Language language) {
               effect.points);
     }
   }
+}
+
+void Data::PrintArmor(int id, int verbose, Language language) {
+  const Armor &armor = armors_[id];
+  PrintArmor(armor, id, verbose, language);
 }
 
 int Data::GetMultiplier(const ArmorSet &armor_set, const Arsenal &arsenal) {
@@ -129,12 +140,16 @@ void Data::PrintArmorSet(const ArmorSet &armor_set,
                          int verbose,
                          Language language) {
   static std::array<ArmorPart, PART_NUM> ordered_part {
-    GEAR, HEAD, BODY, HANDS, WAIST, FEET, AMULET};
+    {GEAR, HEAD, BODY, HANDS, WAIST, FEET, AMULET}};
   
   wprintf(L"__________ Armor Set __________\n");
   for (ArmorPart part : ordered_part) {
-    wprintf(L"%-12ls",
-            armor_addons_[armor_set.ids[part]].name[language].c_str());
+    if (armor_set.ids[part] < armors_.size()) {
+      wprintf(L"%-24ls",
+              armor_addons_[armor_set.ids[part]].name[language].c_str());
+    } else {
+      wprintf(L"%-24s", StringifyEnum(part).c_str());
+    }
     for (int jewel_id : armor_set.jewels[part]) {
       wprintf(L"(%ls) ", jewel_addons_[jewel_id].name[language].c_str());
     }

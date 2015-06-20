@@ -29,7 +29,8 @@ struct Query {
     MAX_RESULTS,
     BLACKLIST,
     JEWEL_BLACKLIST,
-    GENDER
+    GENDER,
+    SPECIFY_ARMOR
   };
 
   static const std::unordered_map<std::wstring, Command> COMMAND_TRANSLATOR;
@@ -57,6 +58,7 @@ struct Query {
     query->armor_filter.max_rare = 11; // by default there is no rare limit.
     query->armor_filter.gender = GENDER_MALE; // by default we look for male's armors.
     query->armor_filter.blacklist.clear();
+    query->armor_filter.whitelist.clear();
       
     // Jewel Filter
     query->jewel_filter.blacklist.clear();
@@ -147,6 +149,14 @@ struct Query {
           nums = lisp::ParseList<int>::Do(&tokenizer);
           for (int i : nums) {
             query->armor_filter.blacklist.insert(
+                Data::armors().Internalize(i));
+          }
+          break;
+        case SPECIFY_ARMOR:
+          nums.clear();
+          nums = lisp::ParseList<int>::Do(&tokenizer);
+          for (int i : nums) {
+            query->armor_filter.whitelist.insert(
                 Data::armors().Internalize(i));
           }
           break;
@@ -281,7 +291,9 @@ struct Query {
     
 };
 
-const std::unordered_map<std::wstring, Query::Command> 
+
+// TODO(breakds): Use new Enum features to translate.
+const std::unordered_map<std::wstring, Query::Command>
 Query::COMMAND_TRANSLATOR =
 {{L"skill", SKILL}, 
  {L"defense", DEFENSE}, 
@@ -293,6 +305,7 @@ Query::COMMAND_TRANSLATOR =
  {L"amulet", ADD_AMULET},
  {L"blacklist", BLACKLIST},
  {L"gender", GENDER},
+ {L"specify-armor", SPECIFY_ARMOR},
  {L"ban-jewels", JEWEL_BLACKLIST},
 };
 }

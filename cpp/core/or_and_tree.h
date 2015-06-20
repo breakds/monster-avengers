@@ -150,7 +150,6 @@ class SkillSplitter {
           break;
         }
       }
-      i++;
     }
   }
 
