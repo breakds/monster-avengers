@@ -26,6 +26,7 @@ MESSAGE(STATUS "\n-------------------- Modules --------------------")
 ADD_SUBDIRECTORY(dataset)
 ADD_SUBDIRECTORY(supp)
 ADD_SUBDIRECTORY(utils)
+ADD_SUBDIRECTORY(iterators)
 
 IF(BUILD_TESTS)
   ADD_EXECUTABLE(test core/test.cc)
