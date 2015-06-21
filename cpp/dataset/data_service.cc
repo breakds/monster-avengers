@@ -170,12 +170,19 @@ void Data::PrintArmorSet(const ArmorSet &armor_set,
 
     // Print Name
     if (armor_set.ids[part] < armors_.size()) {
-      wprintf(L"%ls\n",
+      wprintf(L"\u2500\u2565\u2500\u2500 \u23e3 %ls\n",
               armor_addons_[armor_set.ids[part]].name[language].c_str());
     } else {
-      wprintf(L"%s\n", StringifyEnum(part).c_str());
+      wprintf(L"\u2500\u2565\u2500\u2500 \u23e3 %s\n",
+              StringifyEnum(part).c_str());
     }
-    
+
+    // Print TorsoUps
+    if (arsenal.IsTorsoUp(armor_set.ids[part])) {
+      wprintf(L"%15s (Torso-Up)\n", "\u255f\u2500\u2500");
+    }
+
+    // Print Jewels
     if (verbose > 0 ) {
       wprintf(L"%16s", "\u2559\u2500\u2500 ");
       // Print Rarity
@@ -186,6 +193,8 @@ void Data::PrintArmorSet(const ArmorSet &armor_set,
       wprintf(L"\n");
     }
   }
+
+  // Print Skill Stats
   std::vector<Effect> stats = std::move(GetSkillStats(armor_set, arsenal));
   std::sort(stats.begin(), stats.end(),
             [](const Effect &a, const Effect &b) {
