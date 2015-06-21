@@ -192,35 +192,30 @@ class Unpacker : public Iterator<RawArmorSet> {
   }
   
   inline bool Next() override {
-    // Simple case: Last level can proceed.
-    if (-1 < top_) {
-      const OR &armor_or = pool_->Or(stack_[top_].armor_or_id);
-      if ((++stack_[top_].armor_seq) < armor_or.daughters.size()) {
-        armor_set_.ids[top_] = armor_or.daughters[stack_[top_].armor_seq];
-        return true;
-      } 
-    }
-
-    // TODO(breakds): should refactor to merge with the above case.
-    // More complicated: backtrace to the level that can proceed.
-    if (-1 < top_) top_--;
     int or_id = stack_[top_].or_id;
     while (-1 < top_) {
       const OR &armor_or = pool_->Or(stack_[top_].armor_or_id);
       if ((++stack_[top_].armor_seq) < armor_or.daughters.size()) {
         armor_set_.ids[top_] = armor_or.daughters[stack_[top_].armor_seq];
-        or_id = pool_->OrAnd(stack_[top_].or_id, stack_[top_].and_id).right;
-        break;
+        if (top_ == PART_NUM - 1) {
+          // Simple case: Last level can proceed.
+          return true;
+        } else {
+          or_id = pool_->OrAnd(stack_[top_].or_id, stack_[top_].and_id).right;
+          break;
+        }
       }
-      const OR &or_node = pool_->Or(stack_[top_].or_id);
-      if ((++stack_[top_].and_id) < or_node.daughters.size()) {
-        const AND &and_node = 
-            pool_->OrAnd(stack_[top_].or_id, stack_[top_].and_id);
-        stack_[top_].armor_or_id = and_node.left;
-        stack_[top_].armor_seq = 0;
-        armor_set_.ids[top_] = pool_->Or(and_node.left).daughters[0];
-        or_id = and_node.right;
-        break;
+      if (top_ != PART_NUM - 1) {
+        const OR &or_node = pool_->Or(stack_[top_].or_id);
+        if ((++stack_[top_].and_id) < or_node.daughters.size()) {
+          const AND &and_node = 
+              pool_->OrAnd(stack_[top_].or_id, stack_[top_].and_id);
+          stack_[top_].armor_or_id = and_node.left;
+          stack_[top_].armor_seq = 0;
+          armor_set_.ids[top_] = pool_->Or(and_node.left).daughters[0];
+          or_id = and_node.right;
+          break;
+        }
       }
       top_--;
     }

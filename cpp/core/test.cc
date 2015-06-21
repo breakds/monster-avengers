@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
                              L"(:skill 42 10)"
                              L"(:skill 37 10)" 
                              L"(:skill 31 10)"
+                             L"(:max-results 3)"
                              // L"(:specify-armor (3026 3041 2682 2663 2309))"
                              L"(:amulet 2 (2 4 31 10))"
         		     L"(:gender \"female\")",
