@@ -290,10 +290,9 @@ void Data::LoadSQLite(const std::string &spec) {
 
   AddPredefinedArmors();
 
-  // TODO(breakds): remove ClassifyParts.
-  ClassifyParts();
 }
 
 }  // namespace dataset
 
 }  // namespace monster_avengers
+

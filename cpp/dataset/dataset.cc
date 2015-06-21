@@ -13,7 +13,6 @@ ReindexedTable<Item> Data::items_;
 ReindexedTable<ArmorAddon> Data::armor_addons_;
 ReindexedTable<JewelAddon> Data::jewel_addons_;
 ReindexedTable<SkillSystemAddon> Data::skill_addons_;
-std::array<std::vector<int>, PART_NUM> Data::armor_by_parts_;
 
 void Data::AddPredefinedArmors() {
   int external_id = 170000;
@@ -80,15 +79,6 @@ double Data::EffectScore(const Effect &effect) {
   }
   
   return std::exp(0.1 * jewel_index - 0.3 * effect.points) * armor_count;
-}
-
-void Data::ClassifyParts() {
-  for (int i = 0; i < PART_NUM; ++i) {
-    armor_by_parts_[i].clear();
-  }
-  for (int i = 0; i < armors_.size(); ++i) {
-    armor_by_parts_[armors_[i].part].push_back(i);
-  }
 }
 
 }  // namespace dataset

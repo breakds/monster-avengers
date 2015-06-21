@@ -167,9 +167,6 @@ void Data::LoadBinary(const std::string &spec) {
   ReadBinaryTable<Jewel>(&in, &jewels_);
   ReadBinaryTable<Armor>(&in, &armors_);
   AddPredefinedArmors();
-
-  // TODO(breakds): remove ClassifyParts.
-  ClassifyParts();
 }
 
 }  // namespace dataset

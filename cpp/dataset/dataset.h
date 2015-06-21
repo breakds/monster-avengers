@@ -78,11 +78,7 @@ class Data {
   static ReindexedTable<SkillSystemAddon> skill_addons_;
   static ReindexedTable<Item> items_;
 
-  // Metadata
-  static std::array<std::vector<int>, PART_NUM> armor_by_parts_;
-
   static void AddPredefinedArmors();
-  static void ClassifyParts();
 };
 
 class Arsenal {
@@ -128,9 +124,6 @@ class Arsenal {
 
  private:
   std::vector<Armor> armors_;
-
-  // TODO(breakds): remove this
-  static std::array<std::vector<int>, PART_NUM> armor_by_parts_;  
 };
 
 }  // namespace dataset
