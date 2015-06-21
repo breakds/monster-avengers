@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
   std::vector<ArmorSet> result = std::move(armor_up.Search(query));
   double duration = timer.Toc();
   for (const ArmorSet &armor_set : result) {
-    Data::PrintArmorSet(armor_set, armor_up.GetArsenal(), 1, JAPANESE);
+    Data::PrintArmorSet(armor_set, armor_up.GetArsenal(), 1, CHINESE);
   }
   armor_up.Summarize();
   wprintf(L"Initialization: %.4lf seconds.\n", init_duration);

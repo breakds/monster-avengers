@@ -7,12 +7,15 @@
 #include <vector>
 #include <algorithm>
 
+#include "core/or_and_tree.h"
+#include "core/pruners.h"
+#include "iterators/base.h"
 #include "supp/timer.h"
 #include "utils/query.h"
 #include "utils/signature.h"
 #include "utils/jewels_query.h"
-#include "or_and_tree.h"
-#include "iterator.h"
+
+
 
 #define DEBUG_VERBOSE 0
 
@@ -25,256 +28,11 @@ using dataset::Armor;
 
 const int FOUNDATION_NUM = 2;
 
-class ListIterator : public TreeIterator {
- public:
-  explicit ListIterator(const std::vector<TreeRoot> &&input) 
-      : forest_(input), current_(0) {}
-    
-  inline void operator++() override {
-    if (current_ < forest_.size()) current_++;
-  }
-
-  inline const TreeRoot &operator*() const override {
-    return forest_[current_];
-  }
-    
-  inline bool empty() const override {
-    return current_ >= forest_.size();
-  }
-
-  inline void Reset() override {}
-    
- private:
-  std::vector<TreeRoot> forest_;
-  size_t current_;
-};
-
-class JewelFilterIterator : public TreeIterator {
- public:
-  explicit JewelFilterIterator(TreeIterator *base_iter,
-                               const NodePool *pool,
-                               int effect_id,
-                               const std::vector<Effect> &effects, 
-                               const JewelFilter &jewel_filter)
-      : base_iter_(base_iter), 
-        pool_(pool),
-        slot_client_({effects[effect_id].id}, effects, jewel_filter),
-        current_(0),
-        inverse_points_(sig::InverseKey(effects.begin(),
-                                        effects.begin() + effect_id + 1)) {
-    Proceed();
-  }
-
-  inline void operator++() override {
-    if (!base_iter_->empty()) {
-      ++(*base_iter_);
-      Proceed();
-    }
-  }
-
-  inline const TreeRoot &operator*() const override {
-    return current_;
-  }
-
-  inline bool empty() const override {
-    return base_iter_->empty();
-  }
-
-  inline void Reset() override {}
-
- private:
-  inline void Proceed() {
-    current_.jewel_keys.clear();
-    while (!base_iter_->empty()) {
-      const TreeRoot &root = **base_iter_;
-      current_.id = root.id;
-      current_.torso_multiplier = root.torso_multiplier;
-      const Signature &key = pool_->Or(current_.id).key;
-      if (root.jewel_keys.empty()) {
-        const std::unordered_set<Signature> &jewel_keys = 
-            slot_client_.Query(key);
-        for (const Signature &jewel_key : jewel_keys) {
-          if (sig::Satisfy(key | jewel_key, inverse_points_)) {
-            current_.jewel_keys.push_back(jewel_key);
-          }
-        }
-      } else {
-        int one(0), two(0), three(0), extra(0);
-        for (const Signature &existing_key : root.jewel_keys) {
-          slot_client_.GetResidual(key, existing_key,
-                                   &one, &two, &three, &extra);
-          Signature key0 = key | existing_key;
-          for (const Signature &jewel_key : 
-                   slot_client_.Query(one, two, 
-                                      three, extra,
-                                      root.torso_multiplier)) {
-            if (sig::Satisfy(key0 | jewel_key, inverse_points_)) {
-              current_.jewel_keys.push_back(existing_key + jewel_key);
-            }
-          }
-        }
-      }
-      if (current_.jewel_keys.empty()) {
-        ++(*base_iter_);
-      } else {
-        return;
-      }
-    }
-  }
-    
-  TreeIterator *base_iter_;
-  const NodePool *pool_;
-  SlotClient slot_client_;
-  TreeRoot current_;
-  Signature inverse_points_;
-};
-
-class SkillSplitIterator : public TreeIterator {
- public:
-  SkillSplitIterator(TreeIterator *base_iter, 
-                     const Arsenal &arsenal,
-                     NodePool *pool,
-                     int effect_id,
-                     const Query &query)
-      : base_iter_(base_iter), pool_(pool), 
-        splitter_(arsenal, pool, effect_id, 
-                  query.effects[effect_id].id),
-        slot_client_(query.effects[effect_id].id, query.effects, 
-		     query.jewel_filter),
-        effect_id_(effect_id),
-        required_points_(query.effects[effect_id].points),
-    inverse_points_(sig::InverseKey(query.effects.begin(), 
-                                    query.effects.begin() + effect_id + 1)) {
-    Proceed();
-  }
-
-  inline void operator++() override {
-    buffer_.pop_back();
-    if (buffer_.empty()) {
-      ++(*base_iter_);
-      Proceed();
-    }
-  }
-
-  inline const TreeRoot &operator*() const override {
-    return buffer_.back();
-  }
-
-  inline bool empty() const override {
-    return buffer_.empty();
-  }
-
-  inline void Reset() override {}
-    
- private:
-  inline void Proceed() {
-    while (!base_iter_->empty()) {
-      const TreeRoot root = **base_iter_;
-      const OR &node = pool_->Or(root.id);
-      int one(0), two(0), three(0), body_holes(0);
-
-      int sub_max = splitter_.Max(root);
-      int sub_min = 1000;
-      Signature key0 = sig::AddPoints(node.key, effect_id_, sub_max);
-      std::vector<Signature> jewel_candidates;
-
-      for (const Signature &jewel_key : root.jewel_keys) {
-        SlotClient::GetResidual(node.key, jewel_key,
-                                &one, &two, &three, &body_holes);
-        for (const Signature &new_key : 
-                 slot_client_.Query(one, two, three, 
-                                    body_holes, root.torso_multiplier)) {
-          Signature key1 = jewel_key + new_key;
-          if (sig::Satisfy(key0 | key1, inverse_points_)) {
-            jewel_candidates.push_back(key1);
-            int diff = required_points_ - sig::GetPoints(key1, effect_id_);
-            if (diff < sub_min) {
-              sub_min = diff;
-            }
-          }
-        }
-      }
-      if (!jewel_candidates.empty()) {
-        std::vector<int> new_ors = splitter_.Split(root, sub_min);
-        for (int or_id : new_ors) {
-          buffer_.emplace_back(or_id, pool_->Or(or_id));
-          const OR &or_node = pool_->Or(or_id);
-          for (const Signature &jewel_key : jewel_candidates) {
-            if (sig::Satisfy(jewel_key | or_node.key, inverse_points_)) {
-              buffer_.back().jewel_keys.push_back(jewel_key);
-            }
-          }
-        }
-        break;
-      }
-
-      // If there is no valid jewel signatures, we can proceed to
-      // the next tree in the forest.
-      ++(*base_iter_);
-    }
-  }
-      
-  TreeIterator *base_iter_;
-  NodePool *pool_;
-  SkillSplitter splitter_;
-  SlotClient slot_client_;
-  int effect_id_;
-  int required_points_;
-  Signature inverse_points_;
-  std::vector<TreeRoot> buffer_;
-};
-
-class DefenseFilterIterator : public ArmorSetIterator {
- public:
-  DefenseFilterIterator(ArmorSetIterator *base_iter,
-                        const Arsenal *arsenal,
-                        int min_defense)
-      : base_iter_(base_iter), arsenal_(arsenal),
-        min_defense_(min_defense) {
-    Proceed();
-  }
-
-  void operator++() override {
-    ++(*base_iter_);
-    Proceed();
-  }
-    
-  const RawArmorSet &operator*() const override {
-    return **base_iter_;
-  }
-
-  bool empty() const override {
-    return base_iter_->empty();
-  }
-
-  int BaseIndex() const override {
-    return base_iter_->BaseIndex();
-  }
-    
- private:
-  void Proceed() {
-    while (!base_iter_->empty()) {
-      const RawArmorSet &armor_set = **base_iter_;
-      int defense = 0;
-      for (int id : armor_set.ids) defense += (*arsenal_)[id].max_defense;
-      if (defense >= min_defense_) {
-        break;
-      } else {
-        ++(*base_iter_);
-      }
-    }
-  }
-
-  ArmorSetIterator *base_iter_;
-  const Arsenal *arsenal_;
-  int min_defense_;
-};
-
 class ArmorUp {
  public:
   ArmorUp() 
       : arsenal_(), pool_(),
-        iterators_(), armor_set_iterators_() {}
+        iterators_() {}
     
   std::vector<TreeRoot> Foundation(const Query &query) {
     // Forest with no torso up.
@@ -331,9 +89,10 @@ class ArmorUp {
     SearchCore(optimized_query);
 
     std::vector<ArmorSet> result;
-    while (result.size() < query.max_results && !finalizer_->empty()) {
-      result.push_back(**finalizer_);
-      ++(*finalizer_);
+    auto *output = CastIterator<ArmorSet>(iterators_.back().get());
+    while (output->Next()) {
+      result.push_back(output->Get());
+      if (result.size() >= query.max_results) break;
     }
     return result;
   }
@@ -542,62 +301,53 @@ class ArmorUp {
 
   Status ApplyFoundation(const Query &query) {
     iterators_.clear();
-    iterators_.emplace_back(new ListIterator(Foundation(query)));
+    iterators_.emplace_back(new ListIterator<TreeRoot>(
+        Foundation(query)));
     return Status(SUCCESS);
   }
 
+  // TODO(breakds): Change the name here.
   Status ApplySingleJewelFilter(const std::vector<Effect> &effects, 
                                 int effect_id, 
                                 const JewelFilter &filter) {
-    TreeIterator *new_iter = 
-        new JewelFilterIterator(iterators_.back().get(),
-                                &pool_,
-                                effect_id,
-                                effects,
-				filter);
-    iterators_.emplace_back(new_iter);
+    iterators_.emplace_back(new JewelPruner(
+        CastIterator<TreeRoot>(iterators_.back().get()),
+        &pool_, effect_id, effects, filter));
     return Status(SUCCESS);
   }
 
   Status ApplySkillSplitter(const Query &query,
                             int effect_id) {
-    TreeIterator *new_iter = 
-        new SkillSplitIterator(iterators_.back().get(),
-                               arsenal_,
-                               &pool_,
-                               effect_id,
-                               query);
-    iterators_.emplace_back(new_iter);
+    iterators_.emplace_back(new SkillSplitPruner(
+        CastIterator<TreeRoot>(iterators_.back().get()),
+        arsenal_, &pool_, effect_id, query));
     return Status(SUCCESS);
   }
-
+  
   Status PrepareOutput() {
-    armor_set_iterators_.emplace_back(
-        new ExpansionIterator(iterators_.back().get(), &pool_));
+    iterators_.emplace_back(
+        new Unpacker(CastIterator<TreeRoot>(iterators_.back().get()),
+                     &pool_));
     return Status(SUCCESS);
   }
 
   Status ApplyDefenseFilter(const Query &query) {
-    armor_set_iterators_.emplace_back(new DefenseFilterIterator(
-        armor_set_iterators_.back().get(),
-        &arsenal_,
-        query.defense));
+    iterators_.emplace_back(new DefensePruner(
+        CastIterator<RawArmorSet>(iterators_.back().get()),
+        &arsenal_, query.defense));
     return Status(SUCCESS);
   }
 
   Status ApplyFinalizeFilter(const Query &query) {
-    finalizer_.reset(new FinalizeIterator(
-        armor_set_iterators_.back().get(),
-        query,
-        &arsenal_, 1));
+    iterators_.emplace_back(new Finalizer(
+        CastIterator<RawArmorSet>(iterators_.back().get()),
+        query, &arsenal_, 1));
     return Status(SUCCESS);
   }
     
   Arsenal arsenal_;
   NodePool pool_;
-  std::vector<std::unique_ptr<TreeIterator> > iterators_;
-  std::vector<std::unique_ptr<ArmorSetIterator> > armor_set_iterators_;
-  std::unique_ptr<FinalizeIterator> finalizer_;
+  std::vector<std::unique_ptr<BaseIterator> > iterators_;
 };
 }
 

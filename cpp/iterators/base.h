@@ -47,6 +47,11 @@ class ListIterator : public Iterator<OutputType> {
   size_t pointer_;
 };
 
+template <typename OutputType>
+inline Iterator<OutputType> *CastIterator(BaseIterator *iterator) {
+  return static_cast<Iterator<OutputType>*>(iterator);
+}
+
 }  // namespace monster_avengers
 
 #endif  // _MONSTER_AVENGERS_CORE_ITERATORS_BASE_
