@@ -54,6 +54,15 @@ void Data::AddPredefinedArmors() {
   }
 }
 
+int Data::GetMultiplier(const ArmorSet &armor_set, const Arsenal &arsenal) {
+  int multiplier = 1;
+  for (int i = 0; i < PART_NUM; ++i) {
+    if (arsenal.IsTorsoUp(armor_set.ids[i])) {
+      multiplier++;
+    }
+  }
+  return multiplier;
+}
 
 double Data::EffectScore(const Effect &effect) {
   int armor_count = 0;

@@ -291,8 +291,6 @@ struct Query {
     
 };
 
-
-// TODO(breakds): Use new Enum features to translate.
 const std::unordered_map<std::wstring, Query::Command>
 Query::COMMAND_TRANSLATOR =
 {{L"skill", SKILL}, 

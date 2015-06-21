@@ -83,16 +83,6 @@ void Data::PrintArmor(int id, int verbose, Language language) {
   PrintArmor(armor, id, verbose, language);
 }
 
-int Data::GetMultiplier(const ArmorSet &armor_set, const Arsenal &arsenal) {
-  int multiplier = 1;
-  for (int i = 0; i < PART_NUM; ++i) {
-    if (arsenal.IsTorsoUp(armor_set.ids[i])) {
-      multiplier++;
-    }
-  }
-  return multiplier;
-}
-
 std::vector<Effect> Data::GetSkillStats(
     const ArmorSet &armor_set, const Arsenal &arsenal) {
   std::unordered_map<int, int> stats_map;
@@ -169,11 +159,17 @@ void Data::PrintArmorSet(const ArmorSet &armor_set,
     wprintf(L"%ls ", slots_text);
 
     // Print Name
+    wchar_t icon = L'\u23e3';
+    if (GEAR == part) {
+      icon = L'\u2650';
+    } else if (AMULET == part) {
+      icon = L'\u2649';
+    }
     if (armor_set.ids[part] < armors_.size()) {
-      wprintf(L"\u2500\u2565\u2500\u2500 \u23e3 %ls\n",
+      wprintf(L"\u2500\u2565\u2500\u2500 %lc %ls\n", icon,
               armor_addons_[armor_set.ids[part]].name[language].c_str());
     } else {
-      wprintf(L"\u2500\u2565\u2500\u2500 \u23e3 %s\n",
+      wprintf(L"\u2500\u2565\u2500\u2500 %lc %s\n", icon,
               StringifyEnum(part).c_str());
     }
 

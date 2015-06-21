@@ -348,13 +348,7 @@ class Finalizer : public Iterator<ArmorSet> {
       for (int i = 0; i < num_fetched_jewel_plans; ++i) {
         jewel_keys_.push_back(raw.jewel_keys[i]);
       }
-      multiplier_ = std::accumulate(
-          current_.ids.begin(),
-          current_.ids.end(),
-          1, // initially we have 1 for body itself
-          [&](int accu, int id) {
-            return accu + (arsenal_->IsTorsoUp(id) ? 1 : 0);
-          });
+      multiplier_ = Data::GetMultiplier(current_, *arsenal_);
     }
 
     if (jewel_keys_.empty()) return false;
@@ -370,7 +364,6 @@ class Finalizer : public Iterator<ArmorSet> {
     jewel_keys_.pop_back();
 
     // Assign body-only jewels.
-    // TODO(breakds): Should use a Data static function.
     if (multiplier_ > 1) {
       for (const auto &item : jewel_plan.second) {
         for (int j = 0; j < item.second; ++j) {

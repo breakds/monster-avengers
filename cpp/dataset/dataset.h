@@ -47,6 +47,7 @@ class Data {
   }
 
   static double EffectScore(const Effect &effect);
+  static int GetMultiplier(const ArmorSet &armor_set, const Arsenal &arsenal);
   
   // Data Loader 
   static void LoadBinary(const std::string &spec);
@@ -58,7 +59,6 @@ class Data {
   static void PrintArmor(const Armor &armor, int id, int verbose = 0,
                          Language language = CHINESE);
   static void PrintArmor(int id, int verbose = 0, Language language = CHINESE);
-  static int GetMultiplier(const ArmorSet &armor_set, const Arsenal &arsenal);
   static std::vector<Effect> GetSkillStats(
       const ArmorSet &armor_set, const Arsenal &arsenal);
   static void PrintArmorSet(const ArmorSet &armor_set,
