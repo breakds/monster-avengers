@@ -8,7 +8,11 @@ MESSAGE(STATUS "Sub Project Binary: ${PROJECT_BINARY_DIR}")
 
 INCLUDE_DIRECTORIES(".")
 
-ADD_EXECUTABLE(iterator_base_test base_test.cc)
-TARGET_LINK_LIBRARIES(iterator_base_test helpers)
+IF(BUILD_TESTS)
+  ADD_EXECUTABLE(iterator_base_test base_test.cc)
+  TARGET_LINK_LIBRARIES(iterator_base_test helpers)
+  SET_TARGET_PROPERTIES(iterator_base_test PROPERTIES 
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/unit-test")
+ENDIF(BUILD_TESTS)
 
 

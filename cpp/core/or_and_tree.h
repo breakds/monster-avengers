@@ -131,6 +131,23 @@ struct TempOr {
       : id(id_), points(points_) {}
 };
 
+// DEBUG(breakds) {
+std::map<int, int> map_stats = {};
+void PushStats(int size) {
+  if (map_stats.end() == map_stats.find(size)) {
+    map_stats[size] = 1;
+  } else {
+    map_stats[size]++;
+  }
+}
+
+void PrintStats() {
+  for (const auto &item : map_stats) {
+    wprintf(L"%d: %d\n", item.first, item.second);
+  }
+}
+// }
+
 class SkillSplitter {
  public:
   SkillSplitter(const Arsenal &arsenal,
@@ -300,6 +317,9 @@ class SkillSplitter {
         }
       }
     }
+    // DEBUG(breakds) {
+    PushStats(split_armors.size());
+    // }
   }
 
   int SplitOr(int or_id, int sub_min, 
@@ -308,6 +328,10 @@ class SkillSplitter {
     for (int and_id : pool_->Or(or_id).daughters) {
       SplitAnd(and_id, sub_min, &new_ands, multiplier);
     }
+
+    // DEBUG(breakds) {
+    PushStats(new_ands.size());
+    // }
 
     int result_max = -1000;
     if (!new_ands.empty()) {

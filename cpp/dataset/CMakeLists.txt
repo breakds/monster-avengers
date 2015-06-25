@@ -11,12 +11,6 @@ INCLUDE_DIRECTORIES(".")
 ADD_LIBRARY(properties STATIC base/properties.cc)
 TARGET_LINK_LIBRARIES(properties helpers)
 
-ADD_EXECUTABLE(properties_test base/properties_test.cc)
-TARGET_LINK_LIBRARIES(properties_test properties)
-
-ADD_EXECUTABLE(reindexed_table_test base/reindexed_table_test.cc)
-TARGET_LINK_LIBRARIES(reindexed_table_test helpers)
-
 ADD_LIBRARY(dataset STATIC dataset.cc)
 
 ADD_LIBRARY(binary_loader STATIC loader/binary_loader.cc)
@@ -28,6 +22,26 @@ TARGET_LINK_LIBRARIES(sqlite_loader dataset helpers -lsqlite3)
 ADD_LIBRARY(data_service STATIC data_service.cc)
 TARGET_LINK_LIBRARIES(data_service properties dataset helpers -lsqlite3)
 
-ADD_EXECUTABLE(dataset_test dataset_test.cc)
-TARGET_LINK_LIBRARIES(dataset_test dataset helpers data_service sqlite_loader binary_loader)
+# Unit Tests
+
+IF(BUILD_TESTS)
+  ADD_EXECUTABLE(properties_test base/properties_test.cc)
+  TARGET_LINK_LIBRARIES(properties_test properties)
+  SET_TARGET_PROPERTIES(properties_test PROPERTIES 
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/unit-test")
+
+  ADD_EXECUTABLE(reindexed_table_test base/reindexed_table_test.cc)
+  TARGET_LINK_LIBRARIES(reindexed_table_test helpers)
+  SET_TARGET_PROPERTIES(reindexed_table_test PROPERTIES 
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/unit-test")
+
+  ADD_EXECUTABLE(dataset_test dataset_test.cc)
+  TARGET_LINK_LIBRARIES(dataset_test dataset helpers data_service sqlite_loader binary_loader)
+  SET_TARGET_PROPERTIES(dataset_test PROPERTIES 
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/unit-test")
+ENDIF(BUILD_TESTS)
+
+
+
+
 

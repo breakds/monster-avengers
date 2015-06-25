@@ -54,6 +54,20 @@ void Data::AddPredefinedArmors() {
   }
 }
 
+Armor Data::CreateAmulet(const EffectList &effects, int slots) {
+  Armor amulet;
+  amulet.part = AMULET;
+  amulet.weapon_type = WEAPON_TYPE_BOTH;
+  amulet.gender = GENDER_BOTH;
+  amulet.rare = 11;
+  amulet.min_defense = 0;
+  amulet.max_defense = 0;
+  amulet.resistance = {0, 0, 0, 0, 0};
+  amulet.slots = slots;
+  amulet.effects = effects;
+  return amulet;
+}
+
 int Data::GetMultiplier(const ArmorSet &armor_set, const Arsenal &arsenal) {
   int multiplier = 1;
   for (int i = 0; i < PART_NUM; ++i) {

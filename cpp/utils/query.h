@@ -42,27 +42,32 @@ struct Query {
   ArmorFilter armor_filter;
   JewelFilter jewel_filter;
     
-  Query() : effects(), defense(0), armor_filter() {}
+  Query() : effects(), amulets(), defense(0), max_results(10),
+            armor_filter(), jewel_filter() {}
+            
+
+  void Clear() {
+    effects.clear();
+    amulets.clear();
+    defense = 0;
+    max_results = 10;
+
+    // Armor Filter
+    armor_filter.weapon_type = WEAPON_TYPE_MELEE;
+    armor_filter.weapon_slots = 0; // by default do not allow weapon slots.
+    armor_filter.min_rare = 0; // by default there is no rare limit.
+    armor_filter.max_rare = 11; // by default there is no rare limit.
+    armor_filter.gender = GENDER_MALE; // by default we look for male's armors.
+    armor_filter.blacklist.clear();
+    armor_filter.whitelist.clear();
+
+    // Jewel Filter
+    jewel_filter.blacklist.clear();
+  }
 
   // Implies conversion from string as well.
   static Status Parse(const std::wstring &query_text, Query *query) {
-    query->defense = 0;
-    query->effects.clear();
-    query->amulets.clear();
-    query->max_results = 10; // by default we are expecting 10 results.
-
-    // Armor Filter
-    query->armor_filter.weapon_type = WEAPON_TYPE_MELEE;
-    query->armor_filter.weapon_slots = 0; // by default do not allow weapon slots.
-    query->armor_filter.min_rare = 0; // by default there is no rare limit.
-    query->armor_filter.max_rare = 11; // by default there is no rare limit.
-    query->armor_filter.gender = GENDER_MALE; // by default we look for male's armors.
-    query->armor_filter.blacklist.clear();
-    query->armor_filter.whitelist.clear();
-      
-    // Jewel Filter
-    query->jewel_filter.blacklist.clear();
-
+    query->Clear();
 
     auto tokenizer = lisp::Tokenizer::FromText(query_text);
     lisp::Token token;

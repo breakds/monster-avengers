@@ -51,6 +51,7 @@ int main(int argc, char **argv) {
                              L"(:skill 37 10)" 
                              L"(:skill 31 10)"
                              // L"(:specify-armor (3026 3041 2682 2663 2309))"
+                             L"(:max-results 1000)"
                              L"(:amulet 2 (2 4 31 10))"
         		     L"(:gender \"female\")",
         		     // L"(:ban-jewels (163 164))",
@@ -78,10 +79,11 @@ int main(int argc, char **argv) {
   timer.Tic();
   std::vector<ArmorSet> result = std::move(armor_up.Search(query));
   double duration = timer.Toc();
-  for (const ArmorSet &armor_set : result) {
-    Data::PrintArmorSet(armor_set, armor_up.GetArsenal(), 1, CHINESE);
-  }
+  // for (const ArmorSet &armor_set : result) {
+  //   Data::PrintArmorSet(armor_set, armor_up.GetArsenal(), 1, CHINESE);
+  // }
   armor_up.Summarize();
+  PrintStats();
   wprintf(L"Initialization: %.4lf seconds.\n", init_duration);
   wprintf(L"Computation: %.4lf seconds.\n", duration);
 

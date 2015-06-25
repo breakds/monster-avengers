@@ -46,8 +46,10 @@ class Data {
     return skills_;
   }
 
+  // Utility Functions
   static double EffectScore(const Effect &effect);
   static int GetMultiplier(const ArmorSet &armor_set, const Arsenal &arsenal);
+  static Armor CreateAmulet(const EffectList &effects, int slots);
   
   // Data Loader 
   static void LoadBinary(const std::string &spec);
