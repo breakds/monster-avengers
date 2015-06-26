@@ -148,6 +148,20 @@ void PrintStats() {
 }
 // }
 
+void FindOrPush(int key, int value,
+                std::vector<std::pair<int, std::vector<int> > > *container) {
+  for (auto &item : *container) {
+    if (key == item.first) {
+      item.second.push_back(value);
+      return;
+    }
+  }
+  std::pair<int, std::vector<int> > new_item;
+  new_item.first = key;
+  new_item.second.push_back(value);
+  container->push_back(new_item);
+}
+
 class SkillSplitter {
  public:
   SkillSplitter(const Arsenal &arsenal,
@@ -186,7 +200,8 @@ class SkillSplitter {
   }
     
  private:
-  typedef std::unordered_map<int, std::vector<int> > PointsIdListMap;
+  // typedef std::unordered_map<int, std::vector<int> > PointsIdListMap;
+  typedef std::vector<std::pair<int, std::vector<int> > > PointsIdListMap;
     
   int MaxArmorOr(int or_id, int multiplier) const {
     int result = -1000;
@@ -232,12 +247,13 @@ class SkillSplitter {
       if (points > result_max) {
         result_max = points;
       }
-      auto it = new_armors->find(points);
-      if (new_armors->end() != it) {
-        it->second.push_back(armor_id);
-      } else {
-        (*new_armors)[points] = {armor_id};
-      }
+      FindOrPush(points, armor_id, new_armors);
+      // auto it = new_armors->find(points);
+      // if (new_armors->end() != it) {
+      //   it->second.push_back(armor_id);
+      // } else {
+      //   (*new_armors)[points] = {armor_id};
+      // }
     }
     return result_max;
   }
@@ -255,12 +271,14 @@ class SkillSplitter {
       if (points > result_max) {
         result_max = points;
       }
-      auto it = temp_map.find(points);
-      if (temp_map.end() != it) {
-        it->second.push_back(armor_id);
-      } else {
-        temp_map[points] = {armor_id};
-      }
+
+      FindOrPush(points, armor_id, &temp_map);
+      // auto it = temp_map.find(points);
+      // if (temp_map.end() != it) {
+      //   it->second.push_back(armor_id);
+      // } else {
+      //   temp_map[points] = {armor_id};
+      // }
     }
 
     // node may be invalid below due to MakeOR<ARMORS>().
@@ -307,12 +325,13 @@ class SkillSplitter {
           if (points >= sub_min) {
             int new_and_id = pool_->MakeAnd(left_or_id,
                                             right_item.id);
-            auto it = new_ands->find(points);
-            if (new_ands->end() != it) {
-              it->second.push_back(new_and_id);
-            } else {
-              (*new_ands)[points] = {new_and_id};
-            }
+            FindOrPush(points, new_and_id, new_ands);
+            // auto it = new_ands->find(points);
+            // if (new_ands->end() != it) {
+            //   it->second.push_back(new_and_id);
+            // } else {
+            //   (*new_ands)[points] = {new_and_id};
+            // }
           }
         }
       }
