@@ -26,5 +26,10 @@ IF(BUILD_TESTS)
   TARGET_LINK_LIBRARIES(signature_test helpers properties dataset sqlite_loader)
   SET_TARGET_PROPERTIES(signature_test PROPERTIES 
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/unit-test")
+
+  ADD_EXECUTABLE(tiny_map_test tiny_map_test.cc)
+  TARGET_LINK_LIBRARIES(tiny_map_test helpers)
+  SET_TARGET_PROPERTIES(tiny_map_test PROPERTIES 
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/unit-test")
 ENDIF(BUILD_TESTS)
 

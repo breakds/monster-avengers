@@ -13,6 +13,7 @@ template <typename ItemType>
 bool SetEqual(std::function<bool(const ItemType&, const ItemType&)> compare,
               const std::vector<Effect> &a,
               const std::vector<Effect> &b) {
+  // TODO(breakds): This logic is wrong, should be fixed.
   if (a.size() != b.size()) return false;
   for (int i = 0; i < a.size(); ++i) {
     bool found = false;
