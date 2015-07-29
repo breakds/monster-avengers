@@ -21,6 +21,9 @@
 
 namespace monster_avengers {
 
+template <class Container> using PartContainer =
+    std::array<Container, PART_NUM>;
+
 using dataset::Arsenal;
 using dataset::Data;
 
@@ -36,13 +39,9 @@ class ArmorUp {
     
   std::vector<TreeRoot> Foundation(const Query &query) {
     // Forest with no torso up.
-    std::array<std::vector<int>, PART_NUM> part_forests;
-    for (int part = HEAD; part < PART_NUM; ++part) {
-      part_forests[part] = 
-          std::move(ClassifyArmors(static_cast<ArmorPart>(part),
-                                   query));
-    }
-
+    PartContainer<std::vector<int> > part_forests
+        = std::move(ClassifyArmors(query));
+    
     std::vector<int> current;
     for (int part = HEAD; part < PART_NUM; ++part) {
       if (HEAD == part) {
@@ -63,7 +62,7 @@ class ArmorUp {
   }
 
   void SearchCore(const Query &query) {
-    // Add in custom armors
+    // Add in custom armors, which are provided in the query.
     InitializeArsenal(query);
 
     // Core Search
@@ -141,49 +140,46 @@ class ArmorUp {
       arsenal_.AddArmor(amulet);
     }
   }
-    
-  // Returns a vector of newly created or nodes' indices.
-  std::vector<int> ClassifyArmors(ArmorPart part,
-                                  const Query &query) {
-    std::unordered_map<Signature, std::vector<int> > armor_map;
+
+  std::array<std::vector<int>, PART_NUM> ClassifyArmors(const Query &query) {
+
+    PartContainer<std::vector<int> > part_forests;
 
     std::vector<Effect> effects;
-    int query_size = query.effects.size();
-    for (int i = 0; i < (std::min)(query_size, FOUNDATION_NUM); ++i) {
+    for (int i = 0; i < (std::min)(static_cast<int>(query.effects.size()),
+                                   FOUNDATION_NUM); ++i) {
       effects.push_back(query.effects[i]);
+      
     }
 
-#if DEBUG_VERBOSE > 1
-    wprintf(L"---------- Classify %s ----------\n",
-            StringifyEnum(part).c_str());
-#endif
-    // TODO(breakds): The for loop here needs optimization.
+    PartContainer<std::unordered_map<Signature, std::vector<int> > > armor_maps;
+
     for (int id = 0; id < arsenal_.size(); ++id) {
       const Armor &armor = arsenal_[id];
-      if (armor.part == part &&
-          query.armor_filter.Validate(armor, id)) {
-#if DEBUG_VERBOSE > 1
-        arsenal_.PrintArmor(id, 0);
-#endif
+      if (query.armor_filter.Validate(armor, id)) {
         Signature key(armor, effects);
-        auto it = armor_map.find(key);
-        if (armor_map.end() == it) {
-          armor_map[key] = {id};
+        auto it = armor_maps[armor.part].find(key);
+        if (armor_maps[armor.part].end() == it) {
+          armor_maps[armor.part][key] = {id};
         } else {
           it->second.push_back(id);
         }
       }
     }
 
-    std::vector<int> forest;
-    forest.reserve(armor_map.size());
-    for (auto &item : armor_map) {
-      forest.push_back(pool_.MakeOR<ARMORS>(item.first, 
-                                            &item.second));
-    }
-    return forest;
-  }
+    for (int part = HEAD; part < PART_NUM; ++part) {
+      part_forests[part].reserve(armor_maps[part].size());
 
+      for (auto &item :armor_maps[part]) {
+        part_forests[part].push_back(pool_.MakeOR<ARMORS>(
+            item.first, &item.second));
+      }
+    }
+
+    return part_forests;
+    
+  }
+    
   std::vector<int> MergeForests(const std::vector<int> &left_ors, 
                                 const std::vector<int> &right_ors, 
                                 bool is_body = false) {
