@@ -50,12 +50,23 @@ class Data {
   static double EffectScore(const Effect &effect);
   static int GetMultiplier(const ArmorSet &armor_set, const Arsenal &arsenal);
   static Armor CreateAmulet(const EffectList &effects, int slots);
+  static int GetTotalDefense(const ArmorSet &armor_set, const Arsenal &arsenal);
   
   // Data Loader 
   static void LoadBinary(const std::string &spec);
   static void LoadSQLite(const std::string &spec);
 
-  // Data Services
+  // Data Services: Names
+  static const std::wstring &GetSkillName(int internal_id,
+                                          Language language = CHINESE);
+
+  static const std::wstring &GetJewelName(int internal_id,
+                                          Language language = CHINESE);
+
+  static const std::wstring &GetArmorName(int internal_id,
+                                          Language language = CHINESE);
+
+  // Data Services: Stringifiers
   static void PrintSkill(int id, int verbose = 0, Language language = CHINESE);
   static void PrintJewel(int id, int verbose = 0, Language language = CHINESE);
   static void PrintArmor(const Armor &armor, int id, int verbose = 0,

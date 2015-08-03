@@ -12,6 +12,18 @@ namespace monster_avengers {
 
 namespace dataset {
 
+const std::wstring &Data::GetSkillName(int internal_id, Language language) {
+  return skill_addons_[internal_id].name[language];
+}
+
+const std::wstring &Data::GetJewelName(int internal_id, Language language) {
+  return jewel_addons_[internal_id].name[language];
+}
+
+const std::wstring &Data::GetArmorName(int internal_id, Language language) {
+  return armor_addons_[internal_id].name[language];
+}
+
 void Data::PrintSkill(int id, int verbose, Language language) {
   const SkillSystem &skill = skills_[id];
   const SkillSystemAddon &addon = skill_addons_[id];

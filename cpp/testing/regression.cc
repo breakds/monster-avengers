@@ -43,11 +43,11 @@ int main(int argc, char **argv) {
         continue;
       }
 
+      wprintf(L"\n------------------------------------------------------------\n");
       Data::PrintArmorSet(armor_set, armor_up.GetArsenal(), 1, CHINESE);
 
-      wprintf(L"------------------------------------------------------------\n");
       for (const VerificationMessage &message : errors) {
-        wprintf(L"[ERROR] %s: %s\n", message.tag.c_str(), message.detail.c_str());
+        message.Print();
       }
     }
     if (result.size() == num_passed) {
