@@ -25,14 +25,14 @@ int main(int argc, char **argv) {
   //                            &query));
   
 
-  // CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")"
-  //                            L"(:weapon-slots 0)" 
-  //                            L"(:rare 8)" 
-  //                            L"(:max-rare 10)"
-  //                            L"(:max-results 30)" 
-  //                            L"(:skill 5 40)"
-  //                            L"(:skill 30 20)",
-  //                            &query));
+  CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")"
+                             L"(:weapon-slots 0)" 
+                             L"(:rare 8)" 
+                             L"(:max-rare 10)"
+                             L"(:max-results 30)"
+                             L"(:skill 5 10)"
+                             L"(:skill 30 10)",
+                             &query));
 
   // CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
   //                            L"(:weapon-slots 2)"
@@ -42,20 +42,20 @@ int main(int argc, char **argv) {
   //                            &query));
   
   // Query that returns 6 skills
-  CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
-                             L"(:weapon-slots 2)"
-                             L"(:skill 26 15)"
-                             L"(:skill 2 10)"
-                             L"(:skill 41 15)"
-                             L"(:skill 42 10)"
-                             L"(:skill 37 10)" 
-                             L"(:skill 31 10)"
-                             // L"(:specify-armor (3026 3041 2682 2663 2309))"
-                             L"(:max-results 10)"
-                             L"(:amulet 2 (2 4 31 10))"
-        		     L"(:gender \"female\")",
-        		     // L"(:ban-jewels (163 164))",
-                             &query));
+  // CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")" 
+  //                            L"(:weapon-slots 2)"
+  //                            L"(:skill 26 15)"
+  //                            L"(:skill 2 10)"
+  //                            L"(:skill 41 15)"
+  //                            L"(:skill 42 10)"
+  //                            L"(:skill 37 10)" 
+  //                            L"(:skill 31 10)"
+  //                            // L"(:specify-armor (3026 3041 2682 2663 2309))"
+  //                            L"(:max-results 10)"
+  //                            L"(:amulet 2 (2 4 31 10))"
+  //       		     L"(:gender \"female\")",
+  //       		     // L"(:ban-jewels (163 164))",
+  //                            &query));
   
   // Query that does not return anything (time consuming)
   // CHECK_SUCCESS(Query::Parse(L"(:weapon-type \"melee\")"

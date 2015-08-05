@@ -10,8 +10,13 @@ INCLUDE_DIRECTORIES(".")
 
 # Copy Regression Queries to Target Directory
 FILE(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/regression")
+FILE(REMOVE_RECURSE DESTINATION "${CMAKE_BINARY_DIR}/regression/queries")
 FILE(COPY "${PROJECT_SOURCE_DIR}/queries" 
   DESTINATION "${CMAKE_BINARY_DIR}/regression")
+FILE(REMOVE_RECURSE DESTINATION "${CMAKE_BINARY_DIR}/regression/test.sh")
+FILE(COPY "${PROJECT_SOURCE_DIR}/test.sh" 
+  DESTINATION "${CMAKE_BINARY_DIR}/regression")
+
 
 # Binary to Run Regression Tests
 ADD_EXECUTABLE(regression regression.cc)
