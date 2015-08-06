@@ -166,6 +166,7 @@ void Data::LoadBinary(const std::string &spec) {
   ReadBinaryTable<SkillSystem>(&in, &skills_);
   ReadBinaryTable<Jewel>(&in, &jewels_);
   ReadBinaryTable<Armor>(&in, &armors_);
+  InternalizeEffectIds();
   AddPredefinedArmors();
 }
 

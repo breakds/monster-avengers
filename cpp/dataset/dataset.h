@@ -91,6 +91,9 @@ class Data {
   static ReindexedTable<SkillSystemAddon> skill_addons_;
   static ReindexedTable<Item> items_;
 
+  // Utils
+  static void InternalizeEffectIds();
+
   static void AddPredefinedArmors();
 };
 

@@ -112,6 +112,19 @@ int Data::GetTotalDefense(const ArmorSet &armor_set, const Arsenal &arsenal) {
   return defense;
 }
 
+void Data::InternalizeEffectIds() {
+  for (int i = 0; i < armors_.size(); ++i) {
+    for (Effect &effect : armors_[i].effects) {
+      effect.id = armors_.Internalize(effect.id);
+    }
+  }
+  for (int i = 0; i < jewels_.size(); ++i) {
+    for (Effect &effect : jewels_[i].effects) {
+      effect.id = jewels_.Internalize(effect.id);
+    }
+  }
+}
+
 }  // namespace dataset
 
 }  // namespace monster_avengers

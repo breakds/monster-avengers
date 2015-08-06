@@ -20,7 +20,7 @@ FILE(COPY "${PROJECT_SOURCE_DIR}/test.sh"
 
 # Binary to Run Regression Tests
 ADD_EXECUTABLE(regression regression.cc)
-TARGET_LINK_LIBRARIES(regression helpers sqlite_loader data_service)
+TARGET_LINK_LIBRARIES(regression helpers sqlite_loader binary_loader data_service)
 SET_TARGET_PROPERTIES(regression PROPERTIES 
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/regression")
 

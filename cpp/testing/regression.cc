@@ -37,6 +37,31 @@ std::string GetTestName(char *filename) {
   return test_name;
 }
 
+void LoadDataSet(const std::string &spec) {
+  static std::string sqlite_prefix = "sqlite:";
+  static std::string binary_prefix = "binary:";
+  
+  // Try sqlite loader
+  auto position = std::mismatch(sqlite_prefix.begin(),
+                                sqlite_prefix.end(),
+                                spec.begin());
+  if (sqlite_prefix.end() == position.first) {
+    Data::LoadSQLite(spec.substr(sqlite_prefix.size()));
+    return;
+  }
+
+  // Try binary loader
+  position = std::mismatch(sqlite_prefix.begin(),
+                                sqlite_prefix.end(),
+                                spec.begin());
+  if (binary_prefix.end() == position.first) {
+    Data::LoadBinary(spec.substr(binary_prefix.size()));
+    return;
+  }
+
+  // Default, sqlite loader
+  Data::LoadSQLite(spec);
+}
 
 // Arguments:
 // 1 - data set location
@@ -49,7 +74,7 @@ int main(int argc, char **argv) {
   }
 
   // Load Data set
-  Data::LoadSQLite(argv[1]);
+  LoadDataSet(argv[1]);
 
   // Prepare Timer
   Timer timer;
