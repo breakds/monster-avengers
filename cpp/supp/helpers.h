@@ -1,96 +1,70 @@
-#ifndef _MONSTER_AVENGERS_HELPERS_H_
-#define _MONSTER_AVENGERS_HELPERS_H_
+#ifndef _MONSTER_AVENGERS_SUPP_HELPERS_H_
+#define _MONSTER_AVENGERS_SUPP_HELPERS_H_
 
 #include <cstdio>
 #include <cwchar>
 #include <locale>
+#include <cstdarg>
 #if _WIN32
 #include <codecvt>
 #endif
 
 namespace monster_avengers {
-  // ---------- Locale ----------
 
-#if _WIN32
-  std::locale LOCALE_UTF8 = 
-    std::locale(std::locale(), new std::codecvt_utf8_utf16<wchar_t>());
-#else
-  std::locale LOCALE_UTF8 = std::locale("en_US.UTF-8");
-#endif
+// ---------- Locale ----------
+
+extern const std::locale LOCALE_UTF8;
     
-  // ---------- Log ----------
+// ---------- Log ----------
 
-  enum LogLevel {
-    INFO = 0,
-    OK = 1,
-    WARNING = 2,
-    FATAL = 3,
-  };
+enum LogLevel {
+  INFO = 0,
+  OK = 1,
+  WARNING = 2,
+  FATAL = 3,
+};
 
-  void Log(LogLevel level, const wchar_t *format, ...) {
-    fwprintf(stderr, L"%c[%dm", 27, 0);
+void Log(LogLevel level, const wchar_t *format, ...);
 
-    switch (level) {
-    case FATAL: 
-      fwprintf(stderr, L"%c[%d;%dm[Fail] %c[%dm", 27, 1, 31, 27, 0);
-      break;
-    case WARNING:
-      fwprintf(stderr, L"%c[%d;%dm[Warn] %c[%dm", 27, 0, 33, 27, 0);
-      break;
-    case OK:
-      fwprintf(stderr, L"%c[%d;%dm[ OK ] %c[%dm", 27, 0, 32, 27, 0);
-      break;
-    case INFO:
-      fwprintf(stderr, L"[Info] ");
-    }
-    
-    va_list argptr;
-    va_start(argptr, format);
-    vfwprintf(stderr, format, argptr);
-    va_end(argptr);
-    fwprintf(stderr, L"%c[%dm\n", 27, 0);
-    fflush(stderr);
-  }
+// ---------- Status ----------
 
-  // ---------- Status ----------
-
-  enum StatusName {
-    SUCCESS = 0,
-    FAIL = 1
-  };
+enum StatusName {
+  SUCCESS = 0,
+  FAIL = 1
+};
   
-  class Status {
-  public:
-    Status (StatusName name, std::string error_message)
+class Status {
+ public:
+  Status (StatusName name, std::string error_message)
       : name_(name), error_message_(error_message) {}
 
-    explicit Status(StatusName name) 
+  explicit Status(StatusName name) 
       : Status(name, "") {}
 
-    const Status &operator=(const Status &other) {
-      name_ = other.name_;
-      error_message_ = other.error_message_;
-      return *this;
-    }
+  const Status &operator=(const Status &other) {
+    name_ = other.name_;
+    error_message_ = other.error_message_;
+    return *this;
+  }
 
-    inline bool Success() {
-      return SUCCESS == name_;
-    }
+  inline bool Success() {
+    return SUCCESS == name_;
+  }
 
-    const std::string &message() {
-      return error_message_;
-    }
+  const std::string &message() {
+    return error_message_;
+  }
 
-    inline const std::string &Message() {
-      return error_message_;
-    }
+  inline const std::string &Message() {
+    return error_message_;
+  }
 
-  private:
-    StatusName name_;
-    std::string error_message_;
-  };
+ private:
+  StatusName name_;
+  std::string error_message_;
+};
 
-  // ---------- CHECK ----------
+// ---------- CHECK ----------
 
 #define CHECK(predicate) {                              \
     if (!(predicate)) {                                 \
@@ -100,13 +74,7 @@ namespace monster_avengers {
     }                                                   \
   }
 
-  void CheckSuccess(Status status, const char *file, int line) {
-    if (!status.Success()) {
-      Log(FATAL, L"CHECK_SUCCESS failed at %s:%d.", file, line);
-      Log(FATAL, L"%s", status.message().c_str());
-      exit(-1);
-    }
-  }
+void CheckSuccess(Status status, const char *file, int line);
 
 }  // namespace monster_avengers
 
@@ -115,4 +83,4 @@ namespace monster_avengers {
   }
 
 
-#endif // _MONSTER_AVENGERS_HELPERS_H_
+#endif // _MONSTER_AVENGERS_SUPP_HELPERS_H_

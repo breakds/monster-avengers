@@ -4,6 +4,7 @@
 #include <vector>
 #include <sstream>
 
+#include "supp/helpers.h"
 #include "lisp_object.h"
 #include "parser.h"
 
