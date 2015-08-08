@@ -3,9 +3,8 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 if [ $# -eq 0 ]; then
-    # $DIR/regression $HOME/Downloads/mh4g.db $(ls $DIR/queries/*)
-    $DIR/regression "binary:$HOME/Downloads/dump.bin" $(ls $DIR/queries/*)
+    $DIR/regression $HOME/Downloads/mh4g.db $(ls $DIR/queries/*)
 else
-    $DIR/regression "sqlite:$HOME/Downloads/mh4g.db" $DIR/queries/$1.lisp
+    $DIR/regression $HOME/Downloads/mh4g.db $DIR/queries/$1.lisp
 fi
 

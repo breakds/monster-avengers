@@ -5,6 +5,7 @@
 #include "dataset/dataset.h"
 #include "supp/helpers.h"
 #include "supp/timer.h"
+#include "utils/formatter.h"
 #include "verifier.h"
 
 using namespace monster_avengers;
@@ -47,24 +48,25 @@ inline bool IsPrefix(const std::string prefix,
   return prefix.end() == prefix_iter;
 }
 
-void LoadDataSet(const std::string &spec) {
+std::string LoadDataSet(const std::string &spec) {
   static std::string sqlite_prefix = "sqlite:";
   static std::string binary_prefix = "binary:";
   
   // Try matching sqlite prefix.
   if (IsPrefix(sqlite_prefix, spec)) {
     Data::LoadSQLite(spec.substr(sqlite_prefix.size()));
-    return;
+    return "sqlite";
   }
 
   // Try matching binary prefix.
   if (IsPrefix(binary_prefix, spec)) {
     Data::LoadBinary(spec.substr(binary_prefix.size()));
-    return;
+    return "binary";
   }
 
   // Default, sqlite loader
   Data::LoadSQLite(spec);
+  return "sqlite";
 }
 
 // Arguments:
@@ -78,7 +80,7 @@ int main(int argc, char **argv) {
   }
 
   // Load Data set
-  LoadDataSet(argv[1]);
+  std::string data_type = LoadDataSet(argv[1]);
 
   // Prepare Timer
   Timer timer;
@@ -103,18 +105,28 @@ int main(int argc, char **argv) {
     double duration = timer.Toc();
     Log(INFO, L"Time elapsed for query: %.4lf seconds.", duration);
 
-
+    // Just output in Dex format if we accept binary data.
+    if ("binary" == data_type) {
+      DexFormatter formatter(&armor_up.GetArsenal());
+      wprintf(L"%s\n", formatter.StringBatchFormat(result).c_str());
+    }
+    
     int num_passed = 0;
     for (const ArmorSet &armor_set : result) {
       std::vector<VerificationMessage> errors =
           VerifyArmorSet(armor_up.GetArsenal(), query, armor_set);
       if (errors.empty()) {
         num_passed++;
-        continue;
       }
 
-      wprintf(L"\n");
-      Data::PrintArmorSet(armor_set, armor_up.GetArsenal(), 1, CHINESE);
+      if (argc == 3 || !errors.empty()) {
+        if ("sqlite" == data_type) {
+          wprintf(L"\n");
+          Data::PrintArmorSet(armor_set, armor_up.GetArsenal(), 1, CHINESE);
+        }
+      } else {
+        continue;
+      }
 
       for (const VerificationMessage &message : errors) {
         message.Print();
