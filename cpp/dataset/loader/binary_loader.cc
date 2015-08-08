@@ -174,7 +174,7 @@ void Data::LoadBinary(const std::string &spec) {
   ReadBinaryTable<Jewel>(&in, &jewels_);
   ReadBinaryTable<Armor>(&in, &armors_);
   InternalizeEffectIds();
-  AddPredefinedArmors();
+  AddPredefinedArmors(false);  // No addons
 }
 
 }  // namespace dataset

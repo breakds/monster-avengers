@@ -14,13 +14,12 @@ ReindexedTable<ArmorAddon> Data::armor_addons_;
 ReindexedTable<JewelAddon> Data::jewel_addons_;
 ReindexedTable<SkillSystemAddon> Data::skill_addons_;
 
-void Data::AddPredefinedArmors() {
+void Data::AddPredefinedArmors(bool with_addon) {
   int external_id = 170000;
 
   // Gears
   for (int i = 0; i < 4; ++i) {
     Armor armor;
-    ArmorAddon addon;
     armor.part = GEAR;
     armor.gender = GENDER_BOTH;
     armor.rare = 10;
@@ -28,17 +27,19 @@ void Data::AddPredefinedArmors() {
     armor.max_defense = 0;
     armor.resistance = Resistance{0, 0, 0, 0, 0};
     armor.slots = i;
-    addon.name[ENGLISH] = L"Weapon";
-    addon.name[CHINESE] = L"武器";
-    addon.name[JAPANESE] = L"武器";
     armors_.Add(armor, ++external_id);
-    armor_addons_.Update(addon, external_id);
+    if (with_addon) {
+      ArmorAddon addon;
+      addon.name[ENGLISH] = L"Weapon";
+      addon.name[CHINESE] = L"武器";
+      addon.name[JAPANESE] = L"武器";
+      armor_addons_.Update(addon, external_id);
+    }
   }
 
   // Amulets
   {
     Armor amulet;
-    ArmorAddon addon;
     amulet.part = AMULET;
     amulet.gender = GENDER_BOTH;
     amulet.rare = 10;
@@ -46,11 +47,14 @@ void Data::AddPredefinedArmors() {
     amulet.max_defense = 0;
     amulet.resistance = Resistance{0, 0, 0, 0, 0};
     amulet.slots = 0;
-    addon.name[ENGLISH] = L"Amulet";
-    addon.name[CHINESE] = L"护石";
-    addon.name[JAPANESE] = L"护石";
     armors_.Add(amulet, ++external_id);
-    armor_addons_.Update(addon, external_id);
+    if (with_addon) {
+      ArmorAddon addon;
+      addon.name[ENGLISH] = L"Amulet";
+      addon.name[CHINESE] = L"护石";
+      addon.name[JAPANESE] = L"护石";
+      armor_addons_.Update(addon, external_id);
+    }
   }
 }
 
@@ -115,12 +119,12 @@ int Data::GetTotalDefense(const ArmorSet &armor_set, const Arsenal &arsenal) {
 void Data::InternalizeEffectIds() {
   for (int i = 0; i < armors_.size(); ++i) {
     for (Effect &effect : armors_[i].effects) {
-      effect.id = armors_.Internalize(effect.id);
+      effect.id = skills_.Internalize(effect.id);
     }
   }
   for (int i = 0; i < jewels_.size(); ++i) {
     for (Effect &effect : jewels_[i].effects) {
-      effect.id = jewels_.Internalize(effect.id);
+      effect.id = skills_.Internalize(effect.id);
     }
   }
 }

@@ -94,7 +94,7 @@ class Data {
   // Utils
   static void InternalizeEffectIds();
 
-  static void AddPredefinedArmors();
+  static void AddPredefinedArmors(bool with_addon = true);
 };
 
 class Arsenal {
