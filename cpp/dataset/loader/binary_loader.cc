@@ -141,6 +141,7 @@ Resistance ReadBinaryObject<Resistance>(std::ifstream *in) {
 
 template <>
 Armor ReadBinaryObject<Armor>(std::ifstream *in, int *external_id) {
+  // DEBUG(breakds) ----
   Armor armor;
   in->read(reinterpret_cast<char*>(external_id), sizeof(int32_t));
   armor.part = ReadBinaryObject<ArmorPart>(in);
@@ -161,8 +162,14 @@ void Data::LoadBinary(const std::string &spec) {
   armors_.ResetIndexMap();
   jewels_.ResetIndexMap();
   skills_.ResetIndexMap();
-
   std::ifstream in(spec, std::ifstream::in | std::ios::binary);
+  
+  // Check non-magic number
+  {
+    int magic = 0;
+    in.read(reinterpret_cast<char*>(&magic), sizeof(int32_t));
+    CHECK(7 == magic);
+  }
   ReadBinaryTable<SkillSystem>(&in, &skills_);
   ReadBinaryTable<Jewel>(&in, &jewels_);
   ReadBinaryTable<Armor>(&in, &armors_);

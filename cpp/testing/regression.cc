@@ -37,24 +37,28 @@ std::string GetTestName(char *filename) {
   return test_name;
 }
 
+inline bool IsPrefix(const std::string prefix,
+                     const std::string target) {
+  auto prefix_iter = prefix.begin();
+  auto target_iter = target.begin();
+  while ((prefix_iter != prefix.end()) &&
+         (target_iter != target.end()) &&
+         (*(prefix_iter++) == *(target_iter++)));
+  return prefix.end() == prefix_iter;
+}
+
 void LoadDataSet(const std::string &spec) {
   static std::string sqlite_prefix = "sqlite:";
   static std::string binary_prefix = "binary:";
   
-  // Try sqlite loader
-  auto position = std::mismatch(sqlite_prefix.begin(),
-                                sqlite_prefix.end(),
-                                spec.begin());
-  if (sqlite_prefix.end() == position.first) {
+  // Try matching sqlite prefix.
+  if (IsPrefix(sqlite_prefix, spec)) {
     Data::LoadSQLite(spec.substr(sqlite_prefix.size()));
     return;
   }
 
-  // Try binary loader
-  position = std::mismatch(sqlite_prefix.begin(),
-                                sqlite_prefix.end(),
-                                spec.begin());
-  if (binary_prefix.end() == position.first) {
+  // Try matching binary prefix.
+  if (IsPrefix(binary_prefix, spec)) {
     Data::LoadBinary(spec.substr(binary_prefix.size()));
     return;
   }
