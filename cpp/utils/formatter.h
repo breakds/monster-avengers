@@ -55,6 +55,7 @@ class DexFormatter : public ArmorSetFormatter {
                  armor_set.jewels[part],
                  out);
     }
+	(*out) << ")\n";
   }
 
  private:
@@ -77,6 +78,21 @@ class DexFormatter : public ArmorSetFormatter {
       effect_buffer.push_back(effect.points);
     }
     WriteVector(effect_buffer, out);    
+  }
+
+  static void WriteJewels(const JewelSet &jewels, std::ostream *out) {
+	  (*out) << "(";
+	  bool first = true;
+	  for (int jewel_id : jewels) {
+		  int external_id = Data::jewels().Externalize(jewel_id);
+		  if (!first) {
+			  (*out) << " ";
+		  } else {
+			  first = false;
+		  }
+		  (*out) << external_id;
+	  }
+	  (*out) << ")";
   }
   
   void WriteArmor(int armor_id, const JewelSet &jewels,
@@ -107,8 +123,8 @@ class DexFormatter : public ArmorSetFormatter {
 
     // Write jewel ids and close the parenthesis
     (*out) << " ";
-    WriteVector(jewels, out);
-    (*out) << ")\n";
+    WriteJewels(jewels, out);
+    (*out) << ")";
   }
 };
 
