@@ -7,23 +7,29 @@
 #include "supp/timer.h"
 #include "core/armor_up.h"
 #include "utils/query.h"
+#include "utils/formatter.h"
 
 using namespace monster_avengers;
-std::string result;
+std::vector<ArmorSet> result;
+std::unique_ptr<DexFormatter> formatter;
 std::unique_ptr<ArmorUp> armor_up;
+std::string text_response;
 
 extern "C"
 {
 	__declspec(dllexport) void Initialize(const char *dataset) {
-		armor_up.reset(new ArmorUp(dataset));
+		Data::LoadBinary(dataset);
+		armor_up.reset(new ArmorUp);
+		formatter.reset(new DexFormatter(&armor_up->GetArsenal()));
 	}
+
 	__declspec(dllexport) const char *DoSearch(const wchar_t* text) {
 		std::wstring query_text = text;
 		Query query;
 		CHECK_SUCCESS(Query::Parse(query_text, &query));
-		query.DebugPrint();
-		result = armor_up->SearchEncoded(query);
-		return result.c_str();
+		result = std::move(armor_up->Search(query));
+		text_response = formatter->StringBatchFormat(result);
+		return text_response.c_str();
 	}
 }
 

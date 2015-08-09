@@ -342,7 +342,7 @@ class Finalizer : public Iterator<ArmorSet> {
       }
       
       int num_fetched_jewel_plans =
-          std::min(max_per_set_, static_cast<int>(raw.jewel_keys.size()));
+          (std::min)(max_per_set_, static_cast<int>(raw.jewel_keys.size()));
 
       // TODO(breakds): should rank based on occupied slots.
       for (int i = 0; i < num_fetched_jewel_plans; ++i) {
