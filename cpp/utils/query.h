@@ -153,24 +153,30 @@ struct Query {
           nums.clear();
           nums = lisp::ParseList<int>::Do(&tokenizer);
           for (int i : nums) {
-            query->armor_filter.blacklist.insert(
-                Data::armors().Internalize(i));
+            if (Data::armors().HasExternalId(i)) {
+              query->armor_filter.blacklist.insert(
+                  Data::armors().Internalize(i));
+            }
           }
           break;
         case SPECIFY_ARMOR:
           nums.clear();
           nums = lisp::ParseList<int>::Do(&tokenizer);
           for (int i : nums) {
-            query->armor_filter.whitelist.insert(
-                Data::armors().Internalize(i));
+            if (Data::armors().HasExternalId(i)) {
+              query->armor_filter.whitelist.insert(
+                  Data::armors().Internalize(i));
+            }
           }
           break;
         case JEWEL_BLACKLIST:
           nums.clear();
           nums = lisp::ParseList<int>::Do(&tokenizer);
           for (int i : nums) {
-            query->jewel_filter.blacklist.insert(
-                Data::jewels().Internalize(i));
+            if (Data::jewels().HasExternalId(i)) {
+              query->jewel_filter.blacklist.insert(
+                  Data::jewels().Internalize(i));
+            }
           }
           break;
         default:
