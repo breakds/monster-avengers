@@ -30,7 +30,8 @@ struct Query {
     BLACKLIST,
     JEWEL_BLACKLIST,
     GENDER,
-    SPECIFY_ARMOR
+    SPECIFY_ARMOR,
+    ALLOW_NEGATIVE_SKILL
   };
 
   static const std::unordered_map<std::wstring, Command> COMMAND_TRANSLATOR;
@@ -39,11 +40,12 @@ struct Query {
   std::vector<Armor> amulets;
   int defense;
   int max_results;
+  bool allow_negative;
   ArmorFilter armor_filter;
   JewelFilter jewel_filter;
     
   Query() : effects(), amulets(), defense(0), max_results(10),
-            armor_filter(), jewel_filter() {}
+            allow_negative(false), armor_filter(), jewel_filter() {}
             
 
   void Clear() {
@@ -316,6 +318,7 @@ Query::COMMAND_TRANSLATOR =
  {L"gender", GENDER},
  {L"specify-armor", SPECIFY_ARMOR},
  {L"ban-jewels", JEWEL_BLACKLIST},
+ {L"allow-negative-skill", ALLOW_NEGATIVE_SKILL},
 };
 }
 
