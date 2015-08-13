@@ -31,7 +31,7 @@ struct Query {
     JEWEL_BLACKLIST,
     GENDER,
     SPECIFY_ARMOR,
-    ALLOW_NEGATIVE_SKILL
+    AVOID_NEGATIVE_SKILL
   };
 
   static const std::unordered_map<std::wstring, Command> COMMAND_TRANSLATOR;
@@ -40,12 +40,12 @@ struct Query {
   std::vector<Armor> amulets;
   int defense;
   int max_results;
-  bool allow_negative;
+  bool avoid_negative;
   ArmorFilter armor_filter;
   JewelFilter jewel_filter;
     
   Query() : effects(), amulets(), defense(0), max_results(10),
-            allow_negative(false), armor_filter(), jewel_filter() {}
+            avoid_negative(false), armor_filter(), jewel_filter() {}
             
 
   void Clear() {
@@ -181,6 +181,10 @@ struct Query {
             }
           }
           break;
+        case AVOID_NEGATIVE_SKILL:
+          status = ReadBool(&tokenizer, &query->avoid_negative);
+          if (!status.Success()) return status;
+          break;
         default:
           return Status(FAIL, "Query: Invalid command.");
       }
@@ -264,6 +268,27 @@ struct Query {
     return Status(SUCCESS);
   }
 
+  static Status ReadBool(lisp::Tokenizer *tokenizer, bool *result) {
+    lisp::Token token;
+    *result = false;
+        
+    if (!tokenizer->Next(&token)) {
+      return Status(FAIL, "Query: Unexpected end of query.");
+    }
+
+    if (lisp::TRUE_VALUE == token.name) {
+      *result = true;
+      return Status(SUCCESS);
+    }
+
+    if (lisp::NIL == token.name) {
+      *result = false;
+      return Status(SUCCESS);
+    }
+
+    return Status(FAIL, "Query: Unexpected boolean value.");
+  }
+  
   static Status ReadWeaponType(lisp::Tokenizer *tokenizer, 
                                WeaponType *type) {
     lisp::Token token;
@@ -318,7 +343,7 @@ Query::COMMAND_TRANSLATOR =
  {L"gender", GENDER},
  {L"specify-armor", SPECIFY_ARMOR},
  {L"ban-jewels", JEWEL_BLACKLIST},
- {L"allow-negative-skill", ALLOW_NEGATIVE_SKILL},
+ {L"avoid-negative-skill", AVOID_NEGATIVE_SKILL},
 };
 }
 

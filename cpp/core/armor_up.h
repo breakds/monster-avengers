@@ -109,7 +109,9 @@ class ArmorUp {
       indices.push_back(i);
       scores.push_back(Data::EffectScore(effect));
 #if DEBUG_VERBOSE > 0
-      wprintf(L"(%03d) %.05lf\n", effect.id, scores.back());
+      wprintf(L"(%03d)%ls %.05lf\n", effect.id,
+              Data::GetSkillName(effect.id).c_str(),
+              scores.back());
 #endif
     }
       

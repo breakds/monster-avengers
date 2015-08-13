@@ -317,6 +317,51 @@ class DefensePruner : public Iterator<RawArmorSet> {
   int min_defense_;
 };
 
+// class NegativeSkillPruner : public Iterator<RawArmorSet> {
+//  public:
+//   NegativeSkillPruner(Iterator<RawArmorSet> *source,
+//                       const Arsenal *arsenal)
+//       : source_(source), arsenal_(arsenal) {}
+
+//   inline bool Empty() const override {
+//     return source_->Empty();
+//   }
+
+//   inline bool Next() override {
+//     while (source_->Next()) {
+//       const RawArmorSet &armor_set = source_->Get();
+//       std::vector<Effect> effects = std::move(
+//           Data::GetSkillStats(armor_set, *arsenal_));
+
+//       // Checking for negative skills
+//       bool pass = true;
+//       for (const Effect &effect : effects) {
+//         // TODO(breakds): -10 is the simplified threshold. Should be
+//         // based on the actual skill data.
+//         int threshold = -10;
+//         if (effect.points <= threshold) {
+//           pass = false;
+//           break;
+//         }
+//       }
+//       if (pass) return true;
+//     }
+//     return false;
+//   }
+  
+//   inline const RawArmorSet &Get() const override {
+//     return source_->Get();
+//   }
+
+//   inline void Reset() override {
+//     source_->Reset();
+//   }
+
+//  private:
+//   Iterator<RawArmorSet> *source_;
+//   const Arsenal *arsenal_;
+// };
+
 class Finalizer : public Iterator<ArmorSet> {
  public:
   Finalizer(Iterator<RawArmorSet> *source,

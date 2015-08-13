@@ -87,7 +87,7 @@ double Data::EffectScore(const Effect &effect) {
   
   for (int i = 0; i < armors_.size(); ++i) {
     for (const Effect &armor_effect : armors_[i].effects) {
-      if (armor_effect.id == effect.id) {
+      if (armor_effect.id == effect.id && armor_effect.points > 0) {
         armor_count++;
         break;
       }
@@ -98,14 +98,14 @@ double Data::EffectScore(const Effect &effect) {
   for (int i = 0; i < jewels_.size(); ++i) {
     const Jewel &jewel = jewels_[i];
     for (const Effect &jewel_effect : jewel.effects) {
-      if (jewel_effect.id == effect.id) {
+      if (jewel_effect.id == effect.id && jewel_effect.points > 0) {
         jewel_index += static_cast<double>(jewel_effect.points) / jewel.slots
             * std::exp(-jewel.slots * 0.1);
       }
     }
   }
   
-  return std::exp(0.1 * jewel_index - 0.3 * effect.points) * armor_count;
+  return std::exp(0.1 * jewel_index - 0.05 * effect.points) * armor_count;
 }
 
 int Data::GetTotalDefense(const ArmorSet &armor_set, const Arsenal &arsenal) {
