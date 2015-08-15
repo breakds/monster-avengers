@@ -17,7 +17,7 @@
 
 
 
-#define DEBUG_VERBOSE 0
+#define DEBUG_VERBOSE 1
 
 namespace monster_avengers {
 
@@ -61,9 +61,27 @@ class ArmorUp {
     return result;
   }
 
+  void TestSearch(const Query &query) {
+    // Add in custom armors, which are provided in the query.
+    InitializeArsenal(query);
+
+    // Initialization
+    pool_.Reset();
+    iterators_.clear();
+
+    // Core Search
+    CHECK_SUCCESS(ApplyFoundation(query));
+    CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, 0,
+                                         query.jewel_filter));
+  }
+
   void SearchCore(const Query &query) {
     // Add in custom armors, which are provided in the query.
     InitializeArsenal(query);
+
+    // Initialization
+    pool_.Reset();
+    iterators_.clear();
 
     // Core Search
     CHECK_SUCCESS(ApplyFoundation(query));
@@ -104,25 +122,34 @@ class ArmorUp {
   Query OptimizeQuery(const Query &query) {
     std::vector<double> scores;
     std::vector<int> indices;
+    
     for (int i = 0; i < query.effects.size(); ++i) {
-      const Effect &effect = query.effects[i];
+      Query fake_query = query;
+      fake_query.effects.clear();
+      fake_query.effects.push_back(query.effects[i]);
+      TestSearch(fake_query);
+      auto *last = CastIterator<TreeRoot>(iterators_.back().get());
+      size_t count = 0;
+      while (last->Next()) count++;
+      wprintf(L"%d: %llu\n", i, count);
+      scores.push_back(count);
       indices.push_back(i);
-      scores.push_back(Data::EffectScore(effect));
-#if DEBUG_VERBOSE > 0
-      wprintf(L"(%03d)%ls %.05lf\n", effect.id,
-              Data::GetSkillName(effect.id).c_str(),
-              scores.back());
-#endif
     }
-      
+    
     std::sort(indices.begin(), indices.end(), 
               [&scores](int a, int b) {
                 return scores[a] < scores[b];
     });
+
     Query optimized = query;
     optimized.effects.clear();
     for (int i = 0; i < query.effects.size(); ++i) {
       optimized.effects.push_back(query.effects[indices[i]]);
+#if DEBUG_VERBOSE > 0
+      wprintf(L"(%03d)%ls %.05lf\n", optimized.effects[i].id,
+              Data::GetSkillName(optimized.effects[i].id).c_str(),
+              scores.back());
+#endif
     }
     return optimized;
   }
@@ -215,7 +242,6 @@ class ArmorUp {
   }
 
   Status ApplyFoundation(const Query &query) {
-    iterators_.clear();
     iterators_.emplace_back(new ListIterator<TreeRoot>(
         Foundation(query)));
     return Status(SUCCESS);

@@ -107,6 +107,12 @@ class NodePool {
     and_pool_.resize(snapshots_.back().and_size);
   }
 
+  inline void Reset() {
+    or_pool_.clear();
+    and_pool_.clear();
+    snapshots_.clear();
+  }
+
  private:
   std::vector<OR> or_pool_;
   std::vector<AND> and_pool_;

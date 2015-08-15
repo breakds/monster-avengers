@@ -105,7 +105,7 @@ double Data::EffectScore(const Effect &effect) {
     }
   }
   
-  return std::exp(0.1 * jewel_index - 0.05 * effect.points) * armor_count;
+  return std::exp(0.1 * jewel_index - 0.3 * effect.points) * armor_count;
 }
 
 int Data::GetTotalDefense(const ArmorSet &armor_set, const Arsenal &arsenal) {
