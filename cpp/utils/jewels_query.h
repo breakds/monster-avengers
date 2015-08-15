@@ -64,9 +64,6 @@ class SlotClient {
                                                     int k,
                                                     int extra,
                                                     int multiplier) {
-    // DEBUG(breakds) {
-    wprintf(L"%d, %d, %d, %d, %d\n", i, j, k, extra, multiplier);
-    // }
     return Calculate(i, j, k, extra, multiplier);
   }
 
@@ -204,7 +201,7 @@ class SlotClient {
     if (!buffer_[index].empty()) {
       return buffer_[index];
     }
-        
+
     if (0 == j && 0 == k) {
       return Calculate(i);
     }
@@ -215,8 +212,10 @@ class SlotClient {
 
     SetProduct(Calculate(i, j), CalculateFixed(3, k),
                &buffer_[index]);
+
     SetUnion(Calculate(i + 1, j + 1, k - 1),
              &buffer_[index]);
+
     return buffer_[index];
   }
 

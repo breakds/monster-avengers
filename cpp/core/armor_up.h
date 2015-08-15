@@ -82,6 +82,8 @@ class ArmorUp {
     // Initialization
     pool_.Reset();
     iterators_.clear();
+    slot_clients_.clear();
+    splitters_.clear();
     
     // Core Search
     CHECK_SUCCESS(ApplyFoundation(query));
@@ -93,19 +95,16 @@ class ArmorUp {
     }
 
     // Prepare SlotClients and Splitters
-    std::vector<SlotClient> slot_clients;
-    std::vector<SkillSplitter> splitters;
     for (int i = 0; i < query.effects.size(); ++i) {
-      slot_clients.emplace_back(query.effects[i].id,
-                                query.effects,
-                                query.jewel_filter);
-      splitters.emplace_back(arsenal_, &pool_, i,
-                             query.effects[i].id);
+      slot_clients_.emplace_back(query.effects[i].id,
+                                 query.effects,
+                                 query.jewel_filter);
+      splitters_.emplace_back(arsenal_, &pool_, i,
+                              query.effects[i].id);
     }
 
     for (int i = foundations; i < query.effects.size(); ++i) {
-      CHECK_SUCCESS(ApplySkillSplitter(
-          query, i, slot_clients, splitters));
+      CHECK_SUCCESS(ApplySkillSplitter(query, i));
     }
     CHECK_SUCCESS(PrepareOutput());
     CHECK_SUCCESS(ApplyDefenseFilter(query));
@@ -168,8 +167,8 @@ class ArmorUp {
 
   // ----- For Debugging -----
   void Summarize() {
-    Log(INFO, L"OR Nodes: %lld\n", pool_.OrSize());
-    Log(INFO, L"AND Nodes: %lld\n", pool_.AndSize());
+    Log(INFO, L"OR Nodes: %lld", pool_.OrSize());
+    Log(INFO, L"AND Nodes: %lld", pool_.AndSize());
   } 
 
  private:
@@ -269,15 +268,11 @@ class ArmorUp {
     return Status(SUCCESS);
   }
 
-  Status ApplySkillSplitter(
-      const Query &query,
-      int effect_id,
-      std::vector<SlotClient> &slot_clients,
-      std::vector<SkillSplitter> &splitters) {
+  Status ApplySkillSplitter(const Query &query, int effect_id) {
     iterators_.emplace_back(new SkillSplitPruner(
         CastIterator<TreeRoot>(iterators_.back().get()),
         arsenal_, &pool_, effect_id,
-        &slot_clients, &splitters, query));
+        &slot_clients_, &splitters_, query));
     return Status(SUCCESS);
   }
   
@@ -304,6 +299,8 @@ class ArmorUp {
     
   Arsenal arsenal_;
   NodePool pool_;
+  std::vector<SlotClient> slot_clients_;
+  std::vector<SkillSplitter> splitters_;
   std::vector<std::unique_ptr<BaseIterator> > iterators_;
 };
 }

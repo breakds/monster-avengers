@@ -226,6 +226,23 @@ inline Signature InverseKey(std::vector<Effect>::const_iterator begin,
   return key;
 }
 
+inline Signature InverseKey(const std::vector<Effect> &effects,
+                            const std::vector<bool> &mask) {
+  Signature key;
+  char *bytes = reinterpret_cast<char*>(&key);
+      
+  int byte_id = EFFECTS_BEGIN;
+  for (int i = 0; i < effects.size(); ++i) {
+    if (mask[i]) {
+      bytes[byte_id] = -effects[i].points;
+    } else {
+      bytes[byte_id] = 0;
+    }
+    byte_id++;
+  }
+  return key;
+}
+
 inline Signature InverseKey(Signature input_key) {
   Signature key = input_key;
   key.bytes[0] = 0;

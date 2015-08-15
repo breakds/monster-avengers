@@ -103,6 +103,7 @@ int main(int argc, char **argv) {
     timer.Tic();
     std::vector<ArmorSet> result = std::move(armor_up.Search(query));
     double duration = timer.Toc();
+    armor_up.Summarize();
     Log(INFO, L"Time elapsed for query: %.4lf seconds.", duration);
 
     // Just output in Dex format if we accept binary data.

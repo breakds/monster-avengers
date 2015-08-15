@@ -99,18 +99,58 @@ class SkillSplitPruner : public Iterator<TreeRoot> {
                    int effect_id,
                    std::vector<SlotClient> *slot_clients,
                    std::vector<SkillSplitter> *splitters,
-                   const Query &query)
-      : source_(source), pool_(pool), 
-        splitters_(splitters),
-        slot_clients_(slot_clients),
-        effect_id_(effect_id),
-        required_points_(query.effects[effect_id].points),
-        inverse_points_(sig::InverseKey(query.effects.begin(), 
-                                        query.effects.begin() + effect_id + 1)) {}
+                   const Query &query) :
+      source_(source), pool_(pool), 
+      splitters_(splitters),
+      slot_clients_(slot_clients),
+      effect_id_(effect_id),
+      required_points_(query.effects[effect_id].points),
+      inverse_points_(sig::InverseKey(query.effects.begin(), 
+                                      query.effects.begin() + effect_id + 1)) {
+    std::vector<bool> mask(splitters->size(), false);
+    for (int i = 0; i < effect_id; ++i) {
+      mask[i] = true;
+    }
+    per_effect_inverses_.resize(mask.size());
+    for (int i = effect_id; i < splitters->size(); ++i) {
+      mask[i] = true;
+      per_effect_inverses_[i] = sig::InverseKey(query.effects, mask);
+      mask[i] = false;
+    }
+  }
 
   inline bool Empty() const override {
     return buffer_.empty() && source_->Empty();
-  }  
+  }
+
+  inline bool PreFilter(const TreeRoot &root) {
+    int one(0), two(0), three(0), body_holes(0);
+    const OR &node = pool_->Or(root.id);
+    for (int i = effect_id_ + 1; i < splitters_->size(); ++i) {
+      int sub_max = (*splitters_)[i].Max(root);
+      Signature key0 = sig::AddPoints(node.key, effect_id_, sub_max);
+
+      bool pass = false;
+
+      for (const Signature &jewel_key : root.jewel_keys) {
+        SlotClient::GetResidual(node.key, jewel_key,
+                                &one, &two, &three, &body_holes);
+        for (const Signature &new_key : (*slot_clients_)[effect_id_].Query(
+                 one, two, three, body_holes, root.torso_multiplier)) {
+          Signature key1 = jewel_key + new_key;
+          if (sig::Satisfy(key0 | key1, per_effect_inverses_[i])) {
+            pass = true;
+            break;
+          }
+        }
+        if (pass) break;
+      }
+
+      if (!pass) return false;
+    }
+
+    return true;
+  }
 
   inline bool Next() override {
     if (!buffer_.empty()) buffer_.pop_back();
@@ -118,35 +158,33 @@ class SkillSplitPruner : public Iterator<TreeRoot> {
     
     while (source_->Next()) {
       const TreeRoot root = source_->Get();
-      const OR &node = pool_->Or(root.id);
-      int one(0), two(0), three(0), body_holes(0);
-
-      int sub_max = (*splitters_)[effect_id_].Max(root);
-      // DEBUG(breakds) {
-      wprintf(L"ok!\n");
-      // }
-      int sub_min = 1000;
-      Signature key0 = sig::AddPoints(node.key, effect_id_, sub_max);
       std::vector<Signature> jewel_candidates;
+      int sub_min = 1000;
+        
+      if (PreFilter(root)) {
+        const OR &node = pool_->Or(root.id);
+        int one(0), two(0), three(0), body_holes(0);
 
-      for (const Signature &jewel_key : root.jewel_keys) {
-        SlotClient::GetResidual(node.key, jewel_key,
-                                &one, &two, &three, &body_holes);
-        // DEBUG(breakds) {
-        wprintf(L"haha: %d\n", effect_id_);
-        // }
-        for (const Signature &new_key : (*slot_clients_)[effect_id_].Query(
-                 one, two, three, body_holes, root.torso_multiplier)) {
-          Signature key1 = jewel_key + new_key;
-          if (sig::Satisfy(key0 | key1, inverse_points_)) {
-            jewel_candidates.push_back(key1);
-            int diff = required_points_ - sig::GetPoints(key1, effect_id_);
-            if (diff < sub_min) {
-              sub_min = diff;
+        int sub_max = (*splitters_)[effect_id_].Max(root);
+        Signature key0 = sig::AddPoints(node.key, effect_id_, sub_max);
+
+        for (const Signature &jewel_key : root.jewel_keys) {
+          SlotClient::GetResidual(node.key, jewel_key,
+                                  &one, &two, &three, &body_holes);
+          for (const Signature &new_key : (*slot_clients_)[effect_id_].Query(
+                   one, two, three, body_holes, root.torso_multiplier)) {
+            Signature key1 = jewel_key + new_key;
+            if (sig::Satisfy(key0 | key1, per_effect_inverses_[effect_id_])) {
+              jewel_candidates.push_back(key1);
+              int diff = required_points_ - sig::GetPoints(key1, effect_id_);
+              if (diff < sub_min) {
+                sub_min = diff;
+              }
             }
           }
         }
       }
+      
       if (!jewel_candidates.empty()) {
         std::vector<int> new_ors =
             (*splitters_)[effect_id_].Split(root, sub_min);
@@ -184,6 +222,7 @@ class SkillSplitPruner : public Iterator<TreeRoot> {
   int effect_id_;
   int required_points_;
   Signature inverse_points_;
+  std::vector<Signature> per_effect_inverses_;
   std::vector<TreeRoot> buffer_;
 };
 
