@@ -82,7 +82,7 @@ class ArmorUp {
     // Initialization
     pool_.Reset();
     iterators_.clear();
-
+    
     // Core Search
     CHECK_SUCCESS(ApplyFoundation(query));
     int foundations = (query.effects.size() < FOUNDATION_NUM)
@@ -91,8 +91,21 @@ class ArmorUp {
       CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, i,
                                            query.jewel_filter));
     }
+
+    // Prepare SlotClients and Splitters
+    std::vector<SlotClient> slot_clients;
+    std::vector<SkillSplitter> splitters;
+    for (int i = 0; i < query.effects.size(); ++i) {
+      slot_clients.emplace_back(query.effects[i].id,
+                                query.effects,
+                                query.jewel_filter);
+      splitters.emplace_back(arsenal_, &pool_, i,
+                             query.effects[i].id);
+    }
+
     for (int i = foundations; i < query.effects.size(); ++i) {
-      CHECK_SUCCESS(ApplySkillSplitter(query, i));	
+      CHECK_SUCCESS(ApplySkillSplitter(
+          query, i, slot_clients, splitters));
     }
     CHECK_SUCCESS(PrepareOutput());
     CHECK_SUCCESS(ApplyDefenseFilter(query));
@@ -131,7 +144,6 @@ class ArmorUp {
       auto *last = CastIterator<TreeRoot>(iterators_.back().get());
       size_t count = 0;
       while (last->Next()) count++;
-      wprintf(L"%d: %llu\n", i, count);
       scores.push_back(count);
       indices.push_back(i);
     }
@@ -257,11 +269,15 @@ class ArmorUp {
     return Status(SUCCESS);
   }
 
-  Status ApplySkillSplitter(const Query &query,
-                            int effect_id) {
+  Status ApplySkillSplitter(
+      const Query &query,
+      int effect_id,
+      std::vector<SlotClient> &slot_clients,
+      std::vector<SkillSplitter> &splitters) {
     iterators_.emplace_back(new SkillSplitPruner(
         CastIterator<TreeRoot>(iterators_.back().get()),
-        arsenal_, &pool_, effect_id, query));
+        arsenal_, &pool_, effect_id,
+        &slot_clients, &splitters, query));
     return Status(SUCCESS);
   }
   

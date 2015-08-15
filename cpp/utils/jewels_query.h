@@ -64,6 +64,9 @@ class SlotClient {
                                                     int k,
                                                     int extra,
                                                     int multiplier) {
+    // DEBUG(breakds) {
+    wprintf(L"%d, %d, %d, %d, %d\n", i, j, k, extra, multiplier);
+    // }
     return Calculate(i, j, k, extra, multiplier);
   }
 
