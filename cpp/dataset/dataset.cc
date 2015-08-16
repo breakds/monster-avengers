@@ -129,6 +129,62 @@ void Data::InternalizeEffectIds() {
   }
 }
 
+std::vector<Effect> Data::GetSkillStats(
+    const ArmorSet &armor_set, const Arsenal &arsenal) {
+  std::unordered_map<int, int> stats_map;
+
+  int multiplier = GetMultiplier(armor_set, arsenal);
+  
+  for (int i = 0; i < PART_NUM; ++i) {
+    int armor_id = armor_set.ids[i];
+    for (const Effect &effect : arsenal[armor_id].effects) {
+      auto iter = stats_map.find(effect.id);
+      int points = (BODY == i) ? effect.points * multiplier
+          : effect.points;
+      if (stats_map.end() != iter) {
+        iter->second += points;
+      } else {
+        stats_map[effect.id] = points;
+      }
+    }
+
+    // Jewels
+    for (int jewel_id : armor_set.jewels[i]) {
+      for (const Effect &effect : jewels_[jewel_id].effects) {
+        auto iter = stats_map.find(effect.id);
+        int points = (BODY == i) ? effect.points * multiplier
+            : effect.points;
+        if (stats_map.end() != iter) {
+          iter->second += points;
+        } else {
+          stats_map[effect.id] = points;
+        }
+      }
+    }
+  }
+
+  std::vector<Effect> stats;
+  for (const auto& pair : stats_map) {
+    stats.emplace_back();
+    stats.back().id = pair.first;
+    stats.back().points = pair.second;
+  }
+  
+  return stats;
+}
+
+int Data::NegativeActivated(const Effect &effect) {
+  if (effect.points < 0) {
+    const SkillSystem &system = skill(effect.id);
+    for (const Skill &sub : system.skills) {
+      if (sub.points < 0 && effect.points <= sub.points) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 }  // namespace dataset
 
 }  // namespace monster_avengers

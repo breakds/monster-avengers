@@ -128,14 +128,14 @@ class SkillSplitPruner : public Iterator<TreeRoot> {
     const OR &node = pool_->Or(root.id);
     for (int i = effect_id_ + 1; i < splitters_->size(); ++i) {
       int sub_max = (*splitters_)[i].Max(root);
-      Signature key0 = sig::AddPoints(node.key, effect_id_, sub_max);
+      Signature key0 = sig::AddPoints(node.key, i, sub_max);
 
       bool pass = false;
 
       for (const Signature &jewel_key : root.jewel_keys) {
         SlotClient::GetResidual(node.key, jewel_key,
                                 &one, &two, &three, &body_holes);
-        for (const Signature &new_key : (*slot_clients_)[effect_id_].Query(
+        for (const Signature &new_key : (*slot_clients_)[i].Query(
                  one, two, three, body_holes, root.torso_multiplier)) {
           Signature key1 = jewel_key + new_key;
           if (sig::Satisfy(key0 | key1, per_effect_inverses_[i])) {
@@ -362,51 +362,6 @@ class DefensePruner : public Iterator<RawArmorSet> {
   int min_defense_;
 };
 
-// class NegativeSkillPruner : public Iterator<RawArmorSet> {
-//  public:
-//   NegativeSkillPruner(Iterator<RawArmorSet> *source,
-//                       const Arsenal *arsenal)
-//       : source_(source), arsenal_(arsenal) {}
-
-//   inline bool Empty() const override {
-//     return source_->Empty();
-//   }
-
-//   inline bool Next() override {
-//     while (source_->Next()) {
-//       const RawArmorSet &armor_set = source_->Get();
-//       std::vector<Effect> effects = std::move(
-//           Data::GetSkillStats(armor_set, *arsenal_));
-
-//       // Checking for negative skills
-//       bool pass = true;
-//       for (const Effect &effect : effects) {
-//         // TODO(breakds): -10 is the simplified threshold. Should be
-//         // based on the actual skill data.
-//         int threshold = -10;
-//         if (effect.points <= threshold) {
-//           pass = false;
-//           break;
-//         }
-//       }
-//       if (pass) return true;
-//     }
-//     return false;
-//   }
-  
-//   inline const RawArmorSet &Get() const override {
-//     return source_->Get();
-//   }
-
-//   inline void Reset() override {
-//     source_->Reset();
-//   }
-
-//  private:
-//   Iterator<RawArmorSet> *source_;
-//   const Arsenal *arsenal_;
-// };
-
 class Finalizer : public Iterator<ArmorSet> {
  public:
   Finalizer(Iterator<RawArmorSet> *source,
@@ -415,72 +370,75 @@ class Finalizer : public Iterator<ArmorSet> {
             int max_per_set)
       : source_(source), arsenal_(arsenal),
         solver_(query.effects, query.jewel_filter),
-        max_per_set_(max_per_set), jewel_keys_() {}
+        max_per_set_(max_per_set),
+        avoid_negative_(query.avoid_negative), jewel_keys_() {}
 
   inline bool Empty() const override {
     return jewel_keys_.empty() && source_->Empty();
   }
 
   inline bool Next() override {
-    if (!jewel_keys_.empty()) jewel_keys_.pop_back();
-    if (!jewel_keys_.empty()) return true;
+    do {
+      // Pop top jewel plan.
+      if (!jewel_keys_.empty()) jewel_keys_.pop_back();
+      
+      if (jewel_keys_.empty() || current_consumed_ >= max_per_set_) {
+        // Get next raw
+        if (!NextRaw()) return false;
+      }
 
-    if (source_->Next()) {
-      const RawArmorSet &raw = source_->Get();
+      // Solve jewels.
+      const JewelSolver::JewelPlan jewel_plan = 
+          std::move(solver_.Solve(jewel_keys_.back(), multiplier_));
+
       for (int i = 0; i < PART_NUM; ++i) {
-	current_.ids[i] = raw.ids[PART_NUM - i - 1];
+        current_.jewels[i].clear();
       }
       
-      int num_fetched_jewel_plans =
-          (std::min)(max_per_set_, static_cast<int>(raw.jewel_keys.size()));
-
-      // TODO(breakds): should rank based on occupied slots.
-      for (int i = 0; i < num_fetched_jewel_plans; ++i) {
-        jewel_keys_.push_back(raw.jewel_keys[i]);
-      }
-      multiplier_ = Data::GetMultiplier(current_, *arsenal_);
-    }
-
-    if (jewel_keys_.empty()) return false;
-
-    for (int i = 0; i < PART_NUM; ++i) {
-      current_.jewels[i].clear();
-    }
-
-    // Assign Jewels
-    const JewelSolver::JewelPlan jewel_plan = 
-	std::move(solver_.Solve(jewel_keys_.back(), multiplier_));
-
-    jewel_keys_.pop_back();
-
-    // Assign body-only jewels.
-    if (multiplier_ > 1) {
-      for (const auto &item : jewel_plan.second) {
-        for (int j = 0; j < item.second; ++j) {
-          current_.jewels[BODY].push_back(item.first);
+      // Assign body-only jewels.
+      if (multiplier_ > 1) {
+        for (const auto &item : jewel_plan.second) {
+          for (int j = 0; j < item.second; ++j) {
+            current_.jewels[BODY].push_back(item.first);
+          }
         }
       }
-    }
 
-    JewelAssigner assigner(arsenal_);
-
-    for (int i = 0; i < PART_NUM; ++i) {
-      if (!(BODY == i && multiplier_ > 1)) {
-        assigner.AddPart(i, current_.ids[i]);
+      // Assign other jewels.
+      JewelAssigner assigner(arsenal_);
+      for (int i = 0; i < PART_NUM; ++i) {
+        if (!(BODY == i && multiplier_ > 1)) {
+          assigner.AddPart(i, current_.ids[i]);
+        }
       }
-    }
+      for (const auto &item : jewel_plan.first) {
+        assigner.AddJewel(item.first, item.second);
+      }
+      int part = 0;
+      int jewel_id = 0;
+      while (assigner.Pop(&part, &jewel_id)) {
+        current_.jewels[part].push_back(jewel_id);
+      }
 
-    for (const auto &item : jewel_plan.first) {
-      assigner.AddJewel(item.first, item.second);
-    }
+      // Negative skill activation check.
+      bool pass = true;
+      if (avoid_negative_) {
+        // Check whether there are active negative skill.
+        std::vector<Effect> stats = std::move(
+            Data::GetSkillStats(current_, *arsenal_));
+        for (const Effect &stat : stats) {
+          if (Data::NegativeActivated(stat)) {
+            pass = false;
+            break;
+          }
+        }
+      }
 
-    int part = 0;
-    int jewel_id = 0;
-    while (assigner.Pop(&part, &jewel_id)) {
-      current_.jewels[part].push_back(jewel_id);
-    }
-
-    return true;
+      if (pass) {
+        current_consumed_++;
+        return true;
+      }
+    } while (true);
   }
 
   inline const ArmorSet &Get() const override {
@@ -493,13 +451,33 @@ class Finalizer : public Iterator<ArmorSet> {
   }
 
  private:
+
+  bool NextRaw() {
+    current_consumed_ = 0;
+    jewel_keys_.clear();
+
+    if (source_->Next()) {
+      const RawArmorSet &raw = source_->Get();
+      for (int i = 0; i < PART_NUM; ++i) {
+	current_.ids[i] = raw.ids[PART_NUM - i - 1];
+      }
+      multiplier_ = Data::GetMultiplier(current_, *arsenal_);
+      jewel_keys_ = raw.jewel_keys;
+      return true;
+    }
+    return false;
+  }
+  
   Iterator<RawArmorSet> *source_;
   const Arsenal *arsenal_;
   JewelSolver solver_;
   int max_per_set_;
   ArmorSet current_;
   int multiplier_;
+  bool avoid_negative_;
   std::vector<Signature> jewel_keys_;
+  // state variables
+  int current_consumed_;
 };
 
 }  // namespace monster_avengers

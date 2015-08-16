@@ -76,6 +76,20 @@ bool VerifySkillRequirement(const Arsenal &arsenal,
       pass = false;
     }
   }
+
+  // Check negative skill
+  if (query.avoid_negative) {
+    for (const Effect &stat : stats) {
+      if (Data::NegativeActivated(stat)) {
+        messages->emplace_back(
+            "SKILL", L"%ls(%d) is negatively activated! (%d).",
+            Data::GetSkillName(stat.id).c_str(),
+            stat.id, stat.points);
+        pass = false;
+      }
+    }
+  }
+  
   return pass;
 }
 

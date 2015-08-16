@@ -51,7 +51,10 @@ class Data {
   static int GetMultiplier(const ArmorSet &armor_set, const Arsenal &arsenal);
   static Armor CreateAmulet(const EffectList &effects, int slots);
   static int GetTotalDefense(const ArmorSet &armor_set, const Arsenal &arsenal);
-  
+  static std::vector<Effect> GetSkillStats(
+      const ArmorSet &armor_set, const Arsenal &arsenal);
+  static int NegativeActivated(const Effect &effect);
+
   // Data Loader 
   static void LoadBinary(const std::string &spec);
   static void LoadSQLite(const std::string &spec);
@@ -72,8 +75,6 @@ class Data {
   static void PrintArmor(const Armor &armor, int id, int verbose = 0,
                          Language language = CHINESE);
   static void PrintArmor(int id, int verbose = 0, Language language = CHINESE);
-  static std::vector<Effect> GetSkillStats(
-      const ArmorSet &armor_set, const Arsenal &arsenal);
   static void PrintArmorSet(const ArmorSet &armor_set,
                             const Arsenal &arsenal,
                             int verbose = 0,

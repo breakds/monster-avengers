@@ -95,50 +95,6 @@ void Data::PrintArmor(int id, int verbose, Language language) {
   PrintArmor(armor, id, verbose, language);
 }
 
-std::vector<Effect> Data::GetSkillStats(
-    const ArmorSet &armor_set, const Arsenal &arsenal) {
-  std::unordered_map<int, int> stats_map;
-
-  int multiplier = GetMultiplier(armor_set, arsenal);
-  
-  for (int i = 0; i < PART_NUM; ++i) {
-    int armor_id = armor_set.ids[i];
-    for (const Effect &effect : arsenal[armor_id].effects) {
-      auto iter = stats_map.find(effect.id);
-      int points = (BODY == i) ? effect.points * multiplier
-          : effect.points;
-      if (stats_map.end() != iter) {
-        iter->second += points;
-      } else {
-        stats_map[effect.id] = points;
-      }
-    }
-
-    // Jewels
-    for (int jewel_id : armor_set.jewels[i]) {
-      for (const Effect &effect : jewels_[jewel_id].effects) {
-        auto iter = stats_map.find(effect.id);
-        int points = (BODY == i) ? effect.points * multiplier
-            : effect.points;
-        if (stats_map.end() != iter) {
-          iter->second += points;
-        } else {
-          stats_map[effect.id] = points;
-        }
-      }
-    }
-  }
-
-  std::vector<Effect> stats;
-  for (const auto& pair : stats_map) {
-    stats.emplace_back();
-    stats.back().id = pair.first;
-    stats.back().points = pair.second;
-  }
-  
-  return stats;
-}
-
 void Data::PrintArmorSet(const ArmorSet &armor_set,
                          const Arsenal &arsenal,
                          int verbose,

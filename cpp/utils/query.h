@@ -343,7 +343,7 @@ Query::COMMAND_TRANSLATOR =
  {L"gender", GENDER},
  {L"specify-armor", SPECIFY_ARMOR},
  {L"ban-jewels", JEWEL_BLACKLIST},
- {L"avoid-negative-skill", AVOID_NEGATIVE_SKILL},
+ {L"avoid-negative", AVOID_NEGATIVE_SKILL},
 };
 }
 
