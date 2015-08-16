@@ -30,8 +30,6 @@ ADD_SUBDIRECTORY(iterators)
 ADD_SUBDIRECTORY(testing)
 
 IF(BUILD_TESTS)
-  ADD_EXECUTABLE(test core/test.cc)
-  TARGET_LINK_LIBRARIES(test -lsqlite3 helpers dataset sqlite_loader properties data_service)
   # ADD_EXECUTABLE(explore_test core/explore_test.cc)
   # TARGET_LINK_LIBRARIES(explore_test -lsqlite3 helpers)
   # ADD_EXECUTABLE(signature_test utils/signature_test.cc)
