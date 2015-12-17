@@ -33,7 +33,11 @@ void RunSQLiteQuery(sqlite3 *database, const char *query,
 void GetRow(int argc, char **argv, char **caption,
             std::unordered_map<std::string, std::string> *row) {
   for (int i = 0; i < argc; ++i) {
-    (*row)[caption[i]] = argv[i];
+    if (nullptr != argv[i]) {
+      (*row)[caption[i]] = argv[i];
+    } else {
+      (*row)[caption[i]] = "";
+    }
   }
 }
 
@@ -89,7 +93,7 @@ void Data::LoadSQLite(const std::string &spec) {
 
   sqlite3 *database;
   CHECK(!sqlite3_open(spec.c_str(), &database));
-  
+
   // Skills
   RunSQLiteQuery(database,
                  "SELECT ID_SklTree_Name.SklTree_ID AS external_id, "
