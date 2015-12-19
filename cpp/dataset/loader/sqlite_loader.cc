@@ -156,7 +156,6 @@ void Data::LoadSQLite(const std::string &spec) {
                  "FROM DB_Jew "
                  "INNER JOIN ID_Itm_Name ON "
                  "ID_Itm_Name.Itm_ID = DB_Jew.Itm_ID "
-                 "WHERE DB_Jew.Itm_ID < 1774 "
                  "GROUP BY DB_Jew.Itm_ID "
                  "ORDER BY Itm_Name_0",
                  [](void *data, int argc, char **argv, char **caption) {
