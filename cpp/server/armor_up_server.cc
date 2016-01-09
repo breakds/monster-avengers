@@ -47,7 +47,6 @@ public:
 
     // ArmorUp Search.
     std::vector<ArmorSet> result = std::move(armor_up_.Search(query));
-    armor_up_.Summarize();
     return formatter_.StringBatchFormat(result);
   }
 
