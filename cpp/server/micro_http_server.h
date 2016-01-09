@@ -47,9 +47,17 @@ namespace micro_http_server {
       return ret;
     }
 
+    // -------------------- PostCycleInfo --------------------
+    // PostCycleInfo holds the information that handles one full POST
+    // request cycle. It will be destroyed after the request cycle.
+    //
+    // It consists of a handler, which handles the request and
+    // generate the responses, and a MHD_PostProcessor, which is used
+    // to iterate over the POST data key value pairs and store the
+    // interesting ones.
     template <typename Handler>
     struct PostCycleInfo {
-      Handler* handler;
+      std::unique_ptr<Handler> handler;
       MHD_PostProcessor *post_processor;
 
       PostCycleInfo(MHD_Connection *connection) :
@@ -62,8 +70,7 @@ namespace micro_http_server {
 
 
       ~PostCycleInfo() {
-	delete handler;
-	MHD_destroy_post_processor(post_processor);
+        MHD_destroy_post_processor(post_processor);
       }
     };
 
@@ -74,12 +81,14 @@ namespace micro_http_server {
 
   class PostHandler {
   public:
+    PostHandler() = default;
+    
     virtual int ProcessKeyValue(const std::string &key,
-				const std::string &value) = 0;
+ 				const std::string &value) = 0;
     virtual std::string GenerateResponse() = 0;
     
     virtual int HandleRequest(MHD_Connection *connection) {
-      std::string content = std::move(GenerateResponse());
+      std::string content = GenerateResponse();
       int size = content.size() + 4;
       buffer_.reset(new char[size]);
       snprintf(buffer_.get(), size, "%s", content.c_str());
@@ -109,7 +118,7 @@ namespace micro_http_server {
 			 void **con_cls, 
 			 MHD_RequestTerminationCode toe) {
       PostCycleInfo<Handler> *info = 
-        static_cast<PostCycleInfo<Handler>*>(*con_cls);
+        reinterpret_cast<PostCycleInfo<Handler>*>(*con_cls);
       if (nullptr != info) {
         delete info;
         *con_cls = nullptr;

@@ -28,6 +28,7 @@ ADD_SUBDIRECTORY(supp)
 ADD_SUBDIRECTORY(utils)
 ADD_SUBDIRECTORY(iterators)
 ADD_SUBDIRECTORY(testing)
+ADD_SUBDIRECTORY(server)
 
 IF(BUILD_TESTS)
   # ADD_EXECUTABLE(explore_test core/explore_test.cc)

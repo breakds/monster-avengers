@@ -88,7 +88,7 @@ class ArmorUp {
     // Core Search
     CHECK_SUCCESS(ApplyFoundation(query));
     int foundations = (query.effects.size() < FOUNDATION_NUM)
-        ? query.effects.size() : FOUNDATION_NUM;
+                      ? query.effects.size() : FOUNDATION_NUM;
     for (int i = 0; i < foundations; ++i) {
       CHECK_SUCCESS(ApplySingleJewelFilter(query.effects, i,
                                            query.jewel_filter));
@@ -150,7 +150,7 @@ class ArmorUp {
     std::sort(indices.begin(), indices.end(), 
               [&scores](int a, int b) {
                 return scores[a] < scores[b];
-    });
+              });
 
     Query optimized = query;
     optimized.effects.clear();
@@ -189,7 +189,6 @@ class ArmorUp {
     for (int i = 0; i < (std::min)(static_cast<int>(query.effects.size()),
                                    FOUNDATION_NUM); ++i) {
       effects.push_back(query.effects[i]);
-      
     }
 
     PartContainer<std::unordered_map<Signature, std::vector<int> > > armor_maps;

@@ -27,6 +27,7 @@ void Data::AddPredefinedArmors(bool with_addon) {
     armor.max_defense = 0;
     armor.resistance = Resistance{0, 0, 0, 0, 0};
     armor.slots = i;
+    armor.weapon_type = WEAPON_TYPE_BOTH;
     armors_.Add(armor, ++external_id);
     if (with_addon) {
       ArmorAddon addon;
@@ -47,6 +48,7 @@ void Data::AddPredefinedArmors(bool with_addon) {
     amulet.max_defense = 0;
     amulet.resistance = Resistance{0, 0, 0, 0, 0};
     amulet.slots = 0;
+    amulet.weapon_type = WEAPON_TYPE_BOTH;
     armors_.Add(amulet, ++external_id);
     if (with_addon) {
       ArmorAddon addon;

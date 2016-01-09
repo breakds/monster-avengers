@@ -1,14 +1,17 @@
 #ifndef _MONSTER_AVENGERS_UTILS_FORMATTER_
 #define _MONSTER_AVENGERS_UTILS_FORMATTER_
 
+#include <functional>
 #include <iostream>
 #include <ostream>
 #include <sstream>
+#include <type_traits>
 #include "dataset/dataset.h"
-
 
 using monster_avengers::dataset::Arsenal;
 using monster_avengers::dataset::Data;
+using monster_avengers::dataset::ArmorSet;
+using monster_avengers::dataset::JewelSet;
 
 namespace monster_avengers {
 
@@ -16,9 +19,12 @@ class ArmorSetFormatter {
  public:
   ArmorSetFormatter(const Arsenal *arsenal)
       : arsenal_(arsenal) {}
-  
+
   virtual void Format(const ArmorSet &armor_set,
                       std::ostream *out) const = 0;
+
+  virtual void Prepend (std::ostream *out) const {}
+  virtual void Postpend (std::ostream *out) const {}
 
   inline const Arsenal &arsenal() const {
     return *arsenal_;
@@ -28,6 +34,7 @@ class ArmorSetFormatter {
                                 int max_output = -1) const {
     std::stringstream result;
 
+    Prepend(&result);
     int count = 0;
     for (const ArmorSet &armor_set : armor_sets) {
       Format(armor_set, &result);
@@ -35,11 +42,99 @@ class ArmorSetFormatter {
         break;
       }
     }
+    Postpend(&result);
     return result.str();
   }
   
  private:
   const Arsenal *arsenal_;
+};
+
+// Note that the Dex's Json formaterr does not externalize
+// the ids, since it mainly serves the internalized dex database application.
+class DexJsonFormatter : public ArmorSetFormatter {
+ public:
+  DexJsonFormatter(const Arsenal *arsenal) :
+      ArmorSetFormatter(arsenal) {}
+
+  void Prepend(std::ostream *out) const override {
+    (*out) << "[";
+  }
+
+  void Postpend(std::ostream *out) const override {
+    (*out) << "]";
+  }
+
+  void Format(const ArmorSet &armor_set,
+              std::ostream *out) const override {
+    (*out) << "{";
+    WriteGear(armor_set.ids[GEAR], armor_set.jewels[GEAR], out);
+    (*out) << ", ";
+    WriteArmor("head", armor_set.ids[HEAD],
+               armor_set.jewels[HEAD], out);
+    (*out) << ", ";
+    WriteArmor("body", armor_set.ids[BODY],
+               armor_set.jewels[BODY], out);
+    (*out) << ", ";
+    WriteArmor("hands", armor_set.ids[HANDS],
+               armor_set.jewels[HANDS], out);
+    (*out) << ", ";
+    WriteArmor("waist", armor_set.ids[WAIST],
+               armor_set.jewels[WAIST], out);
+    (*out) << ", ";
+    WriteArmor("feet", armor_set.ids[FEET],
+               armor_set.jewels[FEET], out);
+    (*out) << ", ";
+    WriteAmulet(armor_set.ids[AMULET], armor_set.jewels[AMULET], out);
+    (*out) << "},";
+  }
+
+ private:
+  void WriteArmor(const std::string &name, int armor_id,
+                  const JewelSet &jewel_set, std::ostream *out) const {
+    (*out) << "\"" << name << "\"" << ": {";
+    (*out) << "\"id\": " << armor_id << ", ";
+    (*out) << "\"jewels\": ";
+    WriteArray(jewel_set, out, WriteInt);
+    (*out) << "}";
+  }
+
+  void WriteAmulet(int id, const JewelSet &jewel_set,
+                   std::ostream *out) const {
+    (*out) << "\"amulet\": {\"effects\": ";
+    WriteArray(arsenal()[id].effects, out, WriteEffect);
+    (*out) << ", \"jewels\": ";
+    WriteArray(jewel_set, out, WriteInt);
+    (*out) << ", \"slots\": " << arsenal()[id].slots << "}";
+  }
+
+  void WriteGear(int id, const JewelSet &jewel_set,
+                 std::ostream *out) const {
+    (*out) << "\"gear\": {\"jewels\": ";
+    WriteArray(jewel_set, out, WriteInt);
+    (*out) << ", \"slots\": " << arsenal()[id].slots << "}";
+  }
+  
+  template <typename Iteratable>
+  static void WriteArray(
+      const Iteratable array, std::ostream *out,
+      std::function<void(const decltype(array[0])&, std::ostream*)> callback) {
+    (*out) << "[";
+    for (int i = 0; i < array.size(); ++i) {
+      callback(array[i], out);
+      if (i < array.size() - 1) {
+        (*out) << ", ";
+      }
+    }
+    (*out) << "]";
+  }
+
+  static void WriteInt(const int &item, std::ostream* out) { (*out) << item; }
+
+  static void WriteEffect(const Effect &effect, std::ostream* out) {
+    (*out) << "{\"id\": " << effect.id << ", \"points\": " << effect.points << "}";
+  }
+  
 };
 
 class DexFormatter : public ArmorSetFormatter {
@@ -55,7 +150,7 @@ class DexFormatter : public ArmorSetFormatter {
                  armor_set.jewels[part],
                  out);
     }
-	(*out) << ")\n";
+    (*out) << ")\n";
   }
 
  private:
@@ -81,18 +176,18 @@ class DexFormatter : public ArmorSetFormatter {
   }
 
   static void WriteJewels(const JewelSet &jewels, std::ostream *out) {
-	  (*out) << "(";
-	  bool first = true;
-	  for (int jewel_id : jewels) {
-		  int external_id = Data::jewels().Externalize(jewel_id);
-		  if (!first) {
-			  (*out) << " ";
-		  } else {
-			  first = false;
-		  }
-		  (*out) << external_id;
-	  }
-	  (*out) << ")";
+    (*out) << "(";
+    bool first = true;
+    for (int jewel_id : jewels) {
+      int external_id = Data::jewels().Externalize(jewel_id);
+      if (!first) {
+        (*out) << " ";
+      } else {
+        first = false;
+      }
+      (*out) << external_id;
+    }
+    (*out) << ")";
   }
   
   void WriteArmor(int armor_id, const JewelSet &jewels,
