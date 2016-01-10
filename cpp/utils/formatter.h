@@ -25,6 +25,7 @@ class ArmorSetFormatter {
 
   virtual void Prepend (std::ostream *out) const {}
   virtual void Postpend (std::ostream *out) const {}
+  virtual void AddDelimiter(std::ostream *out) const {}
 
   inline const Arsenal &arsenal() const {
     return *arsenal_;
@@ -35,11 +36,14 @@ class ArmorSetFormatter {
     std::stringstream result;
 
     Prepend(&result);
-    int count = 0;
-    for (const ArmorSet &armor_set : armor_sets) {
+    for (int i = 0; i < armor_sets.size(); ++i) {
+      const ArmorSet &armor_set = armor_sets[i];
       Format(armor_set, &result);
-      if (0 < max_output && (++count) >= max_output) {
+      if (0 < max_output && i + 1 >= max_output) {
         break;
+      }
+      if (i < armor_sets.size() - 1) {
+        AddDelimiter(&result);
       }
     }
     Postpend(&result);
@@ -65,8 +69,15 @@ class DexJsonFormatter : public ArmorSetFormatter {
     (*out) << "]";
   }
 
+  void AddDelimiter(std::ostream *out) const override {
+    (*out) << ", ";
+  }
+
   void Format(const ArmorSet &armor_set,
               std::ostream *out) const override {
+    // Turn on for debug.
+    // Data::PrintArmorSet(armor_set, arsenal(), 1, JAPANESE);
+    
     (*out) << "{";
     WriteGear(armor_set.ids[GEAR], armor_set.jewels[GEAR], out);
     (*out) << ", ";
@@ -86,7 +97,7 @@ class DexJsonFormatter : public ArmorSetFormatter {
                armor_set.jewels[FEET], out);
     (*out) << ", ";
     WriteAmulet(armor_set.ids[AMULET], armor_set.jewels[AMULET], out);
-    (*out) << "},";
+    (*out) << "}";
   }
 
  private:
@@ -95,7 +106,7 @@ class DexJsonFormatter : public ArmorSetFormatter {
     (*out) << "\"" << name << "\"" << ": {";
     (*out) << "\"id\": " << armor_id << ", ";
     (*out) << "\"jewels\": ";
-    WriteArray(jewel_set, out, WriteInt);
+    WriteArray(jewel_set, out, WriteJewelID);
     (*out) << "}";
   }
 
@@ -104,14 +115,14 @@ class DexJsonFormatter : public ArmorSetFormatter {
     (*out) << "\"amulet\": {\"effects\": ";
     WriteArray(arsenal()[id].effects, out, WriteEffect);
     (*out) << ", \"jewels\": ";
-    WriteArray(jewel_set, out, WriteInt);
+    WriteArray(jewel_set, out, WriteJewelID);
     (*out) << ", \"slots\": " << arsenal()[id].slots << "}";
   }
 
   void WriteGear(int id, const JewelSet &jewel_set,
                  std::ostream *out) const {
     (*out) << "\"gear\": {\"jewels\": ";
-    WriteArray(jewel_set, out, WriteInt);
+    WriteArray(jewel_set, out, WriteJewelID);
     (*out) << ", \"slots\": " << arsenal()[id].slots << "}";
   }
   
@@ -129,7 +140,13 @@ class DexJsonFormatter : public ArmorSetFormatter {
     (*out) << "]";
   }
 
-  static void WriteInt(const int &item, std::ostream* out) { (*out) << item; }
+  static void WriteJewelID(const int &id, std::ostream* out) {
+    // Note(breakds): This is a hack as the application does not
+    //                directly use the internal ID for jewels, since
+    //                there can be multiple records for a jewel in the
+    //                database (different produce methods).
+    (*out) << Data::jewels().Externalize(id) - 1;
+  }
 
   static void WriteEffect(const Effect &effect, std::ostream* out) {
     (*out) << "{\"id\": " << effect.id << ", \"points\": " << effect.points << "}";

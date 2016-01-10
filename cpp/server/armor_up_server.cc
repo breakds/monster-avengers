@@ -32,7 +32,7 @@ public:
 
   std::string GenerateResponse() override {
     if (query_cache_.size() == 0) {
-      return "{ error_message: \"no query received.\" }";
+      return "{ \"errorMessage\": \"no query received.\" }";
     }
 
     // Convert the query to wstring.
@@ -42,7 +42,7 @@ public:
     // Parse the query.
     Query query;
     if (!Query::Parse(query_text, &query).Success()) {
-      return "{ error_message: \"Corrupted Query\" }";
+      return "{ \"errorMessage\": \"Corrupted Query\" }";
     } 
 
     // ArmorUp Search.
@@ -57,6 +57,8 @@ public:
 
 
 int main(int argc, char **argv) {
+  std::setlocale(LC_ALL, "en_US.UTF-8");
+  
   if (argc < 2) {
     Log(FATAL, L"Please call the command as: armor_up_server [dataset folder] [port]");
   }
@@ -75,7 +77,7 @@ int main(int argc, char **argv) {
   Log(INFO, L"Loading database ...");
   Data::LoadSQLite(argv[1]);
   Log(INFO, L"Armor up!");
-
+  
   Log(INFO, L"Starting server ...");
   SimplePostServer<SpecialPostHandler> server(port);
   Log(INFO, L"Server Started.");
