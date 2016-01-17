@@ -1,0 +1,10 @@
+[Unit]
+Description=Monster Avenger the Monster Hunter Armor Set Searcher
+ConditionPathExists=/home/breakds/dataset/mhx/mhx.db
+
+[Service]
+TimeoutStartSec=0
+ExecStart=/home/breakds/pf/projects/monster-avengers/cpp/build/server/armor_up_server /home/breakds/dataset/mhx/mhx.db 5121
+
+[Install]
+WantedBy=multi-user.target
