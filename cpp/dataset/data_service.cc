@@ -2,6 +2,7 @@
 #include <array>
 #include <cstdio>
 #include <cwchar>
+#include <numeric>
 #include <unordered_map>
 #include <vector>
 

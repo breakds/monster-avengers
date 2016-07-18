@@ -17,7 +17,7 @@
 
 
 
-#define DEBUG_VERBOSE 0
+#define DEBUG_VERBOSE 1
 
 namespace monster_avengers {
 
@@ -36,12 +36,12 @@ class ArmorUp {
   ArmorUp() 
       : arsenal_(), pool_(),
         iterators_() {}
-    
+
   std::vector<TreeRoot> Foundation(const Query &query) {
     // Forest with no torso up.
     PartContainer<std::vector<int> > part_forests
         = std::move(ClassifyArmors(query));
-    
+
     std::vector<int> current;
     for (int part = HEAD; part < PART_NUM; ++part) {
       if (HEAD == part) {
@@ -113,10 +113,11 @@ class ArmorUp {
 
   std::vector<ArmorSet> Search(const Query &query) {
     // Optimize the Query
-    Query optimized_query = OptimizeQuery(query);
+    // Query optimized_query = OptimizeQuery(query);
+    Query optimized_query = query;
 
     SearchCore(optimized_query);
-
+    
     std::vector<ArmorSet> result;
     auto *output = CastIterator<ArmorSet>(iterators_.back().get());
     while (output->Next()) {
@@ -216,7 +217,6 @@ class ArmorUp {
     }
 
     return part_forests;
-    
   }
     
   std::vector<int> MergeForests(const std::vector<int> &left_ors, 
