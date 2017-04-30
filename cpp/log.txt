@@ -1,4 +1,0 @@
-1. Support weapon and amulet
-2. Query should be reordered to accelerate
-3. Armors should be reordered, high rare first
-4. Query should be initialized in its constructor
