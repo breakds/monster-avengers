@@ -5,15 +5,32 @@
 namespace monster_avengers {
 namespace data {
 
-enum WeaponType {
-  WEAPON_MELEE = 0,
-  WEAPON_RANGE = 1,
-  WEAPON_BOTH = 2,
+enum Range {
+  RANGE_UNKNOWN = -1,
+  RANGE_BOTH = 0,
+  BLADEMASTER = 1,
+  GUNNER = 2,
 };
 
 template <>
-struct EnumString<WeaponType> {
-  static const std::wstring &Text(WeaponType type);
+struct EnumString<Range> {
+  static const std::wstring &Text(Range type);
+};
+
+enum Part {
+  PART_UNKNOWN = -1,
+  BODY = 0,
+  HEAD = 1,
+  HANDS = 2,
+  WAIST = 3,
+  FEET = 4,
+  WEAPON = 5,
+  AMULET = 6,
+};
+
+template <>
+struct EnumString<Part> {
+  static const std::wstring &Text(Part part);
 };
 
 }  // namespace data
