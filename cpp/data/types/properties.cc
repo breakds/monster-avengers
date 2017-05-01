@@ -16,5 +16,10 @@ const std::wstring &EnumString<Part>::Text(Part part) {
   return texts[part];
 }
 
+const std::wstring &EnumString<Gender>::Text(Gender type) {
+  static const std::wstring texts[] = {L"Both", L"Male", L"Female"};
+  return texts[type];
+}
+
 }  // namespace data
 }  // namespace monster_avengers

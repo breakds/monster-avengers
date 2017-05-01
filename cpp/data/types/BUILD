@@ -23,3 +23,24 @@ cc_test(
         "@gtest//:main",
     ],
 )
+
+cc_library(
+    name = "armor",
+    hdrs = [
+        "armor.h",
+    ],
+    deps = [
+        ":properties",
+    ],
+)
+
+cc_test(
+    name = "armor_test",
+    srcs = [
+        "armor_test.cc",
+    ],
+    deps = [
+        ":armor",
+        "@gtest//:main",
+    ],
+)
