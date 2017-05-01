@@ -34,13 +34,32 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "jewel",
+    hdrs = [
+        "jewel.h",
+    ],
+    deps = [
+        ":properties",
+    ],
+)
+
+cc_library(
+    name = "skill",
+    hdrs = [
+        "skill.h",
+    ],
+)
+
 cc_test(
-    name = "armor_test",
+    name = "types_test",
     srcs = [
-        "armor_test.cc",
+        "types_test.cc",
     ],
     deps = [
         ":armor",
+        ":jewel",
+        ":skill",
         "@gtest//:main",
     ],
 )

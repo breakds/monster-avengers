@@ -1,4 +1,6 @@
 #include "data/types/armor.h"
+#include "data/types/jewel.h"
+#include "data/types/skill.h"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -30,6 +32,27 @@ TEST(ArmorTest, DefaultValues) {
                     Field(&Resistance::dragon, 0), Field(&Resistance::water, 0),
                     Field(&Resistance::ice, 0)));
   EXPECT_THAT(armor.effect_list, ElementsAre());
+}
+
+TEST(JewelTest, DefaultValues) {
+  Jewel jewel;
+
+  EXPECT_EQ(0, jewel.id);
+  EXPECT_EQ(0, jewel.dex_id);
+  EXPECT_THAT(jewel.name,
+              AllOf(Field(&LangText::eng, L""), Field(&LangText::chs, L""),
+                    Field(&LangText::jpn, L"")));
+  EXPECT_EQ(0, jewel.slots);
+  EXPECT_THAT(jewel.effect_list, ElementsAre());
+}
+
+TEST(SkillTest, DefaultValues) {
+  Skill skill;
+
+  EXPECT_EQ(0, skill.id);
+  EXPECT_EQ(0, skill.dex_id);
+  EXPECT_THAT(skill.positives, ElementsAre());
+  EXPECT_THAT(skill.negatives, ElementsAre());
 }
 
 }  // namespace data
