@@ -4,5 +4,6 @@ IndentWidth:                            2
 ---
 Language: Cpp
 PointerAlignment:                       Right
+AllowShortFunctionsOnASingleLine:       Empty
 Cpp11BracedListStyle:                   true
 Standard:                               Cpp11

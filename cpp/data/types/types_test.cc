@@ -47,12 +47,12 @@ TEST(JewelTest, DefaultValues) {
 }
 
 TEST(SkillTest, DefaultValues) {
-  Skill skill;
+  SkillTree skill_tree;
 
-  EXPECT_EQ(0, skill.id);
-  EXPECT_EQ(0, skill.dex_id);
-  EXPECT_THAT(skill.positives, ElementsAre());
-  EXPECT_THAT(skill.negatives, ElementsAre());
+  EXPECT_EQ(0, skill_tree.id);
+  EXPECT_EQ(0, skill_tree.dex_id);
+  EXPECT_THAT(skill_tree.positives, ElementsAre());
+  EXPECT_THAT(skill_tree.negatives, ElementsAre());
 }
 
 }  // namespace data

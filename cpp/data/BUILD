@@ -1,0 +1,53 @@
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "data",
+    hdrs = [
+        "data.h",
+    ],
+    deps = [
+        "//data/types",
+    ],
+)
+
+cc_library(
+    name = "sqlite_loader",
+    hdrs = [
+        "sqlite_loader.h",
+    ],
+    srcs = [
+        "sqlite_loader.cc",
+    ],
+    deps = [
+        ":data",
+        "@glog//:glog",
+    ],
+    linkopts = [
+        # Requires installation of libsqlite3-dev. On Debian (and its
+        # friends), this can be done with:
+        #
+        # sudo apt install libsqlite3-dev
+        "-lsqlite3",
+    ],
+)
+
+filegroup(
+    name = "testdata",
+    srcs = glob([
+        "testdata/*"
+    ]),
+)
+
+cc_test(
+    name = "sqlite_loader_test",
+    srcs = [
+        "sqlite_loader_test.cc",
+    ],
+    data = [
+        ":testdata",
+    ],
+    deps = [
+        ":sqlite_loader",
+        "@gtest//:main",
+    ],
+)

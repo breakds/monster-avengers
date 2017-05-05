@@ -1,4 +1,14 @@
-package(default_visibility = ["//data:__subpackages__"]);
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "types",
+    deps = [
+        ":properties",
+        ":armor",
+        ":jewel",
+        ":skill",
+    ],
+)
 
 cc_library(
     name = "properties",
