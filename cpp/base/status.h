@@ -29,7 +29,9 @@ class Status {
       : code_(other.code_), message_(std::move(other.message_)) {}
 
   const Status &operator=(Status &&other) {
-    return Status(std::move(other));
+    code_ = other.code_;
+    message_ = std::move(other.message_);
+    return *this;
   }
 
   static Status OK() {

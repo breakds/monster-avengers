@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+#include <vector>
 #include "data/types/armor.h"
 #include "data/types/jewel.h"
 #include "data/types/skill.h"
@@ -12,10 +14,12 @@ class DexTranslator {
   DexTranslator() : to_dex_(), to_id_() {}
 
   int ToDex(int id) const {
+    // TODO(breakds): Check existence.
     return to_dex_.at(id);
   }
 
   int FromDex(int dex_id) const {
+    // TODO(breakds): Check existence.
     return to_id_.at(dex_id);
   }
 

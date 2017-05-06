@@ -20,6 +20,7 @@ cc_library(
     ],
     deps = [
         ":data",
+        "//base:status",
         "@glog//:glog",
     ],
     linkopts = [

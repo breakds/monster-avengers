@@ -7,6 +7,9 @@ namespace data {
 
 struct Skill {
   Skill() : name(), points(0) {}
+  
+  Skill(LangText &&input_name, int input_points)
+      : name(input_name), points(input_points) {}
 
   LangText name;
   int points;
