@@ -43,6 +43,7 @@ cc_test(
     srcs = [
         "sqlite_loader_test.cc",
     ],
+    size = "small",
     data = [
         ":testdata",
     ],

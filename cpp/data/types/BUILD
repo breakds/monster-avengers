@@ -59,6 +59,9 @@ cc_library(
     hdrs = [
         "skill.h",
     ],
+    deps = [
+        ":properties",
+    ],
 )
 
 cc_test(

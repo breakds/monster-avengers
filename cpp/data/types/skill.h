@@ -1,5 +1,7 @@
 #pragma once
 
+#include "data/types/properties.h"
+
 namespace monster_avengers {
 namespace data {
 
@@ -11,10 +13,11 @@ struct Skill {
 };
 
 struct SkillTree {
-  SkillTree() : id(0), dex_id(0), positives(), negatives() {}
+  SkillTree() : id(0), dex_id(0), name(), positives(), negatives() {}
 
   int id;
   int dex_id;
+  LangText name;
   std::vector<Skill> positives;
   std::vector<Skill> negatives;
 };
