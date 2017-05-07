@@ -2,6 +2,7 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "base/status_test_util.h"
 
 using ::testing::ElementsAre;
 using ::testing::UnorderedElementsAre;
@@ -42,7 +43,7 @@ MATCHER_P2(SkillEq, eng, points, "") {
 TEST(SQLiteLoader, main) {
   std::setlocale(LC_ALL, "en_US.UTF-8");
   Data data;
-  LoadFromSqlite("data/testdata/test.db", &data);
+  EXPECT_OK(LoadFromSqlite("data/testdata/test.db", &data));
 
   // Only test specific skills for the first and last skill trees.
   EXPECT_THAT(

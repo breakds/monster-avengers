@@ -5,6 +5,7 @@
 #include <locale>
 #include <string>
 #include <unordered_map>
+#include "base/error_code.h"
 #include "glog/logging.h"
 
 namespace monster_avengers {
@@ -69,8 +70,11 @@ class Row {
 
 ::base::Status LoadFromSqlite(const std::string &path, Data *data) {
   sqlite3 *database;
-  CHECK(!sqlite3_open(path.c_str(), &database))
-      << "Failed to open the dex sqlite file.";
+  if (SQLITE_OK != sqlite3_open(path.c_str(), &database)) {
+    return ::base::Status(::base::error::READ_ERROR,
+                          "Failed to open the specified sqlite file at ", path,
+                          sqlite3_errmsg(database));
+  }
 
   // Fetch all the skill trees.
   RunSQLiteQuery(
@@ -137,7 +141,6 @@ class Row {
                  });
 
   sqlite3_close(database);
-
   return ::base::Status::OK();
 }
 

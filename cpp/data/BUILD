@@ -21,6 +21,7 @@ cc_library(
     deps = [
         ":data",
         "//base:status",
+        "//base:error_code",
         "@glog//:glog",
     ],
     linkopts = [
@@ -50,6 +51,7 @@ cc_test(
     ],
     deps = [
         ":sqlite_loader",
+        "//base:status_test_util",
         "@gtest//:main",
     ],
 )

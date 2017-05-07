@@ -38,3 +38,20 @@ cc_test(
         "@gtest//:main",
     ],
 )
+
+cc_library(
+    name = "error_code",
+    hdrs = [
+        "error_code.h"
+    ],
+)
+
+cc_library(
+    name = "status_test_util",
+    hdrs = [
+        "status_test_util.h",
+    ],
+    deps = [
+        "@gtest//:gtest",
+    ],
+)
