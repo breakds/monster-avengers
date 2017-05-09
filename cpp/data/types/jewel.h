@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "data/types/properties.h"
 
 namespace monster_avengers {

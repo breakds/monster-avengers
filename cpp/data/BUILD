@@ -20,6 +20,7 @@ cc_library(
     ],
     deps = [
         ":data",
+        "//data/types:properties",
         "//base:status",
         "//base:error_code",
         "@glog//:glog",

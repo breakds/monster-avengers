@@ -63,6 +63,7 @@ struct Resistance {
 // towards a the id-specified skill tree.
 struct Effect {
   Effect() : id(-1), points(0) {}
+  Effect(int input_id, int input_points) : id(input_id), points(input_points) {}
 
   int id;
   int points;
