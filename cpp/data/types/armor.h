@@ -3,7 +3,6 @@
 #include "data/types/properties.h"
 
 namespace monster_avengers {
-namespace data {
 
 struct Armor {
   Armor()
@@ -34,5 +33,4 @@ struct Armor {
   EffectList effect_list;
 };
 
-}  // namespace data
 }  // namespace monster_avengers

@@ -3,7 +3,6 @@
 #include <string>
 
 namespace monster_avengers {
-namespace data {
 
 const std::wstring &EnumString<Range>::Text(Range type) {
   static const std::wstring texts[] = {L"Both", L"Blade", L"Gunner"};
@@ -21,5 +20,4 @@ const std::wstring &EnumString<Gender>::Text(Gender type) {
   return texts[type];
 }
 
-}  // namespace data
 }  // namespace monster_avengers

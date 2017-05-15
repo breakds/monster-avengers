@@ -10,7 +10,6 @@
 #include "glog/logging.h"
 
 namespace monster_avengers {
-namespace data {
 
 namespace {
 typedef int (*Callback)(void *, int, char **, char **);
@@ -304,5 +303,4 @@ class Row {
   return ::base::Status::OK();
 }
 
-}  // namespace data
 }  // namespace monster_avengers

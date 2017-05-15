@@ -11,7 +11,6 @@ using ::testing::AllOf;
 using ::testing::Field;
 
 namespace monster_avengers {
-namespace data {
 
 MATCHER_P3(LangTextEq, eng, chs, jpn, "") {
   if (eng != arg.eng) {
@@ -273,5 +272,4 @@ TEST(SQLiteLoader, main) {
                                                Field(&Effect::points, 5)))))));
 }
 
-}  // namespace data
 }  // namespace monster_avengers

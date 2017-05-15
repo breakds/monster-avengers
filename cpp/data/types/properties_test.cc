@@ -9,7 +9,6 @@ using ::testing::Field;
 using ::testing::AllOf;
 
 namespace monster_avengers {
-namespace data {
 
 TEST(RangeTest, TextTest) {
   EXPECT_EQ(L"Blade", EnumString<Range>::Text(BLADEMASTER));
@@ -34,7 +33,7 @@ TEST(GenderTest, TextTest) {
 }
 
 TEST(ResistanceTest, Cosntruct) {
-  Resistance resist{-1, 2, 5, 4, 3};
+  Resistance resist {-1, 2, 5, 4, 3};
   EXPECT_EQ(-1, resist.fire);
   EXPECT_EQ(2, resist.thunder);
   EXPECT_EQ(5, resist.dragon);
@@ -50,5 +49,4 @@ TEST(EffectTest, EffectList) {
                   AllOf(Field(&Effect::id, 4), Field(&Effect::points, 10))));
 }
 
-}  // namespace data
 }  // namespace monster_avengers

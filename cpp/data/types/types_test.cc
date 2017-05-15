@@ -10,7 +10,6 @@ using ::testing::ElementsAre;
 using ::testing::Field;
 
 namespace monster_avengers {
-namespace data {
 
 TEST(ArmorTest, DefaultValues) {
   Armor armor;
@@ -55,5 +54,4 @@ TEST(SkillTest, DefaultValues) {
   EXPECT_THAT(skill_tree.negatives, ElementsAre());
 }
 
-}  // namespace data
 }  // namespace monster_avengers

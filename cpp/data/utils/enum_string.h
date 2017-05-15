@@ -3,7 +3,6 @@
 #include <string>
 
 namespace monster_avengers {
-namespace data {
 
 template <typename EnumType>
 struct EnumString {
@@ -17,5 +16,4 @@ struct EnumString {
   }
 };
 
-}  // namespace data
 }  // namespace monster_avengers

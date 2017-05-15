@@ -4,7 +4,6 @@
 #include "data/types/properties.h"
 
 namespace monster_avengers {
-namespace data {
 
 struct Jewel {
   Jewel() : id(0), dex_id(0), name(), slots(0), effect_list() {}
@@ -16,5 +15,4 @@ struct Jewel {
   EffectList effect_list;
 };
 
-}  // namespace data
 }  // namespace monster_avengers

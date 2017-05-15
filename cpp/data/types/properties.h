@@ -4,7 +4,6 @@
 #include "data/utils/enum_string.h"
 
 namespace monster_avengers {
-namespace data {
 
 enum Range {
   RANGE_UNKNOWN = -1,
@@ -50,7 +49,7 @@ struct EnumString<Gender> {
 // which the buff (debuff) is towards fire. thunder, dragon, water and
 // ice, respectively.
 struct Resistance {
-  Resistance() : fire(0), thunder(0), dragon(0), water(0), ice(0) {}
+  Resistance() = default;
 
   int fire;
   int thunder;
@@ -70,6 +69,7 @@ struct Effect {
 };
 
 using EffectList = std::vector<Effect>;
+using SkillTreeIdList = std::vector<int>;
 
 // LangText is a text with i18ns.
 struct LangText {
@@ -80,5 +80,4 @@ struct LangText {
   std::wstring jpn;
 };
 
-}  // namespace data
 }  // namespace monster_avengers

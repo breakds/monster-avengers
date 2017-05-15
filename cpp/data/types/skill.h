@@ -3,7 +3,6 @@
 #include "data/types/properties.h"
 
 namespace monster_avengers {
-namespace data {
 
 struct Skill {
   Skill() : name(), points(0) {}
@@ -25,5 +24,4 @@ struct SkillTree {
   std::vector<Skill> negatives;
 };
 
-}  // namespace data
 }  // namespace monster_avengers

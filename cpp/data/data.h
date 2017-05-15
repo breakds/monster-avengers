@@ -7,7 +7,6 @@
 #include "data/types/skill.h"
 
 namespace monster_avengers {
-namespace data {
 
 class DexTranslator {
  public:
@@ -52,5 +51,4 @@ struct Data {
   DexTranslator skill_tree_dex;
 };
 
-}  // namespace data
 }  // namespace monster_avengers
