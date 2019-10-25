@@ -1,6 +1,10 @@
+
+
 # monster-avengers - The MH4G/MH4U/MHX Armor Set Search Tool
 
 ## Introduction
+
+
 This is a hobby project of mine, which impelements an algorithm and a web based UI that finds armor sets to satisfy certain requirements in the game [Monster Hunter 4 Ultimate](http://www.monsterhunter.com/) (Japanese Version: [Monster Hunter 4G](http://www.capcom.co.jp/monsterhunter/4G/)). 
 
 Monster Hunter has an unique skill system, and in order to active a certain skill, we need to craft a combination of armors including a weapon, a helmet, a body armor, a waist armor, an arm armor, a legs armor and an amulet, whose total contribution to the desired skill exceeds a skill points level. Finding the right set of armor pieces that activates the required skills is difficult, as there are ~ 150 different skill trees, ~ 600 candidate armors for each of the pieces, and each armor contributes to several skills, positively or negatively. What makes the problem more interesting is that armors may have slots, where different decorations contributing to different skills can be plugged in. 
@@ -38,6 +42,7 @@ I am working on a [series of posts](http://blog.breakds.org/armor-up-the-algorit
 
 ## Codebase
 
+
 For those who is interested in either the algorithm or the implementaion, you can find a brief description below. Note that the code is still not very well documented yet, and I am working on adding the comments and documentations to the code as much as possible with the limited time budget.
 
 The code is mainly divided into 2 parts:
@@ -51,6 +56,8 @@ The code is mainly divided into 2 parts:
   * [backend.lisp](https://github.com/breakds/monster-avengers/tree/master/lisp/ui/backend.lisp) defines the RPC that talks to the C++ backend to handle queries. This is a super naive implementation that does the message passing via files on disk. 
  
 ### Build and Run
+
+
 
 The C++ code is managed by CMake. To build the C++ binary:
 ````
@@ -77,6 +84,8 @@ to start the web server. You should now be able to access the web app locally at
 
 ## Limitations and Futrue Work
 
+
+
 There are currently some limitations in the current implementations, and I will work on improve over them. Those that I am aware of are:
 
 1. The webapp does not support custom guild armors.
@@ -93,6 +102,8 @@ There are currently some limitations in the current implementations, and I will 
 
 ## Acknowledgement
 
+
+
 1. Credit to Ping An, the author of [Ping's Dex](https://sites.google.com/site/pingsdex/pingsmh4gdex). His effort on composing the data are source to many other related projects.
 1. Credit to the project [MonsterHunter4UDatabase](https://github.com/kamegami13/MonsterHunter4UDatabase), where all the data (armors, skills and decorations) are from their database. Completing the database requires a lot of work and without their effort, I would not have accomplished this.
 2. Credit to Cassandra Qi, my wife and my Monster Hunter game partner, for working on the art and design of the UI.
@@ -105,6 +116,8 @@ There are currently some limitations in the current implementations, and I will 
   * Wybaby
 
 ## License
+
+
 
 All the codes in this project are under the MIT License.
 
